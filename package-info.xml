@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!DOCTYPE package-info SYSTEM "http://www.elkarte.net/site/package-info">
+<package-info xmlns="http://www.elkarte.net/site/package-info" xmlns:elk="http://www.elkarte.net/">
+	<id>Cody:RolePlayingSystem</id>
+	<name>Role Playing System</name>
+	<version>1.0</version>
+	<type>modification</type>
+	<license><![CDATA[
+/**
+ * @name Role Playing System
+ *
+ * @author cody
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ *
+ * @version 1.0
+ */
+]]></license>
+	<install for="1.1 - 1.1.99">
+		<database>database.php</database>
+		<readme type="file" parsebbc="true">readme.txt</readme>
+		<modification type="file">install.xml</modification>
+		
+		<require-file name="admin/ManageCharacters.controller.php" destination="ADMINDIR" />
+		<require-file name="admin/ManageRolePlayingSystemModule.controller.php" destination="ADMINDIR" />
+		
+		<require-file name="controllers/Character.controller.php" destination="CONTROLLERDIR" />
+		<require-file name="controllers/Characterlist.controller.php" destination="CONTROLLERDIR" />
+		<require-file name="controllers/Gamecalendar.controller.php" destination="CONTROLLERDIR" />
+		<require-file name="controllers/Tags.controller.php" destination="CONTROLLERDIR" />
+		
+		<require-dir name="css/RolePlayingSystem" destination="THEMEDIR/css" />
+		
+		<require-file name="languages/RolePlayingSystem.english.php" destination="LANGUAGEDIR/english" />
+		<require-file name="languages/RolePlayingSystemAdmin.english.php" destination="LANGUAGEDIR/english" />
+		
+		<require-dir name="modules/RolePlayingSystem" destination="SOURCEDIR/modules" />
+		
+		<require-file name="subs/Character.subs.php" destination="SUBSDIR" />
+		<require-file name="subs/Characterlist.subs.php" destination="SUBSDIR" />
+		<require-file name="subs/RolePlayingSystem.integrate.php" destination="SUBSDIR" />
+		<require-file name="subs/RpsCurrentDate.class.php" destination="SUBSDIR" />
+		<require-file name="subs/Tags.subs.php" destination="SUBSDIR" />
+		
+		<require-file name="themes/ManageRolePlayingSystem.template.php" destination="THEMEDIR" />
+		<require-file name="themes/RolePlayingSystem.template.php" destination="THEMEDIR" />
+		<require-file name="themes/RpsCalendar.template.php" destination="THEMEDIR" />
+		<require-file name="themes/RpsCharacter.template.php" destination="THEMEDIR" />
+		<require-file name="themes/RpsCharacterlist.template.php" destination="THEMEDIR" />
+		<require-file name="themes/RpsCharacterProfile.template.php" destination="THEMEDIR" />
+		<require-file name="themes/RpsTags.template.php" destination="THEMEDIR" />
+		
+		<credits url="www.elkarte.net" license="BSD-3-Clause" copyright="cody">Role Playing System</credits>
+		<redirect url="?action=admin;area=rps" timeout="5000">redirect.txt</redirect>
+	</install>
+
+	<uninstall for="1.0 - 1.0.99">
+		<readme type="file" parsebbc="true">readme-uninstall.txt</readme>
+		<modification type="file" reverse="true">install.xml</modification>
+		
+		<remove-file name="SUBSDIR/" />
+		<remove-file name="CONTROLLERDIR/" />
+		<remove-file name="THEMEDIR/" />
+		<remove-file name="LANGUAGEDIR/english/" />
+		<remove-file name="SOURCEDIR/" />
+	</uninstall>
+
+</package-info>
