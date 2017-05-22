@@ -95,6 +95,16 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				'function' => 'action_download_events', 
 				'permission' => 'admin_forum'
 			),
+			'editphase' => array(
+				'controller' => $this, 
+				'function' => 'action_editphase', 
+				'permission' => 'admin_forum'
+			),
+			'phases' => array(
+				'controller' => $this, 
+				'function' => 'action_phases', 
+				'permission' => 'admin_forum'
+			),
 			'settings' => array(
 				'controller' => $this, 
 				'function' => 'action_rpsSettings_display', 
@@ -256,7 +266,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			$to_remove = array_map('intval', array_keys($this->_req->post->event));
 
 			// Now the IDs are "safe" do the delete...
-			require_once(SUBSDIR . '/Gamecalendar.subs.php');
+			require_once(SUBSDIR . '/ManageGamecalendar.subs.php');
 			removeEvents($to_remove);
 		}
 
@@ -268,11 +278,11 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			'base_href' => $scripturl . '?action=admin;area=rps;sa=events',
 			'default_sort_col' => 'name',
 			'get_items' => array(
-				'file' => SUBSDIR . '/Gamecalendar.subs.php',
+				'file' => SUBSDIR . '/ManageGamecalendar.subs.php',
 				'function' => 'list_getEvents',
 			),
 			'get_count' => array(
-				'file' => SUBSDIR . '/Gamecalendar.subs.php',
+				'file' => SUBSDIR . '/ManageGamecalendar.subs.php',
 				'function' => 'list_getNumEvents',
 			),
 			'no_items_label' => $txt['rps_events_none'],
@@ -363,7 +373,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		global $txt, $context, $modSettings;
 
 		//We need this, really..
-		require_once(SUBSDIR . '/Gamecalendar.subs.php');
+		require_once(SUBSDIR . '/ManageGamecalendar.subs.php');
 
 		loadTemplate('ManageRolePlayingSystem');
 
@@ -397,7 +407,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				if (isset($this->_req->post->edit))
 					editEvent($this->_req->post->event, $year, $month, $day, $this->_req->post->title);
 				else
-					insertEvent($year, $month, $day, $this->_req->post->title);
+					insertEvent(array($year, $month, $day, $this->_req->post->title));
 			}
 
 			redirectexit('action=admin;area=rps;sa=events');
@@ -424,12 +434,198 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		$context['event']['last_day'] = cal_days_in_month(CAL_GREGORIAN, $context['event']['month'], empty($context['event']['year']) ? 4 : $context['event']['year']);
 	}
 	
+		/**
+	 * The function that handles adding, and deleting holiday data
+	 */
+	public function action_phases()
+	{
+		global $scripturl, $txt, $context, $modSettings;;
+
+		// Submitting something...
+		if (isset($this->_req->post->delete) && !empty($this->_req->post->phase))
+		{
+			checkSession();
+			validateToken('admin-rps-phases');
+
+			$to_remove = array_map('intval', array_keys($this->_req->post->phase));
+
+			// Now the IDs are "safe" do the delete...
+			require_once(SUBSDIR . '/ManageGamecalendar.subs.php');
+			removePhases($to_remove);
+		}
+		
+		$timezone = new DateTimeZone($modSettings['rps_timezone']);
+
+		createToken('admin-rps-phases');
+		$listOptions = array(
+			'id' => 'phase_list',
+			'title' => 'TXT Moon Phase List',
+			'items_per_page' => 50,
+			'base_href' => $scripturl . '?action=admin;area=rps;sa=phases',
+			'default_sort_col' => 'phase_date',
+			'get_items' => array(
+				'file' => SUBSDIR . '/ManageGamecalendar.subs.php',
+				'function' => 'list_getPhases',
+			),
+			'get_count' => array(
+				'file' => SUBSDIR . '/ManageGamecalendar.subs.php',
+				'function' => 'list_getNumPhases',
+			),
+			'no_items_label' => 'TXT No moon phases found',
+			'columns' => array(
+				'phase' => array(
+					'header' => array(
+						'value' => 'TXT Moon Phase',
+					),
+					'data' => array(
+						'sprintf' => array(
+							'format' => '<a href="' . $scripturl . '?action=admin;area=rps;sa=editphase;moonphase=%1$d">%2$s</a>',
+							'params' => array(
+								'id_phase' => false,
+								'phase' => false,
+							),
+						),
+					),
+					'sort' => array(
+						'default' => 'phase',
+						'reverse' => 'phase DESC',
+					)
+				),
+				'phase_date' => array(
+					'header' => array(
+						'value' => $txt['date'],
+					),
+					'data' => array(
+						'function' => function ($rowData) {
+							global $timezone, $user_info;
+							$date = new DateTime($rowData['phase_date'] . ' ' . $rowData['phase_time'], $timezone);
+
+							return $date->format( $user_info['datetime_format'] . ', G:i e ' );
+						},
+					),
+					'sort' => array(
+						'default' => 'phase_date',
+						'reverse' => 'phase_date DESC',
+					),
+				),
+				'check' => array(
+					'header' => array(
+						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+						'class' => 'centertext',
+					),
+					'data' => array(
+						'sprintf' => array(
+							'format' => '<input type="checkbox" name="phase[%1$d]" class="input_check" />',
+							'params' => array(
+								'id_phase' => false,
+							),
+
+						),
+						'class' => 'centertext'
+					),
+				),
+			),
+			'form' => array(
+				'href' => $scripturl . '?action=admin;area=rps;sa=phases',
+				'token' => 'admin-rps-phases',
+			),
+			'additional_rows' => array(
+				array(
+					'position' => 'below_table_data',
+					'class' => 'submitbutton',
+					'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="right_submit" onclick="return confirm(\'' . $txt['rps_events_delete_confirm'] . '\');" />
+					<a class="linkbutton" href="' . $scripturl . '?action=admin;area=rps;sa=editphase">'. $txt['rps_add_event'] .'</a>',
+				),
+			),
+		);
+
+		createList($listOptions);
+		
+		$context['page_title'] = $txt['rps_manage'] . ': ' . $txt['rps_events'];
+	}
+
+	/**
+	 * This function is used for adding/editing a specific holiday
+	 *
+	 * @uses ManageCalendar template, edit_holiday sub template
+	 */
+	public function action_editphase()
+	{
+		global $txt, $context, $modSettings;
+
+		//We need this, really..
+		require_once(SUBSDIR . '/ManageGamecalendar.subs.php');
+
+		loadTemplate('ManageRolePlayingSystem');
+
+		$context['is_new'] = !isset($this->_req->query->moonphase);
+		$context['cal_minyear'] = $this->rps_date->minyear;
+		$context['cal_maxyear'] = $this->rps_date->maxyear;
+		$context['page_title'] = $context['is_new'] ? 'TXT Add Moon Phase' : 'TXT Edit Moon Phase';
+		$context['sub_template'] = 'edit_phase';
+
+		// Cast this for safety...
+		$this->_req->query->moonphase = $this->_req->getQuery('moonphase', 'intval');
+
+		// Submitting?
+
+		if (isset($this->_req->post->{$context['session_var']}) && (isset($this->_req->post->delete) || $this->_req->post->phase != ''))
+		{
+			checkSession();
+
+			// Not too long good sir?
+			$this->_req->post->phase = Util::substr($this->_req->post->phase, 0, 60);
+			$this->_req->post->moonphase = $this->_req->getPost('moonphase', 'intval', 0);
+			
+			if (isset($this->_req->post->delete))
+				removePhases($this->_req->post->moonphase);
+			else
+			{
+				$year = empty($this->_req->post->year) ? 0 : $this->_req->post->year;
+				$month = (int) $this->_req->post->month;
+				$day =  $this->_req->post->day;
+				$hour = $this->_req->post->hour;
+				$minute = $this->_req->post->minute;
+
+				$datetime = new DateTime($year . '-' . $month . '-' . $day . ' ' . $hour . ':' . $minute . ':00');
+				
+				if (isset($this->_req->post->edit))
+					editPhase($this->_req->post->moonphase, $datetime->format('Y-m-d'), $datetime->format('H:i:s'), $this->_req->post->phase);
+				else
+					insertPhase(array($date->format('Y-m-d'), $date->format('H:i:s'), $this->_req->post->phase));
+				updateSettings(array('gamecalendar_updated' => time()));
+			}
+
+			redirectexit('action=admin;area=rps;sa=phases');
+		}
+
+		// Default states...
+		if ($context['is_new'])
+		{
+			$context['moonphase'] = array(
+				'id' => 0,
+				'day' => '',
+				'month' => $this->rps_date->start_month,
+				'year' => $this->rps_date->start_year,
+				'phase' => '',
+				'hour' => '',
+				'minute' => '',
+			);
+		}
+		// If it's not new load the data.
+		else
+			$context['moonphase'] = getPhase($this->_req->query->moonphase);
+		
+		// Last day for the drop down?
+		$context['moonphase']['last_day'] = cal_days_in_month(CAL_GREGORIAN, $context['moonphase']['month'], empty($context['moonphase']['year']) ? 4 : $context['moonphase']['year']);
+	}
+	
 	public function action_download_events()
 	{
 		global $txt, $context, $modSettings;
 
 		//We need this, really..
-		require_once(SUBSDIR . '/Gamecalendar.subs.php');
+		require_once(SUBSDIR . '/ManageGamecalendar.subs.php');
 		
 		loadTemplate('ManageRolePlayingSystem');
 
@@ -515,8 +711,8 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 
 			updateSettings($rps_download_settings);
 		
-			var_dump($json_holidays);
-			var_dump($json_phases);
+
+			var_dump(json_decode($json_phases, true));
 
 		}
 			

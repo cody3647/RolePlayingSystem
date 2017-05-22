@@ -56,6 +56,7 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 				'subsections' => array(
 					'settings' => array($txt['rps_settings'], 'admin_rps'),
 					'events' => array($txt['rps_events'], 'admin_rps', 'active' => array('editevent')),
+					'phases' => array('TXT Moon Phases', 'admin_rps', 'active' => array('editphase')),
 					'fields' => array($txt['rps_fields'], 'admin_rps', 'active' => array('fieldedit')),
 					'download' => array($txt['rps_download'], 'admin_rps')
 				),

@@ -375,6 +375,109 @@ function template_edit_event()
 /**
  * Editing or adding holidays.
  */
+function template_edit_phase()
+{
+	global $context, $scripturl, $txt;
+
+	// Show a form for all the holiday information.
+	echo '
+	<div id="admincenter">
+		<form action="', $scripturl, '?action=admin;area=rps;sa=editphase" method="post" accept-charset="UTF-8">
+			<h2 class="category_header">', $context['page_title'], '</h2>
+				<div class="content">
+				<dl class="settings">
+					<dt class="small_caption">
+						<label for="title">TXT Phase:</label>
+					</dt>
+					<dd class="small_caption">
+						<input type="text" id="title" name="phase" value="', $context['moonphase']['phase'], '" size="55" maxlength="60" />
+					</dd>
+				</dl>
+				<hr />
+				<dl class="settings">
+					<dt class="small_caption">
+						<label for="year">', $txt['calendar_year'], '</label>
+					</dt>
+					<dd class="small_caption">
+						<select name="year" id="year" onchange="generateDays();">
+							<option value="0"', $context['moonphase']['year'] == 0 ? ' selected="selected"' : '', '>', $txt['every_year'], '</option>';
+
+	// Show a list of all the years we allow...
+	for ($year = $context['cal_minyear']; $year <= $context['cal_maxyear']; $year++)
+		echo '
+							<option value="', $year, '"', $year == $context['moonphase']['year'] ? ' selected="selected"' : '', '>', $year, '</option>';
+
+	echo '
+						</select>
+					</dd>
+					<dt class="small_caption">
+						<label for="month">', $txt['calendar_month'], '</label>
+					</dt>
+					<dd class="small_caption">
+						<select name="month" id="month" onchange="generateDays();">';
+
+	// There are 12 months per year - ensure that they all get listed.
+	for ($month = 1; $month <= 12; $month++)
+		echo '
+							<option value="', $month, '"', $month == $context['moonphase']['month'] ? ' selected="selected"' : '', '>', $txt['months'][$month], '</option>';
+
+	echo '
+						</select>
+					</dd>
+					<dd class="small_caption">
+						<select name="day" id="day" onchange="generateDays();" ', empty($context['moonphase']['day']) ? 'disabled' : '', '>
+							<option value="0"', 0 == $context['moonphase']['day'] ? ' selected="selected"' : '', '></option>';
+
+	// This prints out all the days in the current month - this changes dynamically as we switch months.
+	for ($day = 1; $day <= $context['moonphase']['last_day']; $day++)
+		echo '
+							<option value="', $day, '"', $day == $context['moonphase']['day'] ? ' selected="selected"' : '', '>', $day, '</option>';
+
+	echo '				</select>
+					</dd>
+					<dt class="small_caption">
+						<label for="time">TXT Time:</label>
+					</dt>
+					<dd class="small_caption">
+						<select name="hour">
+							<option value=" "></option>';
+	for ($hour = 0; $hour <= 23; $hour++)
+		echo '
+							<option value="', $hour, '"', $hour == $context['moonphase']['hour'] ? ' selected="selected"' : '', '>', $hour, '</option>';
+	echo '
+						</select>
+						<select name="minute">
+							<option value=" "></option>';
+	for ($minute = 0; $minute <= 59; $minute++)
+		echo '
+							<option value="', $minute, '"', $minute == $context['moonphase']['minute'] ? ' selected="selected"' : '', '>', $minute, '</option>';
+	echo '
+						</select>';
+	echo '
+				</dl>
+				<hr />
+				<div class="submitbutton">';
+
+	if ($context['is_new'])
+		echo '
+						<input type="submit" value="', $txt['holidays_button_add'], '" />';
+	else
+		echo '
+						<input type="submit" name="edit" value="', $txt['holidays_button_edit'], '" />
+						<input type="submit" name="delete" value="', $txt['holidays_button_remove'], '" />
+						<input type="hidden" name="moonphase" value="', $context['moonphase']['id'], '" />';
+
+	echo '
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				</div>
+			</div>
+		</form>
+	</div>';
+}
+
+/**
+ * Editing or adding holidays.
+ */
 function template_download_events()
 {
 	global $context, $scripturl, $txt, $modSettings;
