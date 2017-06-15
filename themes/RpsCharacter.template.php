@@ -47,10 +47,10 @@ function template_create_form()
 				<fieldset class="content">
 					<dl class="settings">
 						<dt>
-							<strong><label for="elk_autov_name">TXT Name Label:</label></strong>
+							<strong><label for="name">TXT Name Label:</label></strong>
 						</dt>
 						<dd>
-							<input type="text" name="name" id="elk_autov_name" size="30" tabindex="', $context['tabindex']++, '" maxlength="60" value="', isset($cur_profile['name']) ? $cur_profile['name'] : '', '" class="input_text" placeholder="TXT Name" required="required" autofocus="autofocus" />
+							<input type="text" name="name" id="name" size="30" tabindex="', $context['tabindex']++, '" maxlength="60" value="', isset($cur_profile['name']) ? $cur_profile['name'] : '', '" class="input_text" placeholder="TXT Name" required="required" autofocus="autofocus" />
 							<span id="elk_autov_name_div" class="hide">
 								<a id="elk_autov_name_link" href="#">
 									<i id="elk_autov_name_img" class="icon i-check" alt="*"></i>
@@ -546,7 +546,7 @@ function template_profile_block_characters()
 	echo '
 			
 				<h2 class="category_header hdicon cat_img_profile">
-					', 'TXT Characters', '
+					', $txt['rps_profile_characters'] , '
 				</h2>
 			
 			<div class="profileblock">

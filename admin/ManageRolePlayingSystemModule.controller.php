@@ -80,29 +80,19 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 
 		// Little short on the ground of functions here... but things can and maybe will change...
 		$subActions = array(
-			'editevent' => array(
-				'controller' => $this, 
-				'function' => 'action_editevent', 
-				'permission' => 'admin_forum'
-			),
 			'events' => array(
 				'controller' => $this, 
 				'function' => 'action_events', 
 				'permission' => 'admin_forum'
 			),
-			'download' => array(
-				'controller' => $this, 
-				'function' => 'action_download_events', 
-				'permission' => 'admin_forum'
-			),
-			'editphase' => array(
-				'controller' => $this, 
-				'function' => 'action_editphase', 
-				'permission' => 'admin_forum'
-			),
 			'phases' => array(
 				'controller' => $this, 
 				'function' => 'action_phases', 
+				'permission' => 'admin_forum'
+			),
+			'download' => array(
+				'controller' => $this, 
+				'function' => 'action_download_events', 
 				'permission' => 'admin_forum'
 			),
 			'settings' => array(
@@ -113,6 +103,16 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			'fields' => array(
 				'controller' => 'ManageCharacters_Controller',
 				'function' => 'action_fields',
+				'permission' => 'admin_forum'
+			),
+			'editevent' => array(
+				'controller' => $this, 
+				'function' => 'action_editevent', 
+				'permission' => 'admin_forum'
+			),
+			'editphase' => array(
+				'controller' => $this, 
+				'function' => 'action_editphase', 
 				'permission' => 'admin_forum'
 			),
 			'fieldedit' => array(
@@ -134,6 +134,9 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				),
 				'events' => array(
 					'description' => $txt['rps_events_desc'],
+				),
+				'phases' => array(
+					'description' => $txt['rps_phases_desc'],
 				),
 				'fields' => array(
 					'description' => $txt['rps_fields_desc'],
@@ -459,7 +462,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		createToken('admin-rps-phases');
 		$listOptions = array(
 			'id' => 'phase_list',
-			'title' => 'TXT Moon Phase List',
+			'title' => $txt['rps_phases_list'],
 			'items_per_page' => 50,
 			'base_href' => $scripturl . '?action=admin;area=rps;sa=phases',
 			'default_sort_col' => 'phase_date',
@@ -475,7 +478,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			'columns' => array(
 				'phase' => array(
 					'header' => array(
-						'value' => 'TXT Moon Phase',
+						'value' => $txt['rps_phases_list_none'],
 					),
 					'data' => array(
 						'sprintf' => array(
@@ -561,7 +564,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		$context['is_new'] = !isset($this->_req->query->moonphase);
 		$context['cal_minyear'] = $this->rps_date->minyear;
 		$context['cal_maxyear'] = $this->rps_date->maxyear;
-		$context['page_title'] = $context['is_new'] ? 'TXT Add Moon Phase' : 'TXT Edit Moon Phase';
+		$context['page_title'] = $context['is_new'] ? $txt['rps_phase_title_add'] : $txt['rps_phase_title_edit'];
 		$context['sub_template'] = 'edit_phase';
 
 		// Cast this for safety...

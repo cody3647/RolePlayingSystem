@@ -214,7 +214,7 @@ function template_show_month_grid($grid_name)
 				{
 					echo '
 							<div class="lefttext">
-								<span class="event">TXT Topics</span><br />';
+								<span class="event">' . $txt['rps_calendar_topics'] . '</span><br />';
 
 					// The events are made up of:
 					// title, href, is_last, can_edit (are they allowed to?), and modify_href.
@@ -331,7 +331,7 @@ function template_show_week_grid($grid_name)
 			{
 				echo '
 							<div class="smalltext">
-								<span class="event">TXT Topics</span>';
+								<span class="event">' . $txt['rps_calendar_topics'] . '</span>';
 
 				// The events are made up of:
 				// title, href, is_last, can_edit (are they allowed to?), and modify_href.

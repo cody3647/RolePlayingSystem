@@ -115,7 +115,7 @@ class Tags_Controller extends Action_Controller
 
 		// Set up the stuff and load the user.
 		$context += array(
-			'page_title' => 'TXT Add/Remove Tags of ' . $context['topic_subject'],
+			'page_title' => $txt['rps_tags_add_remove_title'] . $context['topic_subject'],
 			'canonical_url' => $scripturl . '?action=tags;topic=' . $topic,
 			'sub_template' => 'edit_topic',
 		);
@@ -126,7 +126,7 @@ class Tags_Controller extends Action_Controller
 			);
 			
 		$context['linktree'][] = array(
-				'name' => 'TXT Add/Remove Tags',
+				'name' => $txt['rps_tags_add_remove_linktree'],
 				'url' => $context['canonical_url'],
 			);
 		
@@ -135,11 +135,11 @@ class Tags_Controller extends Action_Controller
 				// Create a listing for all our standard fields
 		$listOptions = array(
 			'id' => 'edit_topic',
-			'title' => 'TXT Add/Remove Tags',
+			'title' => $txt['rps_tags_remove_list'] . $context['topic_subject'],
 			'base_href' => $scripturl . '?action=tags;topic=' . $topic,
 			'items_per_page' => 25,
 			'default_sort_col' => 'tag',
-			'no_items_label' => 'TXT NONE',
+			'no_items_label' => $txt['rps_tags_remove_list_none'],
 			'items_per_page' => 50,
 			'get_items' => array(
 				'file' => SUBSDIR . '/Tags.subs.php',
@@ -158,7 +158,7 @@ class Tags_Controller extends Action_Controller
 			'columns' => array(
 				'tag' => array(
 					'header' => array(
-						'value' => 'TXT Tag',
+						'value' => $txt['rps_tags_list_tag'],
 					),
 					'data' => array(
 						'db' => 'tag',
@@ -171,7 +171,7 @@ class Tags_Controller extends Action_Controller
 				),
 				'remove' => array(
 					'header' => array(
-						'value' => 'TXT Remove Tag',
+						'value' => $txt['rps_tags_list_removetag'],
 						'class' => 'centertext',
 					),
 					'data' => array(
@@ -194,16 +194,16 @@ class Tags_Controller extends Action_Controller
 				array(
 					'position' => 'bottom_of_list',
 					'value' => '
-					<h2 class="category_header">TXT Add Tags</h2>
+					<h2 class="category_header">'. $txt['rps_tags_add_tags'] . $context['topic_subject']. '</h2>
 					<div class="post_tags tags_bottom_of_list">
-						<label for="tags" id="caption_tags">TXT Add Tags:</label>
+						<label for="tags" id="caption_tags">'. $txt['rps_tags_add_tags_label'].'</label>
 						<input id="post_tags" size="80" type="text" name="tags" '. (isset($context['tags']) ? 'value="'.$context['tags'].'"' : '' ) . ' />
 					</div>
 								',
 				),
 				array(
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="save" value="' . $txt['save'] . '" class="right_submit" />',
+					'value' => '<input type="submit" name="save" value="' . $txt['rps_save_changes'] . '" class="right_submit" />',
 				),
 			),
 		);
@@ -231,14 +231,14 @@ class Tags_Controller extends Action_Controller
 
 		// Set up the stuff and load the user.
 		$context += array(
-			'page_title' => 'TXT Tag: ' . $context['tag_name'],
+			'page_title' => $txt['rps_tag_title'] . $context['tag_name'],
 			'canonical_url' => $scripturl . '?action=tags;tag=' . $tag,
 			'sub_template' => 'view_tag',
 		);
 
 		$context['linktree']+=array(
 			1=> array(
-				'name' => 'TXT Tags',
+				'name' => $txt['rps_tags'],
 				'url' => $scripturl . '?action=tags',
 			),
 			2 => array(
@@ -250,10 +250,10 @@ class Tags_Controller extends Action_Controller
 		// And now we do the same for all of our custom ones
 		$listOptions = array(
 			'id' => 'view_tag',
-			'title' => 'TXT Topics tagged with "'. $context['tag_name'] .'"',
+			'title' => $txt['rps_tag_list_title'] . $context['tag_name'],
 			'base_href' => $context['canonical_url'],
 			'default_sort_col' => 'date_tag',
-			'no_items_label' => 'TXT NONE',
+			'no_items_label' => ['rps_tag_list_none'],
 			'items_per_page' => 25,
 			'sortable' => true,
 			'get_items' => array(
@@ -274,13 +274,13 @@ class Tags_Controller extends Action_Controller
 
 				'first_subject' => array(
 					'header' => array(
-						'value' => 'TXT Subject',
+						'value' => $txt['rps_tag_topic'],
 						'style' => 'width: 30%;',
 					),
 					'data' => array(
 						'sprintf' => array(
 							'format' => '<div class="rps_topic"><h4><a href="'. $scripturl .'?topic=%1$d">%2$s</a></h4></div>
-								<div class="rps_starter">TXT Started By:%3$s</div>', 
+								<div class="rps_starter">' . $txt['rps_tag_started'] . '%3$s</div>', 
 							'params' => array(
 								'id_topic' => false, 
 								'first_subject' => false,
@@ -293,9 +293,9 @@ class Tags_Controller extends Action_Controller
 						'reverse' => 'first subject DESC',
 					),
 				),
-				'first_display_name' => array(
+				/*'first_display_name' => array(
 					'header' => array(
-						'value' => 'TXT Started by',
+						'value' => $txt['rps_tag_started'],
 						'class' => 'centertext',
 					),
 					'data' => array(
@@ -307,10 +307,10 @@ class Tags_Controller extends Action_Controller
 						'default' => 'first_display_name DESC',
 						'reverse' => 'first_display_name',
 					),
-				),
+				),*/
 				'num_replies' => array(
 					'header' => array(
-						'value' => 'Replies',
+						'value' => $txt['rps_tag_replies'],
 					),
 					'data' => array(
 						'db' => 'num_replies',
@@ -325,7 +325,7 @@ class Tags_Controller extends Action_Controller
 						'style' => 'width: 15%;',
 					),
 					'header' => array(
-						'value' => 'TXT Last Post On',
+						'value' => $txt['rps_tag_last_post'],
 					),
 					'sort' => array(
 						'default' => 'last_poster_time DESC',
@@ -338,7 +338,7 @@ class Tags_Controller extends Action_Controller
 						'style' => 'width: 10%;',
 					),
 					'header' => array(
-						'value' => 'TXT IC Date',
+						'value' => $txt['rps_tag_topic_date'],
 					),
 					'sort' => array(
 						'default' => 't.date_tag DESC',
@@ -357,14 +357,14 @@ class Tags_Controller extends Action_Controller
 
 		// Set up the stuff and load the user.
 		$context += array(
-			'page_title' => 'TXT Tags',
+			'page_title' => $txt['rps_tags_title'],
 			'canonical_url' => $scripturl . '?action=tags',
 			'sub_template' => 'tags_list',
 		);
 
 		$context['linktree']+=array(
 			1=> array(
-				'name' => 'TXT Tags',
+				'name' => $txt['rps_tags_title'] ,
 				'url' => $scripturl . '?action=tags',
 			),
 		);
@@ -372,10 +372,10 @@ class Tags_Controller extends Action_Controller
 		// And now we do the same for all of our custom ones
 		$listOptions = array(
 			'id' => 'tags_list',
-			'title' => 'TXT Tags',
+			'title' => $txt['rps_tags_list'],
 			'base_href' => $context['canonical_url'],
 			'default_sort_col' => 'tag',
-			'no_items_label' => 'TXT NONE',
+			'no_items_label' => $txt['rps_tags_list_none'],
 			'items_per_page' => 25,
 			'sortable' => true,
 			'get_items' => array(
@@ -389,7 +389,7 @@ class Tags_Controller extends Action_Controller
 			'columns' => array(
 				'tag' => array(
 					'header' => array(
-						'value' => 'TXT Subject',
+						'value' => $txt['rps_tags_tag'],
 						'style' => 'width: 30%;',
 					),
 					'data' => array(
@@ -408,7 +408,7 @@ class Tags_Controller extends Action_Controller
 				),
 				'tag_count' => array(
 					'header' => array(
-						'value' => 'TXT # Topics Tagged',
+						'value' => $txt['rps_tags_number'],
 						'class' => 'centertext',
 						'style' => 'width: 10%;',
 					),

@@ -36,8 +36,8 @@ class Characterlist_Controller extends Action_Controller
 
 		// These are all the possible fields.
 		$this->_search_fields = array(
-			'name' => 'TXT Search by name',
-			'member' => 'TXT Search by member',
+			'name' => $txt['rps_search_name'],
+			'member' => $txt['rps_search_member'],
 
 		);
 
@@ -103,7 +103,7 @@ class Characterlist_Controller extends Action_Controller
 				'class' => 'avatar',
 			),
 			'name' => array(
-				'label' => 'TXT Name',
+				'label' => $txt['rps_name'],
 				'class' => 'name',
 				'sort' => array(
 					'down' => 'chr.name DESC',
@@ -111,7 +111,7 @@ class Characterlist_Controller extends Action_Controller
 				),
 			),
 			'title' => array(
-				'label' => 'TXT Title',
+				'label' => $txt['rps_title'],
 				'class' => 'title',
 				'sort' => array(
 					'down' => 'chr.title DESC',
@@ -128,7 +128,7 @@ class Characterlist_Controller extends Action_Controller
 				),
 			),
 			'member' => array(
-				'label' => 'TXT Player',
+				'label' => $txt['rps_player'],
 				'class' => 'name',
 				'sort' => array(
 					'down' => 'mem.real_name DESC',
@@ -136,7 +136,7 @@ class Characterlist_Controller extends Action_Controller
 				),
 			),
 			'last_active' => array(
-				'label' => 'TXT Last Active',
+				'label' => $txt['rps_last_active'],
 				'class' => 'last_active',
 				'sort' => array(
 					'down' => 'chr.last_active DESC',
@@ -158,7 +158,7 @@ class Characterlist_Controller extends Action_Controller
 
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?action=characterlist',
-			'name' => 'TXT Character List'
+			'name' => $txt['rps_characters']
 		);
 
 		// Build the memberlist button array.
@@ -300,7 +300,7 @@ class Characterlist_Controller extends Action_Controller
 	{
 		global $txt, $scripturl, $context, $modSettings;
 
-		$context['page_title'] = 'TXT Search for Characters';
+		$context['page_title'] = $txt['rps_characters_search'];
 		$context['can_moderate_forum'] = allowedTo('moderate_forum');
 
 		// They're searching..

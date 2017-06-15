@@ -8,8 +8,9 @@ $txt['rps_tags'] = 'Tags List';
 $txt['rps_characters'] = 'Character List';
 $txt['rps_gamecalendar'] = 'In-game Calendar';
 
-//Display
-$txt['rps_tag_edit'] = 'Edit Tags';
+//Manage Boards
+$txt['rps_ic_board'] = 'In Character Board:';
+$txt['rps_ic_board_desc'] = 'Makes a board an in character board.  Only Characters can post here after it is changed.  If it is turned off, character posts will show up as being from the ooc/player account.';
 
 //Errors
 $txt['error_no_character_ic'] = 'Character selection required for an In Character board.';
@@ -23,8 +24,10 @@ $txt['core_settings_item_rps_desc'] = 'This enables the Role Playing System Mod.
 $txt['rps_manage'] = 'Manage Role Playing System';
 $txt['rps_settings'] = 'General Settings';
 $txt['rps_settings_desc'] = 'From this page you can set the Role Playing Date Range, the first major date of the game, and other settings';
-$txt['rps_events'] = 'Game Calendar Events';
+$txt['rps_events'] = 'Events';
 $txt['rps_events_desc'] = 'From this page you can manage events for the game calendar';
+$txt['rps_phases'] = 'Moon Phases';
+$txt['rps_phases_desc'] = 'From this page you can manage moon phases for the game calendar';
 $txt['rps_fields'] = 'Custom Character Fields';
 $txt['rps_fields_desc'] = 'From this page you can create your own custom character fields that fit in with your own forums requirements';
 $txt['rps_download'] = 'Download Holidays and Moon Phases';
@@ -93,31 +96,14 @@ $txt['rps_Islamic_desc'] = 'Data will be provided for the years 622 C.E. (A.H. 1
 $txt['rps_moon_phases'] = 'Moon Phases';
 $txt['rps_moon_phases_desc'] = ' The data can be generated for any year between 1700 C.E. and 2100 C.E.';
 $txt['rps_timezone'] = 'Timezone for Game';
+$txt['rps_phases_list'] = 'List of Moon Phases';
+$txt['rps_phases_list_phase'] = 'Phase';
+$txt['rps_phase_title_add'] = 'Add Moon Phase';
+$txt['rps_phase_title_edit'] = 'Edit Moon Phase';
+$txt['rps_phase_label_phase'] = 'Phase: ';
+$txt['rps_phase_label_time'] = 'Time: ';
+$txt['rps_phases_list_none'] = 'There are currently no moon phases to display.';
 
 //Manage Custom Character Fields
 $txt['rps_fields_list'] = 'Custom Character Fields';
 $txt['rps_fields_none'] = 'You have not created any custom character fields yet!';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';

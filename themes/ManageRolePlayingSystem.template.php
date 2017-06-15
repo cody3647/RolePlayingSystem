@@ -387,7 +387,7 @@ function template_edit_phase()
 				<div class="content">
 				<dl class="settings">
 					<dt class="small_caption">
-						<label for="title">TXT Phase:</label>
+						<label for="title">'. $txt['rps_phase_label_phase'] .'</label>
 					</dt>
 					<dd class="small_caption">
 						<input type="text" id="title" name="phase" value="', $context['moonphase']['phase'], '" size="55" maxlength="60" />
@@ -436,7 +436,7 @@ function template_edit_phase()
 	echo '				</select>
 					</dd>
 					<dt class="small_caption">
-						<label for="time">TXT Time:</label>
+						<label for="time">' . $txt['rps_phase_label_time'] . '</label>
 					</dt>
 					<dd class="small_caption">
 						<select name="hour">

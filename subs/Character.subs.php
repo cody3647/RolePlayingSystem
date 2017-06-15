@@ -222,7 +222,7 @@ function loadCharacterFields($force_reload = false)
 				}
 				return true;
 			},
-			'postinput' => '<i id="name_img" class="icon i-help" alt="*" title="TXT Name Check"></i>',
+			'postinput' => '<i id="name_img" class="icon i-help" alt="*" title="'.$txt['rps_name_check'].'"></i>',
 			
 		),
 		'avatar_choice' => array(

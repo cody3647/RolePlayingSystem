@@ -56,7 +56,7 @@ class Gamecalendar_Controller extends Action_Controller
 		loadTemplate('RpsCalendar');
 
 		// Set the page title to mention the calendar ;).
-		$context['page_title'] = 'TXT Game Calendar';
+		$context['page_title'] = $txt['rps_game_calendar'];
 		$context['sub_template'] = 'show_calendar';
 
 		// Is this a week view?

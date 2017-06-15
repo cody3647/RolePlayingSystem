@@ -355,19 +355,23 @@ class Character_Controller extends Action_Controller
 		loadTemplate('RpsCharacter');
 
 		$context['sub_template'] = 'character_form';
-		$context['page_desc'] = replaceBasicActionUrl('TXT Description');
+		$context['page_desc'] = $txt['rps_edit_character_desc'];
 		$context['show_preview_button'] = true;
-		$context['header_text'] = 'TXT Header';
-		$context['submit_txt'] = 'TXT Submit';
+		$context['header_text'] = $txt['rps_edit_character'] . $context['character']['name'];
+		$context['submit_txt'] = $txt['rps_save_changes'];
 		$context['form_action'] = $scripturl . '?action=character;sa=edit;c=' . $this->_charID;
-		$context['page_title'] = sprintf('TXT Editing Character: %1$s', $memberContext[$this->_memID]['characters'][$this->_charID]['name']);
+		$context['page_title'] = $txt['rps_edit_character'] . $context['character']['name'];
 		$context['linktree']+=array(
 			1=> array(
-				'name' => 'TXT  Profile of ' . $context['member']['name'],
+				'name' => $txt['rps_profile_of'] . $context['member']['name'],
 				'url' => $scripturl . '?action=profile;u=' . $this->_memID,
 			),
 			2 => array(
-				'name' => 'TXT Editing:' . $context['character']['name'],
+				'name' => $context['character']['name'],
+				'url' => $scripturl . '?action=character;c=' . $this->_charID,
+			),
+			3 => array(
+				'name' => $txt['rps_edit_character'] . $context['character']['name'],
 			)
 		);
 
@@ -400,14 +404,14 @@ class Character_Controller extends Action_Controller
 		
 		// Show the user the right form.
 		$context['sub_template'] = 'create_form';
-		$context['page_title'] = 'TXT Create Character';
+		$context['page_title'] = $txt['rps_create_character'];
 		loadJavascriptFile('rps_character.js');
 		addInlineJavascript('disableAutoComplete();', true);
 
 		// Add the register chain to the link tree.
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?action=character',
-			'name' => 'TXT Create Character',
+			'name' => $txt['rps_create_character'],
 		);
 		
 		// Setup some important context.
@@ -566,10 +570,10 @@ class Character_Controller extends Action_Controller
 		 loadTemplate('RpsCharacter');
 
 		$context += array(
-			'page_title' => $txt['register'],
-			'title' => $txt['registration_successful'],
+			'page_title' => $txt['rps_create_character'],
+			'title' => $txt['rps_create_character_success'],
 			'sub_template' => 'after',
-			'description' => 'TXT Successful Creatiion Event',
+			'description' => $txt['rps_create_character_success_desc'],
 		);
 	}
 	
