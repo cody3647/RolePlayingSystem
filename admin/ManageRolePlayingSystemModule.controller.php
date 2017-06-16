@@ -822,9 +822,6 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			insert_downloaded_events(json_decode($json_holidays, true), json_decode($json_phases, true), $postData);
 
 			updateSettings($rps_download_settings);
-		
-
-			var_dump(json_decode($json_phases, true));
 
 		}
 			
