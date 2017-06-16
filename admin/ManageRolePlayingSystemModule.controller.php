@@ -80,6 +80,11 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 
 		// Little short on the ground of functions here... but things can and maybe will change...
 		$subActions = array(
+			'tags' => array(
+				'controller' => $this, 
+				'function' => 'action_manage_tags', 
+				'permission' => 'admin_forum'
+			),
 			'events' => array(
 				'controller' => $this, 
 				'function' => 'action_events', 
@@ -131,6 +136,9 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			'tabs' => array(
 				'settings' => array(
 					'description' => $txt['rps_settings_desc'],
+				),
+				'tags' => array(
+					'description' => $txt['rps_manage_tags_desc'],
 				),
 				'events' => array(
 					'description' => $txt['rps_events_desc'],
@@ -251,6 +259,107 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 	public function settings_search()
 	{
 		return $this->_settings();
+	}
+	
+		/**
+	 * The function that handles adding, and deleting holiday data
+	 */
+	public function action_manage_tags()
+	{
+		global $context, $scripturl, $txt, $user_info;
+		
+		if(isset($this->_req->save))
+		{
+			$timestamp = time();
+			$edited_tags = htmltrim__recursive($this->_req->getPost('edits'));
+			$original_tags = htmltrim__recursive($this->_req->getPost('tags'));
+			$remove_tags = $this->_req->getPost('remove');
+
+			require_once(SUBSDIR . '/Tags.subs.php');
+			edit_tags($edited_tags, $original_tags , $user_info['id'], $timestamp);
+			remove_tags($remove_tags, '1=1');
+			
+			
+			//redirectexit('topic=' . $topic . ';updatetags');
+		}		
+
+		// Set up the stuff and load the user.
+		$context += array(
+			'page_title' => $txt['rps_manage_tags'],
+		);
+
+		createToken('admin-rps-tags');
+		
+				// Create a listing for all our standard fields
+		$listOptions = array(
+			'id' => 'manage_tags',
+			'title' => $txt['rps_manage_tags'],
+			'base_href' => $scripturl . '?action=admin;area=rps;sa=tags',
+			'items_per_page' => 25,
+			'default_sort_col' => 'tag',
+			'no_items_label' => $txt['rps_tags_remove_list_none'],
+			'items_per_page' => 50,
+			'get_items' => array(
+				'file' => SUBSDIR . '/Tags.subs.php',
+				'function' => 'list_getTags',
+				'params' => array(
+				),
+			),
+			'get_count' => array(
+				'file' => SUBSDIR . '/Tags.subs.php',
+				'function' => 'list_getNumTags',
+				'params' => array(
+				),
+			),
+			'columns' => array(
+				'tag' => array(
+					'header' => array(
+						'value' => $txt['rps_tags_list_tag'],
+					),
+					'data' => array(
+						'sprintf' => array(
+							'format' => '<input type="text" name="edits[%1$d]" id="edit_%1$d" value="%2$s" class="input_text" />
+										<input type="hidden" name="tags[%1$d]" id="tag_%1$d" value="%2$s" />',
+							'params' => array(
+								'id_tag' => false,
+								'tag' => false
+							),
+						),
+						'style' => 'width: 60%;',
+					),
+					'sort' => array(
+						'default' => 'tag',
+						'reverse' => 'tag DESC',
+					),
+				),
+				'remove' => array(
+					'header' => array(
+						'value' => $txt['rps_tags_list_removetag'],
+						'class' => 'centertext',
+					),
+					'data' => array(
+						'sprintf' => array(
+							'format' => '<input type="checkbox" name="remove[]" id="remove_%1$d" value="%1$s" class="input_check" />',
+							'params' => array(
+								'id_tag' => false
+							),
+						),
+						'class' => 'centertext',
+					),
+				),
+			),
+			'form' => array(
+				'href' => $scripturl . '?action=admin;area=rps;sa=tags',
+				'token' => 'admin-rps-tags',
+			),
+			'additional_rows' => array(
+				array(
+					'position' => 'bottom_of_list',
+					'value' => '<input type="submit" name="save" value="' . $txt['rps_save_changes'] . '" class="right_submit" />',
+				),
+			),
+		);
+		createList($listOptions);
 	}
 
 	/**

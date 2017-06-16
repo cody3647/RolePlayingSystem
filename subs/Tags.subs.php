@@ -66,10 +66,13 @@ function remove_tags($remove_tags, $topic)
 	if (!is_array($remove_tags))
 		$remove_tags = array($remove_tags);
 
+	if ($topic != '1=1' && is_numeric($topic))
+		$topic = 'id_topic = ' . $topic;
+	
 	$db->query('', '
 		DELETE FROM {db_prefix}rps_tags_data
 		WHERE id_tag IN ({array_int:id_tags})
-			AND id_topic = {int:id_topic}',
+			AND {raw:id_topic}',
 		array(
 			'id_tags' => $remove_tags,
 			'id_topic' => $topic
@@ -87,6 +90,60 @@ function remove_tags($remove_tags, $topic)
 		)
 	);
 	
+}
+
+function edit_tags($edited, $original, $user_id, $timestamp)
+{
+	$db = database();
+	$changed = array();
+	foreach($original as $id => $tag)
+	{
+		if($tag != $edited[$id])
+			$changed[$id] = $edited[$id];
+	}
+	if(empty($changed))
+		return;
+	
+	$remove_tags = array();
+	foreach($changed as $id => $tag)
+	{
+		$request = $db->query('', '
+			SELECT id_tag
+			FROM {db_prefix}rps_tags
+			WHERE tag =({string:tag})',
+			array(
+				'tag' => $tag,
+			)
+		);
+
+		if($db->num_rows($request) > 0)
+		{
+			$row = $db->fetch_assoc($request);
+			$request = $db->query('', '
+				UPDATE IGNORE {db_prefix}rps_tags_data
+				SET id_tag={int:new_id}
+				WHERE id_tag={int:old_id}', 
+				array(
+					'new_id' => $row['id_tag'],
+					'old_id' => $id
+				)
+			);
+			$remove_tags[] = $id;
+		}
+		else
+			$request = $db->query('', '
+				UPDATE {db_prefix}rps_tags 
+				SET tag={string:tag} 
+				WHERE id_tag={int:id_tag}', 
+				array(
+					'tag' => $tag,
+					'id_tag' => $id
+				)
+			);
+		
+	}
+	
+	remove_tags($remove_tags, '1=1');	
 }
 
 function list_getTopics($start, $items_per_page, $sort, $tag)

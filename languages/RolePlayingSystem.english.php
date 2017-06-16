@@ -38,6 +38,7 @@ $txt['cannot_rps_add_tags_own'] = 'You are not allowed to add tags to your topic
 $txt['cannot_rps_add_tags_any'] = 'You are not allowed to add tags to this topic.';
 $txt['cannot_rps_remove_tags_own'] = 'You are not allowed to remove tags.';
 $txt['cannot_rps_remove_tags_any'] = 'You are not allowed to remove tags.';
+$txt['rps_no_tag'] = 'The Tag you are looking for does not exist.  It may never have existed or it may have been removed.';
 
 //Character:Name Check
 $txt['rps_name_valid'] = 'Character name is valid and available';

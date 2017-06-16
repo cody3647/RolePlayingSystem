@@ -228,6 +228,8 @@ class Tags_Controller extends Action_Controller
 			$context['tag_name'] = un_htmlspecialchars($row['tag']);
 		$db->free_result($request);
 		
+		if(empty($context['tag_name']))
+			throw new Elk_Exception('RolePlayingSystem.rps_no_tag', false);
 
 		// Set up the stuff and load the user.
 		$context += array(

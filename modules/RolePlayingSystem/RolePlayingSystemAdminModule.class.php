@@ -55,6 +55,7 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 				'enabled' => in_array('rps', $context['admin_features']),
 				'subsections' => array(
 					'settings' => array($txt['rps_settings'], 'admin_rps'),
+					'tags' => array($txt['rps_manage_tags'], 'admin_rps'),
 					'events' => array($txt['rps_events'], 'admin_rps', 'active' => array('editevent')),
 					'phases' => array($txt['rps_phases'], 'admin_rps', 'active' => array('editphase')),
 					'fields' => array($txt['rps_fields'], 'admin_rps', 'active' => array('fieldedit')),

@@ -16,7 +16,7 @@ $txt['rps_ic_board_desc'] = 'Makes a board an in character board.  Only Characte
 $txt['error_no_character_ic'] = 'Character selection required for an In Character board.';
 $txt['error_not_a_character'] = 'The character you are looking for does not exist.';
 
-//Admin
+//Admin Menu
 $txt['rps_title'] = 'Role Playing System';
 $txt['core_settings_item_rps'] = 'Role Playing System';
 $txt['core_settings_item_rps_desc'] = 'This enables the Role Playing System Mod.';
@@ -24,6 +24,8 @@ $txt['core_settings_item_rps_desc'] = 'This enables the Role Playing System Mod.
 $txt['rps_manage'] = 'Manage Role Playing System';
 $txt['rps_settings'] = 'General Settings';
 $txt['rps_settings_desc'] = 'From this page you can set the Role Playing Date Range, the first major date of the game, and other settings';
+$txt['rps_manage_tags'] = 'Manage Tags';
+$txt['rps_manage_tags_desc'] = 'From this page you can edit and remove tags from the entire forum.  <br /><br />If a tag is changed to be the same as another, the tags will be merged.  They cannot be seperated.';
 $txt['rps_events'] = 'Events';
 $txt['rps_events_desc'] = 'From this page you can manage events for the game calendar';
 $txt['rps_phases'] = 'Moon Phases';
@@ -57,6 +59,8 @@ $txt['permissionname_rps_remove_tags_own'] = 'Own topics';
 $txt['permissionname_rps_remove_tags_any'] = 'Any account';
 
 //Settings
+$txt['rps_general_settings'] = 'General Settings';
+
 $txt['setting_rps_begining'] = 'First In-Game Date';
 $txt['setting_rps_real_date'] = 'Use Real World Date';
 $txt['setting_rps_current_start'] = 'Current Date Range: Start';
@@ -107,3 +111,9 @@ $txt['rps_phases_list_none'] = 'There are currently no moon phases to display.';
 //Manage Custom Character Fields
 $txt['rps_fields_list'] = 'Custom Character Fields';
 $txt['rps_fields_none'] = 'You have not created any custom character fields yet!';
+
+//Tags
+$txt['rps_tags_'] = '';
+$txt['rps_tags_'] = '';
+$txt['rps_tags_'] = '';
+$txt['rps_tags_'] = '';

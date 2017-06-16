@@ -79,7 +79,7 @@ function template_rps_post_above()
 
 function template_rps_display_tags()
 {
-	global $context, $scripturl, $user_info;
+	global $context, $scripturl, $user_info, $txt;
 	if(!empty($context['date_tag']) || !empty($context['tags']))
 	{
 		echo '
