@@ -18,8 +18,6 @@
  */
 class ManageRolePlayingSystemModule_Controller extends Action_Controller
 {
-	
-	public $rps_date;
 	/**
 	 * Used to add the Drafts entry to the Core Features list.
 	 *
@@ -35,7 +33,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				'displayCharacterFields' => '',
 			),
 			'setting_callback' => function ($value) {
-				$modules = array('post', 'display', 'admin', 'messageindex');
+				$modules = array('post', 'display', 'admin', 'messageindex', 'boardindex');
 
 				// Enabling, let's register the modules and prepare the scheduled task
 				if ($value)
@@ -173,7 +171,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 	 */
 	public function action_rpsSettings_display()
 	{
-		global $context, $txt, $scripturl;
+		global $context, $txt, $scripturl, $modSettings;
 
 		isAllowedTo('admin_forum');
 
@@ -181,7 +179,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		$settingsForm = new Settings_Form(Settings_Form::DB_ADAPTER);
 
 		// Initialize it with our settings
-		$settingsForm->setConfigVars($this->_settings());
+		$settingsForm->setConfigVars($this->_settings( $this->_checkDates() ));
 
 		// Setup the template.
 		$context['page_title'] = $txt['rps_manage'] . ': ' . $txt['rps_settings'];
@@ -191,25 +189,18 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		if (isset($this->_req->query->save))
 		{
 			checkSession();
-			
-			
-			
+
 			call_integration_hook('integrate_save_rps_settings');
+			
+			$config_values = (array) $this->_req->post;
+			if($modSettings['rps_current_start'] != $config_values['rps_current_start'] || $modSettings['rps_current_end'] != $config_values['rps_current_end'])
+				$config_values['rps_gamecalendar_updated'] = time();
 
-
-			$settingsForm->setConfigValues((array) $this->_req->post);
+			
+			$settingsForm->setConfigValues($config_values);
 			$settingsForm->save();
 			redirectexit('action=admin;area=rps');
 		}
-		
-		addInlineJavascript('
-			$(function() {
-				$(\'#rps_real_date\').change(function() {
-					$(\'#rps_current_end, #rps_current_start\').prop(\'disabled\', this.checked);
-				}).change();
-			});
-			', true);
-
 
 		// Final settings...
 		$context['post_url'] = $scripturl . '?action=admin;area=rps;save';
@@ -221,7 +212,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 	/**
 	 * Retrieve and return all admin settings for the calendar.
 	 */
-	private function _settings()
+	private function _settings($errors)
 	{
 		global $txt, $modSettings;
 
@@ -235,10 +226,19 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		// Look, all the calendar settings - of which there are many!
 		$config_vars = array(
 			array('title', 'rps_general_settings'),
-				array('text', 'rps_begining'),
-				array('check', 'rps_real_date'),
-				array('text', 'rps_current_start', 'disabled' => !empty($modSettings['rps_real_date'])),
-				array('text', 'rps_current_end', 'disabled' => !empty($modSettings['rps_real_date'])),
+
+				empty($errors['begin']) ? 
+					array('text', 'rps_begining', 'subtext' => $txt['rps_beginning_desc'], 'postinput' => $txt['rps_date_format']) : 
+					array('text', 'rps_begining', 'subtext' => $txt['rps_beginning_desc'], 'invalid' =>true, 'postinput' => $errors['begin']),
+				empty($errors['range']) ?
+					array('var_message', 'rps_current_date_range', 'message' => 'rps_dates_message'): 
+					array('var_message', 'rps_current_date_range', 'message' => 'rps_dates_message', 'postinput' => $errors['range']),
+				empty($errors['start']) ?
+					array('text', 'rps_current_start', 'postinput' => $txt['rps_date_format']) : 
+					array('text', 'rps_current_start', 'invalid' =>true, 'postinput' => $errors['start']),
+				empty($errors['end']) ?
+					array('text', 'rps_current_end', 'postinput' => $txt['rps_date_format']) :
+					array('text', 'rps_current_end', 'invalid' =>true, 'postinput' => $errors['end']),
 				
 			array('title', 'rps_calendar_settings'),
 				// How many days to show on board index, and where to display events etc?
@@ -251,6 +251,45 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		call_integration_hook('integrate_modify_calendar_settings', array(&$config_vars));
 
 		return $config_vars;
+	}
+	
+	private function _checkDates()
+	{
+		global $txt;
+		if(!isset($this->_req->query->save))
+			return array();
+
+		$errors = array();
+		$begin = DateTime::createFromFormat('Y-m-d|', $this->_req->getPost('rps_begining'));
+		$start = DateTime::createFromFormat('Y-m-d|', $this->_req->getPost('rps_current_start'));
+		$end = DateTime::createFromFormat('Y-m-d|', $this->_req->getPost('rps_current_end'));
+		if(!$begin)
+			$errors['begin'] = sprintf($txt['rps_error_incorrect_format'], $this->_req->getPost('rps_begining'));
+		if(!$start)
+			$errors['start'] = sprintf($txt['rps_error_incorrect_format'], $this->_req->getPost('rps_current_start'));
+		if(!$end)
+			$errors['end'] = sprintf($txt['rps_error_incorrect_format'], $this->_req->getPost('rps_current_end'));
+		if($begin && $start && $begin > $start)
+			$errors['start'] = sprintf($txt['rps_error_begining_date_later_start'], $this->_req->getPost('rps_current_start'), $this->_req->getPost('rps_begining'));
+		if($end && $start)
+		{
+			$diff = $start->diff($end);
+			if($diff->invert)
+				$errors['start'] = sprintf($txt['rps_error_start_date_later_end'], $this->_req->getPost('rps_current_start'), $this->_req->getPost('rps_current_end'));
+
+			if(($diff->m == 4 && $diff->d != 0) || ($diff->m > 4))
+				$errors['range'] =sprintf($txt['rps_error_large_range'], $diff->m, $diff->d, $this->_req->getPost('rps_current_start'), $this->_req->getPost('rps_current_end'));
+		}
+		
+		if(!empty($errors))
+			unset($this->_req->query->save);
+		else{
+			$this->_req->post->rps_begining = $begin->format('Y-m-d');
+			$this->_req->post->rps_current_start = $start->format('Y-m-d');
+			$this->_req->post->rps_current_end = $end->format('Y-m-d');
+		}
+		
+		return $errors;
 	}
 
 	/**
@@ -705,7 +744,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 					editPhase($this->_req->post->moonphase, $datetime->format('Y-m-d'), $datetime->format('H:i:s'), $this->_req->post->phase);
 				else
 					insertPhase(array($date->format('Y-m-d'), $date->format('H:i:s'), $this->_req->post->phase));
-				updateSettings(array('gamecalendar_updated' => time()));
+				updateSettings(array('rps_gamecalendar_updated' => time()));
 			}
 
 			redirectexit('action=admin;area=rps;sa=phases');

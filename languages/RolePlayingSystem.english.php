@@ -9,6 +9,13 @@ $txt['rps_tags'] = 'Tags List';
 $txt['rps_characters'] = 'Character List';
 $txt['rps_gamecalendar'] = 'In-game Calendar';
 
+//BoardIndex
+$txt['rps_game_stats'] = 'Game Stats';
+$txt[''] = '';
+$txt[''] = '';
+$txt[''] = '';
+$txt[''] = '';
+
 //Display
 $txt['rps_tag_edit'] = 'Edit Tags';
 $txt['rps_display_date'] = 'Date Tag';
@@ -19,11 +26,6 @@ $txt['rps_post_character'] = 'Character:';
 $txt['rps_post_date'] = 'Date:';
 $txt['rps_post_tags'] = 'Tags:';
 $txt['rps_post_tags_desc'] = '(Separate tags with a comma. Existing tags will auto-complete.)';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
-$txt[''] = '';
 
 //Errors
 $txt['error_no_character_ic'] = 'Character selection required for an In Character board.';

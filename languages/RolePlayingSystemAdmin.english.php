@@ -62,9 +62,18 @@ $txt['permissionname_rps_remove_tags_any'] = 'Any account';
 $txt['rps_general_settings'] = 'General Settings';
 
 $txt['setting_rps_begining'] = 'First In-Game Date';
-$txt['setting_rps_real_date'] = 'Use Real World Date';
-$txt['setting_rps_current_start'] = 'Current Date Range: Start';
-$txt['setting_rps_current_end'] = 'Current Date Range: End';
+$txt['rps_beginning_desc'] = 'This is the first in-game date.  Posts can be set before this, but the calendar will not browse before this date.';
+$txt['setting_rps_current_date_range'] = 'Current Date Range';
+$txt['rps_dates_message'] = 'There should be no more than four(4) months between the Start and End Current Dates.';
+$txt['setting_rps_current_start'] = 'Start';
+$txt['setting_rps_current_end'] = 'End';
+$txt['rps_date_format'] = '(YYYY-MM-DD)';
+
+
+$txt['rps_error_incorrect_format'] = '<span class="error">%1$s is not in YYYY-MM-DD format.</span>';
+$txt['rps_error_begining_date_later_start'] = '<span class="error">The Start Date, %1$s, is earlier than the Beginning Date, %2$s.</span>';
+$txt['rps_error_start_date_later_end'] = '<span class="error">The Start Date, %1$s, is after the End Date, %2$s.</span>';
+$txt['rps_error_large_range'] = '<span class="error">The range, %3$s - %4$s, is %1$d month(s) and %2$d day(s) greater than 4 months.</span>';
 
 $txt['rps_calendar_settings'] = 'Game Calendar Settings';
 $txt['setting_rps_showholidays'] = 'Show Holidays';
