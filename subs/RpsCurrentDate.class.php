@@ -76,7 +76,7 @@ class RpsCurrentDate
 	 * Return the single instance of this class
 	 * @return Debug
 	 */
-	public static function get()
+	public static function instance()
 	{
 		if (self::$_instance === null)
 			self::$_instance = new RpsCurrentDate();

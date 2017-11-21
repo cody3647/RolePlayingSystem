@@ -39,13 +39,13 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				if ($value)
 				{
 					enableModules('role_playing_system', $modules);
-					Hooks::get()->enableIntegration('Role_Playing_System_Integrate');
+					Hooks::instance()->enableIntegration('Role_Playing_System_Integrate');
 				}
 				// Disabling, just forget about the modules
 				else
 				{
 					disableModules('role_playing_system', $modules);
-					Hooks::get()->disableIntegration('Role_Playing_System_Integrate');
+					Hooks::instance()->disableIntegration('Role_Playing_System_Integrate');
 				}
 			},
 		);
@@ -71,7 +71,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		loadLanguage('ManageSettings');
 		loadLanguage('ManageCalendar');
 		
-		$this->rps_date = RpsCurrentDate::get();
+		$this->rps_date = RpsCurrentDate::instance();
 		
 		// Default text.
 		$context['explain_text'] = $txt['calendar_desc'];

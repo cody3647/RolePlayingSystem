@@ -72,7 +72,7 @@ class Characterlist_Controller extends Action_Controller
 
 		loadTemplate('RpsCharacterlist');
 		$context['sub_template'] = 'characterlist';
-		Template_Layers::getInstance()->add('clsearch');
+		Template_Layers::instance()->add('clsearch');
 
 		$context['listing_by'] = $this->_req->getQuery('sa', 'trim', 'all');
 

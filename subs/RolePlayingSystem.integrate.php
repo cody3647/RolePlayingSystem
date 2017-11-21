@@ -201,7 +201,7 @@ class Role_Playing_System_Integrate
 	{
 		global $memberContext, $user_profile, $scripturl, $txt, $modSettings, $settings;
 		
-		$parsers = \BBC\ParserWrapper::getInstance();
+		$parsers = \BBC\ParserWrapper::instance();
 		
 		if (!empty($user_profile[$user]['characters']))
 		{

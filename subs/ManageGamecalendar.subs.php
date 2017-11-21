@@ -37,7 +37,7 @@ function removeEvents($event_ids)
 	);
 
 	updateSettings(array(
-		'gamecalendar_updated' => time(),
+		'rps_gamecalendar_updated' => time(),
 	));
 }
 
@@ -67,7 +67,7 @@ function editEvent($event, $year, $month, $day, $title)
 	);
 
 	updateSettings(array(
-		'gamecalendar_updated' => time(),
+		'rps_gamecalendar_updated' => time(),
 	));
 }
 
@@ -184,7 +184,7 @@ function removePhases($event_ids)
 	);
 
 	updateSettings(array(
-		'gamecalendar_updated' => time(),
+		'rps_gamecalendar_updated' => time(),
 	));
 }
 
@@ -213,7 +213,7 @@ function editPhase($id, $date, $time, $phase)
 	);
 
 	updateSettings(array(
-		'gamecalendar_updated' => time(),
+		'rps_gamecalendar_updated' => time(),
 	));
 }
 
@@ -330,7 +330,7 @@ function insert_downloaded_events($holidays, $phases, $postData)
 	insertPhase($phases);
 
 	updateSettings(array(
-		'gamecalendar_updated' => time(),
+		'rps_gamecalendar_updated' => time(),
 	));
 	
 }

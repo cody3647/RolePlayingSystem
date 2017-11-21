@@ -281,7 +281,7 @@ function printCharacterListRows($request)
 	// Load all the members for display.
 	$context['character'] = loadCharacterContext($characters);
 
-	$bbc_parser = \BBC\ParserWrapper::getInstance();
+	$bbc_parser = \BBC\ParserWrapper::instance();
 
 	$context['characters'] = array();
 	foreach ($characters as $character)

@@ -991,7 +991,7 @@ function loadCharacterCustomFields($memID, $charID, $area = 'summary', array $cu
 	$context['character_custom_fields'] = array();
 	$context['character_custom_fields_required'] = false;
 	
-	$bbc_parser = \BBC\ParserWrapper::getInstance();
+	$bbc_parser = \BBC\ParserWrapper::instance();
 	while ($row = $db->fetch_assoc($request))
 	{
 		// Shortcut.

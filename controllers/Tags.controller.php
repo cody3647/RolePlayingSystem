@@ -52,7 +52,7 @@ class Tags_Controller extends Action_Controller
 
 		loadTemplate('Json');
 		$context['sub_template'] = 'send_json';
-		$template_layers = Template_Layers::getInstance();
+		$template_layers = Template_Layers::instance();
 		$template_layers->removeAll();
 		$context['json_data'] = array();
 		

@@ -29,7 +29,7 @@ function getCalendarGrid($month, $year, $calendarOptions)
 	global $scripturl, $modSettings;
 
 	// Get todays date.
-	$current_dates = RpsCurrentDate::get();
+	$current_dates = RpsCurrentDate::instance();
 	
 	// Eventually this is what we'll be returning.
 	$calendarGrid = array(
@@ -162,7 +162,7 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
 	global $scripturl, $modSettings;
 
 	// Get todays date.
-	$current_dates = RpsCurrentDate::get();
+	$current_dates = RpsCurrentDate::instance();
 	$date = new DateTime($year . '-' . $month . '-' . $day);
 
 	// What is the actual "start date" for the passed day.
@@ -505,28 +505,6 @@ function getPhaseRange($low_date, $high_date)
 	return $phases;
 }
 
-
-
-/**
- * Returns date information about 'today' relative to the users time offset.
- *
- * - returns an array with the current date, day, month, and year.
- * takes the users time offset into account.
- *
- * @package Calendar
- */
-function getCurrentDate()
-{
-	global $modSettings;
-	$ret = array( 'start' => array(), 'end' => array());
-	
-	list($ret['start']['year'], $ret['start']['month'], $ret['start']['day']) = explode('-', $modSettings['rps_current_start']);
-	list($ret['end']['year'], $ret['end']['month'], $ret['end']['day']) = explode('-', $modSettings['rps_current_end']);
-	return $ret;
-}
-
-
-
 /**
  * Retrieve all events for the given days, independently of the users offset.
  *
@@ -537,21 +515,21 @@ function getCurrentDate()
  * - used by the cache_getRecentEvents function to get the information needed to calculate the events taking the users time offset into account.
  *
  * @package Calendar
- * @param int $days_to_index
+ * @param RpsCurrentDate $days_to_index
  * @return array
  */
-function cache_getOffsetIndependentEvents($days_to_index)
+function cache_getCurrentEvents(RpsCurrentDate $current_dates)
 {
 	$low_date = strftime('%Y-%m-%d', forum_time(false) - 24 * 3600);
 	$high_date = strftime('%Y-%m-%d', forum_time(false) + $days_to_index * 24 * 3600);
 
 	return array(
 		'data' => array(
-			'holidays' => getHolidayRange($low_date, $high_date),
-			'birthdays' => getBirthdayRange($low_date, $high_date),
-			'events' => getEventRange($low_date, $high_date, false),
+			'holidays' => getHolidayRange($current_dates->start_date, $current_dates->end_date),
+			'birthdays' => getBirthdayRange($current_dates->start_date, $current_dates->end_date),
+			'phases' => getEventRange($current_dates->start_date, $current_dates->end_date, false),
 		),
-		'refresh_eval' => 'return \'' . strftime('%Y%m%d', forum_time(false)) . '\' != strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
+		'refresh_eval' => 'return \'' . strftime('%Y%m%d', forum_time(false)) . '\' != strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'rps_gamecalendar_updated\']) && ' . time() . ' < $modSettings[\'rps_gamecalendar_updated\']);',
 		'expires' => time() + 3600,
 	);
 }
@@ -569,16 +547,18 @@ function cache_getOffsetIndependentEvents($days_to_index)
  */
 function cache_getRecentEvents($eventOptions)
 {
+	$current_dates = RpsCurrentDate::instance();
+	
 	// With the 'static' cached data we can calculate the user-specific data.
-	$cached_data = cache_quick_get('calendar_index', 'subs/Calendar.subs.php', 'cache_getOffsetIndependentEvents', array($eventOptions['num_days_shown']));
+	$cached_data = cache_quick_get('gamecalendar_index', 'subs/Gamecalendar.subs.php', 'cache_getCurrentEvents', array($current_dates));
 
 	// Get the information about today (from user perspective).
-	$current_dates = RpsCurrentDate::get();
+	
 
 	$return_data = array(
-		'calendar_holidays' => array(),
-		'calendar_birthdays' => array(),
-		'calendar_events' => array(),
+		'rps_holidays' => array(),
+		'rps_birthdays' => array(),
+		'rps_phases' => array(),
 	);
 
 	// Set the event span to be shown in seconds.
@@ -650,7 +630,7 @@ function cache_getRecentEvents($eventOptions)
 	return array(
 		'data' => $return_data,
 		'expires' => time() + 3600,
-		'refresh_eval' => 'return \'' . strftime('%Y%m%d', forum_time(false)) . '\' != strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'calendar_updated\']) && ' . time() . ' < $modSettings[\'calendar_updated\']);',
+		'refresh_eval' => 'return \'' . strftime('%Y%m%d', forum_time(false)) . '\' != strftime(\'%Y%m%d\', forum_time(false)) || (!empty($modSettings[\'rps_gamecalendar_updated\']) && ' . time() . ' < $modSettings[\'rps_gamecalendar_updated\']);',
 		'post_retri_eval' => '
 			global $context, $scripturl, $user_info;
 
@@ -702,7 +682,7 @@ function removeEvents($event_ids, $type = 'event')
 	);
 
 	updateSettings(array(
-		'gamecalendar_updated' => time(),
+		'rps_gamecalendar_updated' => time(),
 	));
 }
 
@@ -732,7 +712,7 @@ function editEvent($event, $year, $month, $day, $title)
 	);
 
 	updateSettings(array(
-		'gamecalendar_updated' => time(),
+		'rps_gamecalendar_updated' => time(),
 	));
 }
 
@@ -759,7 +739,7 @@ function insertEvent($year, $month, $day, $title)
 	);
 
 	updateSettings(array(
-		'gamecalendar_updated' => time(),
+		'rps_gamecalendar_updated' => time(),
 	));
 }
 
@@ -932,7 +912,7 @@ function insert_downloaded_events($holidays, $phases, $postData)
 	);
 
 	updateSettings(array(
-		'gamecalendar_updated' => time(),
+		'rps_gamecalendar_updated' => time(),
 	));
 	
 }

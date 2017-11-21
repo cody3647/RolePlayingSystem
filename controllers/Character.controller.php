@@ -968,7 +968,7 @@ class Character_Controller extends Action_Controller
 			$db->free_result($request);
 
 			$signature = censor($signature);
-			$bbc_parser = \BBC\ParserWrapper::getInstance();
+			$bbc_parser = \BBC\ParserWrapper::instance();
 			$signature = $bbc_parser->parseSignature($signature, true);
 
 			// And now what they want it to be

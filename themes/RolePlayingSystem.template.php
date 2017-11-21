@@ -15,6 +15,21 @@
  *
  */
 
+function template_ic_role_playing_system()
+{
+	global $txt, $scripturl, $context, $settings, $modSettings;
+
+	echo '
+			<li class="board_row">
+				<h3 class="ic_section_header">
+					<i class="icon icon-big i-dice"></i>' . $txt['rps_game_stats'] . '</a>
+				</h3>
+				<p class="inline">
+					', $context['common_stats']['boardindex_total_posts'], '', !empty($settings['show_latest_member']) ? ' - ' . $txt['latest_member'] . ': <strong> ' . $context['common_stats']['latest_member']['link'] . '</strong>' : '', ' - ', $txt['most_online_today'], ': ', comma_format($modSettings['mostOnlineToday']), '<br />
+					', (!empty($context['latest_post']) ? $txt['latest_post'] . ': <strong>&quot;' . $context['latest_post']['link'] . '&quot;</strong>  ( ' . $context['latest_post']['time'] . ' )' : ''), ' - <a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>
+				</p>
+			</li>';
+}
 
 function template_rps_post_above()
 {

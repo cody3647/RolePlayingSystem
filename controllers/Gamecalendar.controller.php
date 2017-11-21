@@ -30,7 +30,7 @@ class Gamecalendar_Controller extends Action_Controller
 	 */
 	public function action_index()
 	{
-		$this->current_dates = RpsCurrentDate::get();
+		$this->current_dates = RpsCurrentDate::instance();
 		// when you don't know what you're doing... we know! :P
 
 		$this->action_calendar();

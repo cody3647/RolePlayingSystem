@@ -111,7 +111,7 @@ class RolePlayingSystem_MessageIndex_Module extends ElkArte\sources\modules\Abst
 	public static function dateComparedFormat($date = null)
 	{
 		global $user_info;
-		$current_dates = RpsCurrentDate::get();
+		$current_dates = RpsCurrentDate::instance();
 		$tag_date = new DateTime($date);
 		
 		//$format = 'j M Y';
