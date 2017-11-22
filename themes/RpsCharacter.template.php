@@ -110,7 +110,7 @@ function template_create_form()
 
 	
 	echo '
-				<input type="submit" name="createSubmit" value="TXT create" tabindex="', $context['tabindex']++, '" class="right_submit" />';
+				<input type="submit" name="createSubmit" value="', $txt['rps_create_character'], '" tabindex="', $context['tabindex']++, '" class="right_submit" />';
 
 	echo '
 			</div>
