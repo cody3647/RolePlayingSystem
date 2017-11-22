@@ -43,14 +43,14 @@ function template_create_form()
 
 	echo '
 		<form action="', $scripturl, '?action=character;sa=create2" method="post" accept-charset="UTF-8" name="character_creation" id="character_creation">
-			<h2 class="category_header">TXT Create Form Header</h2>
+			<h2 class="category_header">', $txt['rps_create_character'], '</h2>
 				<fieldset class="content">
 					<dl class="settings">
 						<dt>
-							<strong><label for="name">TXT Name Label:</label></strong>
+							<strong><label for="name">', $txt['rps_create_label_name'], '</label></strong>
 						</dt>
 						<dd>
-							<input type="text" name="name" id="name" size="30" tabindex="', $context['tabindex']++, '" maxlength="60" value="', isset($cur_profile['name']) ? $cur_profile['name'] : '', '" class="input_text" placeholder="TXT Name" required="required" autofocus="autofocus" />
+							<input type="text" name="name" id="name" size="30" tabindex="', $context['tabindex']++, '" maxlength="60" value="', isset($cur_profile['name']) ? $cur_profile['name'] : '', '" class="input_text" placeholder="', $txt['rps_create_placeholder_name'], '" required="required" autofocus="autofocus" />
 							<span id="elk_autov_name_div" class="hide">
 								<a id="elk_autov_name_link" href="#">
 									<i id="elk_autov_name_img" class="icon i-check" alt="*"></i>
@@ -59,8 +59,8 @@ function template_create_form()
 						</dd>';
 	echo '
 						<dt>
-							<strong>TXT Birthdate</strong><br />
-							<span class="smalltext">TXT Explanation</span>
+							<strong>', $txt['rps_create_label_birthdate'], '</strong><br />
+							<span class="smalltext">', $txt['rps_create_desc_birthdate'], '</span>
 						</dt>
 						<dd>
 							<input type="text" name="bday3" size="4" maxlength="4" value="', isset($cur_profile['birth_date']['year']) ? $cur_profile['birth_date']['year'] : '', '" class="input_text" tabindex="', $context['tabindex']++, '" /> -
@@ -70,7 +70,7 @@ function template_create_form()
 
 	echo '
 						<dt>
-							<strong>TXT Title:</strong>
+							<strong><label for="title">', $txt['rps_create_label_title'], '</label></strong>
 						</dt>
 						<dd>
 							<input type="text" name="title" id="title" size="30" value="', isset( $cur_profile['title'] ) ? $cur_profile['title'] : '', '" tabindex="', $context['tabindex']++, '" class="input_text" />

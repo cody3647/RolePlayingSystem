@@ -52,6 +52,15 @@ $txt['rps_edit_character'] = 'Editing Character: ';
 $txt['rps_edit_character_desc'] = 'You can change information about a character here.  This information will be displayed on the character profile and throughout the forum.';
 //Character:Creating
 $txt['rps_create_character'] = 'Create Character';
+$txt['rps_create_label_name'] = 'Character Name:';
+$txt['rps_create_placeholder_name'] = 'Name';
+$txt['rps_create_label_birthdate'] = 'Birthdate:';
+$txt['rps_create_desc_birthdate'] = 'Please enter as YYYY-MM-DD';
+$txt['rps_create_label_title'] = 'Title:';
+$txt['rps_'] = '';
+$txt['rps_'] = '';
+$txt['rps_'] = '';
+
 $txt['rps_create_character_success'] = 'Character Created';
 $txt['rps_create_character_success_desc'] = 'Congratulations, your character has been successfully created.';
 //Character
