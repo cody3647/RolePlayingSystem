@@ -622,7 +622,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				'file' => SUBSDIR . '/ManageGamecalendar.subs.php',
 				'function' => 'list_getNumPhases',
 			),
-			'no_items_label' => 'TXT No moon phases found',
+			'no_items_label' => $txt['rps_moon_phases_list_none'],
 			'columns' => array(
 				'phase' => array(
 					'header' => array(

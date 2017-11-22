@@ -108,6 +108,7 @@ $txt['rps_Islamic'] = 'Islamic Holidays';
 $txt['rps_Islamic_desc'] = 'Data will be provided for the years 622 C.E. (A.H. 1) through 2100 C.E. (A.H. 1767).';
 $txt['rps_moon_phases'] = 'Moon Phases';
 $txt['rps_moon_phases_desc'] = ' The data can be generated for any year between 1700 C.E. and 2100 C.E.';
+$txt['rps_moon_phases_list_none'] = 'No moon phases have been added, yet.';
 $txt['rps_timezone'] = 'Timezone for Game';
 $txt['rps_phases_list'] = 'List of Moon Phases';
 $txt['rps_phases_list_phase'] = 'Phase';
