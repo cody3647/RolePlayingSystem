@@ -17,23 +17,25 @@
 			<form id="quickModForm" action="', $scripturl, '?action=quickmod2;topic=', $context['current_topic'], '.', $context['start'], '" method="post" accept-charset="UTF-8" name="quickModForm" onsubmit="return oQuickModify.bInEditMode ? oQuickModify.modifySave(\'' . $context['session_id'] . '\', \'' . $context['session_var'] . '\') : false">';]]></search>
 			<add><![CDATA[
 
-		template_rps_display_tags();
+		if (function_exists('template_rps_display_tags'))
+			template_rps_display_tags();
 
 		]]></add>
 		</operation>
 
 	</file>
 
-	<file name="THEMEDIR/Post.template.php">
+	<file name="THEMEDIR/ManageBoards.template.php">
 		<operation>
-			<search position="before"><![CDATA[	echo '
+			<search position="after"><![CDATA[	echo '
 				<div class="submitbutton">
 					<input type="hidden" name="rid" value="', $context['redirect_location'], '" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '" />';]]></search>
 			<add><![CDATA[
 	
-	template_rps_display_tags();
+	if (function_exists('template_rps_manageboards_ic'))
+			template_rps_manageboards_ic();
 	]]></add>
 		</operation>
 	</file>
@@ -41,7 +43,7 @@
 	<file name="THEMEDIR/MessageIndex.template.php">
 		<operation>
 			<search position="replace"><![CDATA[', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic['default_preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span></span>', $topic['is_sticky'] ? '</strong>' : '', ']]></search>
-			<add><![CDATA[', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic['default_preview'], '">', $topic['date_tag'] ? '<span class="rps_date_tag">[' . $topic['date_tag'] . ']</span> ' : '', '<span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span></span>', $topic['is_sticky'] ? '</strong>' : '', ']]></add>
+			<add><![CDATA[', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic['default_preview'], '">', ( !empty($topic['date_tag']) ? '<span class="rps_date_tag">[' . $topic['date_tag'] . ']</span> ' : '' ) , '<span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span></span>', $topic['is_sticky'] ? '</strong>' : '', ']]></add>
 		</operation>
 	</file>
 

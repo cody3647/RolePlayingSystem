@@ -23,7 +23,7 @@ $dbtbl = db_table();
 
 $tables = array(
     array(
-        'name' => '{db_prefix}rps_characters',
+        'name' => 'characters',
         'columns' => array(
 			array('name' => 'id_character',	'type' => 'mediumint',	'size' => 8,	'unsigned' => true,	'auto' => true),
 			array('name' => 'id_member',	'type' => 'mediumint',	'size' => 8,	'unsigned' => true),
@@ -44,7 +44,7 @@ $tables = array(
         )
     ),
 	array(
-        'name' => '{db_prefix}rps_events',
+        'name' => 'events',
         'columns' => array(
             array('name' => 'id_event',		'type' => 'smallint',	'size' => 8,	'unsigned' => true,	'auto' => true),
 			array('name' => 'event_year',	'type' => 'smallint',	'size' => 4,	'default' => 0 ),
@@ -58,7 +58,7 @@ $tables = array(
         )
     ),
 	array(
-        'name' => '{db_prefix}rps_phases',
+        'name' => 'phases',
         'columns' => array(
             array('name' => 'id_phase',		'type' => 'smallint',	'size' => 8,	'unsigned' => true,	'auto' => true),
 			array('name' => 'phase_date',	'type' => 'date'),
@@ -71,7 +71,7 @@ $tables = array(
         )
     ),
 	array(
-        'name' => '{db_prefix}rps_tags',
+        'name' => 'tags',
         'columns' => array(
             array('name' => 'id_tag',	'type' => 'mediumint',	'size' => 8,	'unsigned' => true,	'auto' => true),
 			array('name' => 'tag',		'type' => 'varchar',	'size' => 255),
@@ -82,7 +82,7 @@ $tables = array(
         )
     ),
 	array(
-        'name' => '{db_prefix}rps_tags_data',
+        'name' => 'tags_data',
         'columns' => array(
             array('name' => 'id_topic',		'type' => 'mediumint',	'size' => 8,	'unsigned' => true,	'auto' => true),
 			array('name' => 'id_tag',		'type' => 'mediumint',	'size' => 8,	'unsigned' => true),
@@ -96,7 +96,7 @@ $tables = array(
         )
     ),
 	array(
-		'name' => '{db_prefix}rps_character_fields',
+		'name' => 'character_fields',
 		'columns' => array(
 			array('name' => 'id_field',        'type' => 'smallint', 'size' => 5, 'auto' => true),
 			array('name' => 'col_name',        'type' => 'varchar', 'default' => '', 'size' => 12),
@@ -127,7 +127,7 @@ $tables = array(
 		),
 	),
 	array(
-		'name' => '{db_prefix}custom_fields_data',
+		'name' => 'character_fields_data',
 		'columns' => array(
 			array('name' => 'id_character', 'type' => 'mediumint', 'size' => 8, 'unsigned' => true, 'default' => 0),
 			array('name' => 'variable',  'type' => 'varchar', 'size' => 255, 'default' => ''),
@@ -141,6 +141,6 @@ $tables = array(
 );
 
 foreach ($tables as $table)
-    $dbtbl->db_create_table('{db_prefix}' . $table['name'], $table['columns'], $table['indexes'], array(), 'ignore');
+    $dbtbl->db_create_table('{db_prefix}rps_' . $table['name'], $table['columns'], $table['indexes'], array(), 'ignore');
 
 $new_columns = array();

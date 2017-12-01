@@ -48,14 +48,45 @@
 		<require-file name="themes/RpsCharacterlist.template.php" destination="THEMEDIR" />
 		<require-file name="themes/RpsCharacterProfile.template.php" destination="THEMEDIR" />
 		<require-file name="themes/RpsTags.template.php" destination="THEMEDIR" />
+		<require-file name="feature_rps.png" destination="THEMEDIR/images/admin" />
 		
 		<credits url="www.elkarte.net" license="BSD-3-Clause" copyright="cody">Role Playing System</credits>
-		<redirect url="?action=admin;area=rps" timeout="5000">redirect.txt</redirect>
+		<redirect url="?action=admin;area=corefeatures" timeout="5000">redirect.txt</redirect>
 	</install>
 
 	<uninstall for="1.0 - 1.0.99">
 		<readme type="file" parsebbc="true">readme-uninstall.txt</readme>
 		<modification type="file" reverse="true">install.xml</modification>
+		
+		<remove-file  name="ADMINDIR/ManageCharacters.controller.php" />
+		<remove-file  name="ADMINDIR/ManageRolePlayingSystemModule.controller.php" />
+		
+		<remove-file  name="CONTROLLERDIR/Character.controller.php" />
+		<remove-file  name="CONTROLLERDIR/Characterlist.controller.php" />
+		<remove-file  name="CONTROLLERDIR/Gamecalendar.controller.php" />
+		<remove-file  name="CONTROLLERDIR/Tags.controller.php" />
+		
+		<remove-dir name="THEMEDIR/css/RolePlayingSystem" />
+		
+		<remove-file  name="LANGUAGEDIR/english/RolePlayingSystem.english.php" />
+		<remove-file  name="LANGUAGEDIR/english/RolePlayingSystemAdmin.english.php" />
+		
+		<remove-dir name="SOURCEDIR/modules/RolePlayingSystem" />
+		
+		<remove-file  name="SUBSDIR/Character.subs.php" />
+		<remove-file  name="SUBSDIR/Characterlist.subs.php" />
+		<remove-file  name="SUBSDIR/RolePlayingSystem.integrate.php" />
+		<remove-file  name="SUBSDIR/RpsCurrentDate.class.php" />
+		<remove-file  name="SUBSDIR/Tags.subs.php" />
+		
+		<remove-file  name="THEMEDIR/ManageRolePlayingSystem.template.php" />
+		<remove-file  name="THEMEDIR/RolePlayingSystem.template.php" />
+		<remove-file  name="THEMEDIR/RpsCalendar.template.php" />
+		<remove-file  name="THEMEDIR/RpsCharacter.template.php" />
+		<remove-file  name="THEMEDIR/RpsCharacterlist.template.php" />
+		<remove-file  name="THEMEDIR/RpsCharacterProfile.template.php" />
+		<remove-file  name="THEMEDIR/RpsTags.template.php" />
+		<remove-file  name="THEMEDIR/images/admin/feature_rps.png" />
 		
 		<remove-file name="SUBSDIR/" />
 		<remove-file name="CONTROLLERDIR/" />
