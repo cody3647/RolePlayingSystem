@@ -339,7 +339,7 @@ class Tags_Controller extends Action_Controller
 		loadJavascriptFile('topic.js');
 		
 		$bbc = \BBC\ParserWrapper::instance();
-		$context['name'] = $this->_tag['name'];
+		$context['name'] = $txt['rps_tag_title'] . $this->_tag['name'];
 		$context['sub_template'] = 'topic_listing';
 		$context['description'] = $bbc->parseBoard($this->_tag['description']);
 		
@@ -403,7 +403,7 @@ class Tags_Controller extends Action_Controller
 		);
 		$context['linktree']+=array(
 			1=> array(
-				'name' => $txt['rps_tags'],
+				'name' => $txt['rps_tags_title'],
 				'url' => $scripturl . '?action=tags',
 			),
 			2 => array(
@@ -464,7 +464,7 @@ class Tags_Controller extends Action_Controller
 		//else
 			$context['is_marked_notify'] = false;
 		// 'Print' the header and board info.
-		$context['page_title'] = strip_tags($this->_tag['name']);
+		$context['page_title'] = $txt['rps_tag_title'] . strip_tags($this->_tag['name']);
 		// Set the variables up for the template.
 		$context['can_mark_notify'] = false && allowedTo('mark_notify') && !$user_info['is_guest'];
 		$context['can_post_new'] = false && allowedTo('post_new') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_topics'));

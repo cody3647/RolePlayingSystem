@@ -93,13 +93,6 @@ $txt['rps_tags_add_tags_label'] = 'Tags:';
 //Tags: Topics Display
 $txt['who_viewing_tag'] = ' are viewing this tag.'; //Overwrites  $txt['who_viewing_board'] in Tags Controller
 $txt['rps_tag_title'] = 'Tag: ';
-$txt['rps_tag_list_title'] = 'Topics tagged with: ';
-$txt['rps_tag_list_none'] = 'There are no topics, that you can see, with this tag.';
-$txt['rps_tag_topic'] = 'Subject';
-$txt['rps_tag_started'] = 'Started By:';
-$txt['rps_tag_last_post'] = 'Last Post On';
-$txt['rps_tag_topic_date'] = 'In-game Date';
-$txt['rps_tag_replies'] = 'Replies';
 //Tags: List
 $txt['rps_tags_title'] = 'Tags';
 $txt['rps_tags_list']  = 'Tags';
