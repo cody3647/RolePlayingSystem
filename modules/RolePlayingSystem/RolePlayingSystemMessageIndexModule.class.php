@@ -39,7 +39,8 @@ class RolePlayingSystem_MessageIndex_Module extends ElkArte\sources\modules\Abst
 			$indexOptions['custom_joins'] = array();
 		
 		$indexOptions['custom_selects']= array_merge($indexOptions['custom_selects'], array('ml.id_character AS last_id_character', 'mf.id_character AS first_id_character', 'charl.name AS last_character_name', 'charf.name AS first_character_name','t.date_tag'));
-		$indexOptions['custom_joins'] = array_merge($indexOptions['custom_joins'], array('LEFT JOIN {db_prefix}rps_characters AS charl ON (charl.id_character = ml.id_character)', 'LEFT JOIN {db_prefix}rps_characters AS charf ON (charf.id_character = mf.id_character)'));
+		$indexOptions['custom_joins'] = array_merge($indexOptions['custom_joins'], array('
+		LEFT JOIN {db_prefix}rps_characters AS charl ON (charl.id_character = ml.id_character)', 'LEFT JOIN {db_prefix}rps_characters AS charf ON (charf.id_character = mf.id_character)'));
 
 		if (!empty($indexOptions['include_avatars']))
 		{

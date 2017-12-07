@@ -38,6 +38,10 @@ class Role_Playing_System_Integrate
 			array('integrate_messageindex_topics', 'RolePlayingSystem_MessageIndex_Module::integrate_messageindex_topics'),
 			array('integrate_messageindex_listing', 'RolePlayingSystem_MessageIndex_Module::integrate_messageindex_listing'),
 			array('integrate_action_messageindex_after', 'RolePlayingSystem_MessageIndex_Module::integrate_action_messageindex_after'),
+			
+			array('integrate_tagindex_topics', 'RolePlayingSystem_MessageIndex_Module::integrate_messageindex_topics'),
+			array('integrate_tagindex_listing', 'RolePlayingSystem_MessageIndex_Module::integrate_messageindex_listing'),
+			array('integrate_action_tagindex_after', 'RolePlayingSystem_MessageIndex_Module::integrate_action_messageindex_after'),
 		);
 	}
 	

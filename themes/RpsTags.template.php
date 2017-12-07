@@ -25,18 +25,12 @@ function template_RpsTags_init()
 
 function template_edit_topic()
 {
-	// Custom fields.
+	// Show the list to edit a topic's tags
 	template_show_list('edit_topic');
-}
-
-function template_view_tag()
-{
-	// Custom fields.
-	template_show_list('view_tag');
 }
 
 function template_tags_list()
 {
-	// Custom fields.
+	// Show the list of tags
 	template_show_list('tags_list');
 }

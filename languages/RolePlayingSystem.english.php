@@ -91,6 +91,7 @@ $txt['rps_tags_list_removetag'] = 'Remove Tags';
 $txt['rps_tags_add_tags'] = 'Add Tags to ';
 $txt['rps_tags_add_tags_label'] = 'Tags:';
 //Tags: Topics Display
+$txt['who_viewing_tag'] = ' are viewing this tag.'; //Overwrites  $txt['who_viewing_board'] in Tags Controller
 $txt['rps_tag_title'] = 'Tag: ';
 $txt['rps_tag_list_title'] = 'Topics tagged with: ';
 $txt['rps_tag_list_none'] = 'There are no topics, that you can see, with this tag.';
