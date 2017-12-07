@@ -73,8 +73,9 @@ $tables = array(
 	array(
         'name' => 'tags',
         'columns' => array(
-            array('name' => 'id_tag',	'type' => 'mediumint',	'size' => 8,	'unsigned' => true,	'auto' => true),
-			array('name' => 'tag',		'type' => 'varchar',	'size' => 255),
+            array('name' => 'id_tag',		'type' => 'mediumint',	'size' => 8,	'unsigned' => true,	'auto' => true),
+			array('name' => 'tag',			'type' => 'varchar',	'size' => 255),
+			array('name' => 'description',	'type' => 'text',		'default' => '' ),
         ),
         'indexes' => array(
 			array('name' => 'primary',	'type' => 'primary',	'columns' => array('id_tag')	),
@@ -144,3 +145,26 @@ foreach ($tables as $table)
     $dbtbl->db_create_table('{db_prefix}rps_' . $table['name'], $table['columns'], $table['indexes'], array(), 'ignore');
 
 $new_columns = array();
+
+
+//Default Settings
+global $modSettings;
+
+$defaults = array(
+	'rps_current_start' => 2000-01-01,
+	'rps_current_end' => 2000-01-01,
+	'rps_begining' => 2000-01-01,
+
+);
+
+$updates = array(
+	'rps_version' => '1.0',
+);
+
+foreach ($defaults as $index => $value)
+{
+	if (!isset($modSettings[$index]))
+		$updates[$index] = $value;
+}
+
+updateSettings($updates);
