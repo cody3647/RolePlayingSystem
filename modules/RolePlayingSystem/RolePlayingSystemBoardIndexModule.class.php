@@ -67,28 +67,55 @@ class RolePlayingSystem_BoardIndex_Module extends ElkArte\sources\modules\Abstra
 	}
 
 	/**
-	 * post load functions, load calendar events for the board index as part of BoardIndex
+	 * post load functions, load Role Playing Game System elements into the board index.
+	 * An infocenter section and character that posted in in-character boards
 	 *
 	 * @param array $callbacks
 	 */
-	public function post1_load(&$callbacks)
-	{
-		global $context;
-
-		if (empty($context['calendar_holidays']) && empty($context['calendar_birthdays']) && empty($context['calendar_events']))
-			return;
-
-		$callbacks = elk_array_insert($callbacks, 'recent_posts', array('show_events'), 'after', false);
-	}
 
 	public function post_load(&$callbacks)
 	{
-		global $context;
+		global $context, $scripturl, $txt;
 
 		loadTemplate('RolePlayingSystem');
 		loadLanguage('RolePlayingSystem');
 		$callbacks[] = 'role_playing_system';
-	}
-	
+		
+		$db = database();
+		$request = $db->query('boardindex_fetch_boards', '
+			SELECT 
+				b.id_board, b.id_cat, b.id_parent, m.id_msg, ch.id_character, ch.name, ch.avatar
+			FROM {db_prefix}boards AS b
+				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
+				LEFT JOIN {db_prefix}rps_characters AS ch ON (ch.id_character = m.id_character)
+			WHERE {query_see_board}
+				AND b.in_character = 1
+				AND b.child_level < 2
+			ORDER BY b.board_order',
+			array()
+		);
+		$last_posts = array();
+		while ($row = $db->fetch_assoc($request)) {
+			$last_posts[$row['id_msg']] = array(
+				'id' => $row['id_msg'],
+				'name' => $row['name'],
+				'username' => $row['name'],
+				'href' => !empty($row['name']) && !empty($row['id_character']) ? $scripturl . '?action=character;c=' . $row['id_character'] : '',
+				'link' => !empty($row['name']) && !empty($row['id_character']) ? '<a href="' . $scripturl . '?action=character;c=' . $row['id_character'] . '">' . $row['name'] . '</a>' : '',
+				'avatar' => Role_Playing_System_Integrate::determineCharacterAvatar(array('avatar' => $row['avatar'])),
+			);
 
+		}
+		
+		foreach ($context['categories'] as &$category){
+			foreach ($category['boards'] as &$board){
+				
+				if (isset($last_posts[$board['last_post']['id']])) {
+					$board['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $last_posts[$board['last_post']['id']]['link'], $board['last_post']['link'], $board['last_post']['html_time']);
+					$board['last_post']['member']['avatar'] = $last_posts[$board['last_post']['id']]['avatar'];
+				}
+			}
+		}
+	
+	}
 }

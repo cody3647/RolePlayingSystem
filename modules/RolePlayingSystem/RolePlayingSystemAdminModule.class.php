@@ -151,7 +151,6 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 	
 	public static function integrate_modify_board($board_id, $boardOptions, &$boardUpdates, &$boardUpdateParameters)
 	{
-			// This setting is a little twisted in the database...
 		if (isset($boardOptions['in_character']))
 		{
 			$boardUpdates[] = 'in_character = {int:in_character}';
