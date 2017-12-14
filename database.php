@@ -21,7 +21,7 @@ elseif (!defined('ELK'))
 
 $dbtbl = db_table();
 
-$tables = array(
+$new_tables = array(
     array(
         'name' => 'characters',
         'columns' => array(
@@ -141,19 +141,50 @@ $tables = array(
 	)
 );
 
-foreach ($tables as $table)
+foreach ($new_tables as $table)
     $dbtbl->db_create_table('{db_prefix}rps_' . $table['name'], $table['columns'], $table['indexes'], array(), 'ignore');
 
-$new_columns = array();
+$new_columns = array(
+	array(
+		'table' => '{db_prefix}boards',
+		'info' => array(
+			'name' => 'in_character',
+			'type' => 'tinyint',
+			'size' => '3',
+			'default'=> '0',
+		)
+	),
+	array(
+		'table' => '{db_prefix}topics',
+		'info' => array(
+			'name' => 'date_tag',
+			'type' => 'date', 
+			'null' => true,
+		)
+	),
+	array(
+		'table' => '{db_prefix}messages',
+		'info' => array(
+			'name' => 'id_character',
+			'type' => 'mediumint',
+			'size' => 8,
+			'unsigned' => true,
+			'default' => 0,
+		)
+	),
+);
+
+foreach($new_columns as $column)
+	$dbtbl->db_add_column($column['table'],$column['info']);
 
 
 //Default Settings
 global $modSettings;
 
 $defaults = array(
-	'rps_current_start' => 2000-01-01,
-	'rps_current_end' => 2000-01-01,
-	'rps_begining' => 2000-01-01,
+	'rps_current_start' => '2000-01-01',
+	'rps_current_end' => '2000-01-01',
+	'rps_begining' => '2000-01-01',
 
 );
 
