@@ -33,10 +33,10 @@ class RpsCurrentDate
 		$this->span_year = $this->start_year != $this->end_year;
 		$this->minyear = substr($modSettings['rps_begining'], 0, 4);
 		$this->maxyear = $this->end_year + 5;
-		$this->getMonths();
+		//$this->getMonths();
 	}
 	
-	private function getMonths()
+/*	private function getMonths()
 	{
 		$interval = DateInterval::createFromDateString('1 month');
 		$period   = new DatePeriod($this->start_date, $interval, $this->end_date);
@@ -47,7 +47,7 @@ class RpsCurrentDate
 		if(end($this->span_months) != $this->end_date->format('n'))
 			$this->span_months[] = $this->end_date->format('n');
 	}
-	
+	*/
     public function __toString()
     {
 		global $user_info;

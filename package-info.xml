@@ -37,6 +37,7 @@
 		
 		<require-file name="subs/Character.subs.php" destination="SUBSDIR" />
 		<require-file name="subs/Characterlist.subs.php" destination="SUBSDIR" />
+		<require-file name="subs/Gamecalendar.subs.php" destination="SUBSDIR" />
 		<require-file name="subs/RolePlayingSystem.integrate.php" destination="SUBSDIR" />
 		<require-file name="subs/RpsCurrentDate.class.php" destination="SUBSDIR" />
 		<require-file name="subs/Tags.subs.php" destination="SUBSDIR" />
@@ -88,11 +89,6 @@
 		<remove-file  name="THEMEDIR/RpsTags.template.php" />
 		<remove-file  name="THEMEDIR/images/admin/feature_rps.png" />
 		
-		<remove-file name="SUBSDIR/" />
-		<remove-file name="CONTROLLERDIR/" />
-		<remove-file name="THEMEDIR/" />
-		<remove-file name="LANGUAGEDIR/english/" />
-		<remove-file name="SOURCEDIR/" />
 	</uninstall>
 
 </package-info>

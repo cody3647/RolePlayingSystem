@@ -486,7 +486,7 @@ function getPhaseRange($low_date, $high_date)
 	// Find some holidays... ;).
 	$result = $db->query('', '
 		SELECT phase, phase_date, phase_time
-		FROM {db_prefix}rps_events_phases
+		FROM {db_prefix}rps_phases
 		WHERE phase_date <= {date:high_date}
 			AND phase_date >= {date:low_date}',
 		array(
@@ -903,7 +903,7 @@ function insert_downloaded_events($holidays, $phases, $postData)
 	);
 	
 	$db->insert('ignore',
-		'{db_prefix}rps_events_phases',
+		'{db_prefix}rps_phases',
 		array(
 			'phase' => 'string-13', 'phase_date' => 'date', 'phase_time' => 'string-8',
 		),

@@ -176,7 +176,7 @@ function removePhases($event_ids)
 		$event_ids = array($event_ids);
 
 	$db->query('', '
-		DELETE FROM {db_prefix}rps_events_phases
+		DELETE FROM {db_prefix}rps_phases
 		WHERE id_phase IN ({array_int:id_phase})',
 		array(
 			'id_phase' => $event_ids,
@@ -201,7 +201,7 @@ function editPhase($id, $date, $time, $phase)
 	$db = database();
 	
 	$db->query('', '
-		UPDATE {db_prefix}rps_events_phases
+		UPDATE {db_prefix}rps_phases
 		SET phase_date = {date:phase_date}, phase_time = {string:phase_time}, phase = {string:phase}
 		WHERE id_phase = {int:selected_event}',
 		array(
@@ -232,7 +232,7 @@ function getPhase($id_phase)
 
 	$request = $db->query('', '
 		SELECT id_phase, phase, YEAR(phase_date) as phase_year, MONTH(phase_date) as phase_month, DAY(phase_date) as phase_day, HOUR(phase_time) as phase_hour, MINUTE(phase_time) as phase_minute
-		FROM {db_prefix}rps_events_phases
+		FROM {db_prefix}rps_phases
 		WHERE id_phase = {int:selected_event}
 		LIMIT 1',
 			array(
@@ -273,7 +273,7 @@ function list_getPhases($start, $items_per_page, $sort)
 
 	return $db->fetchQuery('
 		SELECT id_phase, phase, phase_date, phase_time
-		FROM {db_prefix}rps_events_phases
+		FROM {db_prefix}rps_phases
 		ORDER BY {raw:sort}
 		LIMIT ' . $start . ', ' . $items_per_page,
 		array(
@@ -294,7 +294,7 @@ function list_getNumPhases()
 
 	$request = $db->query('', '
 		SELECT COUNT(*)
-		FROM {db_prefix}rps_events_phases',
+		FROM {db_prefix}rps_phases',
 		array(
 		)
 	);
@@ -368,7 +368,7 @@ function insertPhase($phases)
 	$db = database();
 
 	$db->insert('ignore',
-		'{db_prefix}rps_events_phases',
+		'{db_prefix}rps_phases',
 		array(
 			'phase_date' => 'date', 'phase_time' => 'string-8', 'phase' => 'string-13',
 		),
