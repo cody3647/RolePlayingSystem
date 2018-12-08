@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Class for getting and formatting the current date range of the game.
+ *
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ */
 class RpsCurrentDate
 {
 	/**

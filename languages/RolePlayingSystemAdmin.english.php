@@ -1,5 +1,5 @@
 <?php
-// Version: 1.1; Addons
+// Version: 1.0; Role Playing System Administration
 
 //Menu
 $txt['rps_game'] = 'Game';
@@ -30,8 +30,6 @@ $txt['rps_events'] = 'Events';
 $txt['rps_events_desc'] = 'From this page you can manage events for the game calendar';
 $txt['rps_phases'] = 'Moon Phases';
 $txt['rps_phases_desc'] = 'From this page you can manage moon phases for the game calendar';
-$txt['rps_fields'] = 'Custom Character Fields';
-$txt['rps_fields_desc'] = 'From this page you can create your own custom character fields that fit in with your own forums requirements';
 $txt['rps_download'] = 'Download Holidays and Moon Phases';
 $txt['rps_download_desc'] = 'Download Christian, Jewish, and  Islamic holidays with changing dates, as well as moon phases.  Information originally gathered from <a href="http://aa.usno.navy.mil/data/docs/api.php" title="U.S. Naval Observatory Astronomical Applications API v2.0">U.S. Naval Observatory Astronomical Applications API v2.0</a>.';
 
@@ -117,10 +115,6 @@ $txt['rps_phase_title_edit'] = 'Edit Moon Phase';
 $txt['rps_phase_label_phase'] = 'Phase: ';
 $txt['rps_phase_label_time'] = 'Time: ';
 $txt['rps_phases_list_none'] = 'There are currently no moon phases to display.';
-
-//Manage Custom Character Fields
-$txt['rps_fields_list'] = 'Custom Character Fields';
-$txt['rps_fields_none'] = 'You have not created any custom character fields yet!';
 
 //Tags
 $txt['rps_tags_'] = '';

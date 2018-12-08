@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Allows for the modifying of the forum drafts settings.
+ * Allows for the changing of Role Playing System Settings.
  *
- * @name      ElkArte Forum
- * @copyright ElkArte Forum contributors
- * @license   BSD http://opensource.org/licenses/BSD-3-Clause
- *
- * @version 1.1 beta 4
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
  */
 
 /**
@@ -103,11 +103,6 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				'function' => 'action_rpsSettings_display', 
 				'permission' => 'admin_forum'
 			),
-			'fields' => array(
-				'controller' => 'ManageCharacters_Controller',
-				'function' => 'action_fields',
-				'permission' => 'admin_forum'
-			),
 			'editevent' => array(
 				'controller' => $this, 
 				'function' => 'action_editevent', 
@@ -116,11 +111,6 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			'editphase' => array(
 				'controller' => $this, 
 				'function' => 'action_editphase', 
-				'permission' => 'admin_forum'
-			),
-			'fieldedit' => array(
-				'controller' => 'ManageCharacters_Controller',
-				'function' => 'action_field_edit',
 				'permission' => 'admin_forum'
 			),
 		);
@@ -143,9 +133,6 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				),
 				'phases' => array(
 					'description' => $txt['rps_phases_desc'],
-				),
-				'fields' => array(
-					'description' => $txt['rps_fields_desc'],
 				),
 				'download' => array(
 					'description' => $txt['rps_download_desc'],

@@ -1,10 +1,11 @@
 <?php
 
 /**
+ * Database changes and default settings.
  * @package Role Playing System
  * @version 1.0
  * @author Cody Williams <williams.c@gmail.com>
- * @copyright (c) Cody Williams, 2017
+ * @copyright Cody Williams
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
  */
 
@@ -21,6 +22,7 @@ elseif (!defined('ELK'))
 
 $dbtbl = db_table();
 
+#New database tables to add.
 $new_tables = array(
     array(
         'name' => 'characters',
@@ -30,13 +32,19 @@ $new_tables = array(
 			array('name' => 'name',			'type' => 'varchar',	'size' => 255),
 			array('name' => 'avatar',		'type' => 'varchar',	'size' => 255,	'default' => ''),
 			array('name' => 'signature',	'type' => 'text'),
-			array('name' => 'birthdate',	'type' => 'date',		'default' => '0000-00-01'),
-			array('name' => 'title',		'type' => 'varchar',	'size' => 255,	'default' => ''),
 			array('name' => 'posts',		'type' => 'mediumint',	'size' => 8,	'unsigned' => true,	'default' => 0),
 			array('name' => 'date_created',	'type' => 'int',		'size' => 10,	'unsigned' => true,	'default' => 0),
 			array('name' => 'last_active',	'type' => 'int',		'size' => 10,	'unsigned' => true,	'default' => 0),
 			array('name' => 'approved',	'type' => 'tinyint',		'size' => 3,	'default' => 0	),
-			array('name' => 'retired',	'type' => 'tinyint',		'size' => 3,	'default' => 0	)
+			array('name' => 'retired',	'type' => 'tinyint',		'size' => 3,	'default' => 0	),
+			array('name' => 'title',		'type' => 'varchar',	'size' => 255,	'default' => ''),
+			array('name' => 'birthdate',	'type' => 'date',		'default' => '0000-00-01'),
+			array('name' => 'personal_text',		'type' => 'varchar',	'size' => 255,	'default' => ''),
+			array('name' => 'custom_1',		'type' => 'varchar',	'size' => 255,	'default' => ''),
+			array('name' => 'custom_2',		'type' => 'varchar',	'size' => 255,	'default' => ''),
+			array('name' => 'custom_3',		'type' => 'varchar',	'size' => 255,	'default' => ''),
+			array('name' => 'custom_4',		'type' => 'varchar',	'size' => 255,	'default' => ''),
+			array('name' => 'custom_5',		'type' => 'varchar',	'size' => 255,	'default' => ''),
 			),
         'indexes' => array(
 			array('name' => 'primary', 'type' => 'primary',	'columns' => array('id_character')	),
@@ -96,54 +104,12 @@ $new_tables = array(
 			array('name' => 'tag',		'type' => 'key',		'columns' => array('id_tag')	),
         )
     ),
-	array(
-		'name' => 'character_fields',
-		'columns' => array(
-			array('name' => 'id_field',        'type' => 'smallint', 'size' => 5, 'auto' => true),
-			array('name' => 'col_name',        'type' => 'varchar', 'default' => '', 'size' => 12),
-			array('name' => 'field_name',      'type' => 'varchar', 'default' => '', 'size' => 40),
-			array('name' => 'field_desc',      'type' => 'varchar', 'default' => '', 'size' => 255),
-			array('name' => 'field_type',      'type' => 'varchar', 'default' => 'text', 'size' => 8),
-			array('name' => 'field_length',    'type' => 'smallint', 'size' => 5, 'default' => 255),
-			array('name' => 'field_options',   'type' => 'text'),
-			array('name' => 'mask',            'type' => 'varchar', 'default' => '', 'size' => 255),
-			array('name' => 'rows',            'type' => 'smallint', 'size' => 5, 'default' => 3),
-			array('name' => 'cols',            'type' => 'smallint', 'size' => 5, 'default' => 30),
-			array('name' => 'show_reg',        'type' => 'tinyint', 'size' => 3, 'default' => 0),
-			array('name' => 'show_display',    'type' => 'tinyint', 'size' => 3, 'default' => 0),
-			array('name' => 'show_memberlist', 'type' => 'tinyint', 'size' => 3, 'default' => 0),
-			array('name' => 'show_profile',    'type' => 'varchar', 'default' => 'forumprofile', 'size' => 20),
-			array('name' => 'private',         'type' => 'tinyint', 'size' => 3, 'default' => 0),
-			array('name' => 'active',          'type' => 'tinyint', 'size' => 3, 'default' => 1),
-			array('name' => 'bbc',             'type' => 'tinyint', 'size' => 3, 'default' => 0),
-			array('name' => 'can_search',      'type' => 'tinyint', 'size' => 3, 'default' => 0),
-			array('name' => 'default_value',   'type' => 'varchar', 'default' => '', 'size' => 255),
-			array('name' => 'enclose',         'type' => 'text'),
-			array('name' => 'placement',       'type' => 'tinyint', 'size' => 3, 'default' => 0),
-			array('name' => 'vieworder',       'type' => 'smallint', 'size' => 5, 'default' => 0),
-		),
-		'indexes' => array(
-			array('name' => 'id_field', 'columns' => array('id_field'), 'type' => 'primary'),
-			array('name' => 'col_name', 'columns' => array('col_name'), 'type' => 'unique'),
-		),
-	),
-	array(
-		'name' => 'character_fields_data',
-		'columns' => array(
-			array('name' => 'id_character', 'type' => 'mediumint', 'size' => 8, 'unsigned' => true, 'default' => 0),
-			array('name' => 'variable',  'type' => 'varchar', 'size' => 255, 'default' => ''),
-			array('name' => 'value',     'type' => 'text'),
-		),
-		'indexes' => array(
-				array('name' => 'id_character', 'columns' => array('id_character', 'variable(30)'), 'type' => 'primary'),
-				array('name' => 'id_character', 'columns' => array('id_character'), 'type' => 'key'),
-		),
-	)
 );
 
 foreach ($new_tables as $table)
     $dbtbl->db_create_table('{db_prefix}rps_' . $table['name'], $table['columns'], $table['indexes'], array(), 'ignore');
 
+#New columns to add to the Elkarte tables
 $new_columns = array(
 	array(
 		'table' => '{db_prefix}boards',

@@ -9,7 +9,6 @@ This installs a system of characters, tags, and calendar tailored for use on Rol
 
 [color=blue][b][size=12pt][u]Features[/u][/size][/b][/color]
 o Allows creation of characters under a member account.  No need for separate accounts.
-o Custom profile fields can be created just as with a member account.
 o Adds a calendar based on in-game time rather than the real-world date.
 o Includes a character list with date of last activity (post).
 o Designate a board as in-character or out-of-character.

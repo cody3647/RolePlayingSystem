@@ -1,4 +1,13 @@
 <?php
+/**
+ * Functions for getting, saving and removing tags.
+ *
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ */
 
 function save_tags($input_tags, $topic, $memID, $timestamp)
 {

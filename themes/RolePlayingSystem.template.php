@@ -1,18 +1,13 @@
 <?php
 
 /**
- * @name      ElkArte Forum
- * @copyright ElkArte Forum contributors
- * @license   BSD http://opensource.org/licenses/BSD-3-Clause
+ * Sub templates for integrating Role Playing System into other templates.
  *
- * This software is a derived product, based on:
- *
- * Simple Machines Forum (SMF)
- * copyright:	2011 Simple Machines (http://www.simplemachines.org)
- * license:  	BSD, See included LICENSE.TXT for terms and conditions.
- *
- * @version 1.0.5
- *
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
  */
 
 function template_ic_role_playing_system()

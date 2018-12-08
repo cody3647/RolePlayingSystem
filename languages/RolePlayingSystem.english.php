@@ -1,5 +1,5 @@
 <?php
-// Version: 1.1; Addons
+//Version 1.0; Role Playing System
 
 //Menu
 $txt['rps'] = 'Role Playing System';

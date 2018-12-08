@@ -1,20 +1,13 @@
 <?php
 
 /**
- * This file is the main Package Manager.
+ * Editing and display of character profiles.
  *
- * @name      ElkArte Forum
- * @copyright ElkArte Forum contributors
- * @license   BSD http://opensource.org/licenses/BSD-3-Clause
- *
- * This software is a derived product, based on:
- *
- * Simple Machines Forum (SMF)
- * copyright:	2011 Simple Machines (http://www.simplemachines.org)
- * license:		BSD, See included LICENSE.TXT for terms and conditions.
- *
- * @version 1.0.8
- *
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
  */
 
 use ElkArte\Errors\ErrorContext;
@@ -251,8 +244,6 @@ class Character_Controller extends Action_Controller
 				}
 			}
 		}
-		
-		loadCharacterCustomFields($this->_memID, $this->_charID);
 
 		// To make tabs work, we need jQueryUI
 		$modSettings['jquery_include_ui'] = true;
@@ -280,7 +271,6 @@ class Character_Controller extends Action_Controller
 				'name' => $txt['summary'],
 				'templates' => array(
 					array('summary', 'user_info'),
-					array('user_customprofileinfo'),
 
 				),
 				'active' => true,
@@ -346,8 +336,6 @@ class Character_Controller extends Action_Controller
 				redirectexit('action=character;c=' . $this->_charID . ';update');
 			}
 		}
-		
-		loadCharacterCustomFields($this->_memID, $this->_charID);
 
 		loadJavascriptFile('profile.js');
 		
@@ -431,15 +419,11 @@ class Character_Controller extends Action_Controller
 				$cur_profile[$field] = Util::htmlspecialchars($this->_req->post->{$field});
 			}
 		}
-		if (isset($this->_req->post->customfield))
-			$cur_profile['options'] = $this->_req->post->customfield;
 		
 		if (!empty($cur_profile['birthdate']))
 			list($cur_profile['birth_date']['year'],$cur_profile['birth_date']['month'],$cur_profile['birth_date']['day']) = explode('-',$cur_profile['birthdate']);
 		
 		setupCharacterContext($create_fields, 'registration');
-		
-		loadCharacterCustomFields(0, 0, 'register');
 		
 		// Were there any errors?
 		$context['creation_errors'] = array();
@@ -508,34 +492,7 @@ class Character_Controller extends Action_Controller
 			if (isset($this->_req->post->{$var}))
 				$createOptions[$var] = Util::htmlspecialchars($this->_req->post->{$var}, ENT_QUOTES);
 		
-		loadCharacterCustomFields($context['user']['id'],0, 'register', isset($this->_req->post->customfield) ? $this->_req->post->customfield : array());
-		
 		require_once(SUBSDIR . '/Profile.subs.php');
-		
-		foreach ($context['character_custom_fields'] as $row)
-		{
-			// Prepare the value!
-			$value = isset($this->_req->post->customfield[$row['colname']]) ? trim($this->_req->post->customfield[$row['colname']]) : '';
-
-			// We only care for text fields as the others are valid to be empty.
-			if (!in_array($row['field_type'], array('check', 'select', 'radio')))
-			{
-				
-				$is_valid = isCustomFieldValid($row, $value);
-				if ($is_valid !== true)
-				{
-					$err_params = array($row['name']);
-					if ($is_valid === 'custom_field_not_number')
-						$err_params[] = $row['field_length'];
-
-					$reg_errors->addError(array($is_valid, $err_params));
-				}
-			}
-
-			// Is this required but not there?
-			if (trim($value) === '' && $row['show_reg'] > 1)
-				$creation_errors->addError(array('custom_field_empty', array($row['name'])));
-		}
 
 		// Lets check for other errors before trying to register the member.
 		if ($creation_errors->hasErrors())
@@ -559,12 +516,6 @@ class Character_Controller extends Action_Controller
 		{
 			$this->action_create();
 			return false;
-		}
-
-		// We'll do custom fields after as then we get to use the helper function!
-		if (!empty($this->_req->post->customfield))
-		{
-			makeCharacterCustomFieldChanges($context['user']['id'], $characterID, 'register');
 		}
 		
 		 loadTemplate('RpsCharacter');

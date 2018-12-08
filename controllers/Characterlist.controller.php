@@ -41,16 +41,11 @@ class Characterlist_Controller extends Action_Controller
 
 		);
 
-		// Are there custom fields they can search?
 		require_once(SUBSDIR . '/Characterlist.subs.php');
-		cl_findSearchableCustomFields();
 
 		// These are handy later
 		$context['old_search_value'] = '';
 		$context['in_search'] = !empty($this->_req->post->search);
-
-		foreach ($context['custom_search_fields'] as $field)
-			$this->_search_fields['cust_' . $field['colname']] = sprintf($txt['mlist_search_by'], $field['name']);
 	}
 
 	/**
@@ -144,10 +139,6 @@ class Characterlist_Controller extends Action_Controller
 				),
 			),
 		);
-
-		// Add in any custom profile columns
-		if (cl_CustomProfile())
-			$context['columns'] += $context['custom_profile_fields']['columns'];
 
 		// The template may appreciate how many columns it needs to display
 		$context['colspan'] = 0;
@@ -265,10 +256,6 @@ class Characterlist_Controller extends Action_Controller
 			'sort' => $context['columns'][$sort]['sort'][$context['sort_direction']],
 		);
 
-		// Add custom fields parameters too.
-		if (!empty($context['custom_profile_fields']['parameters']))
-			$query_parameters += $context['custom_profile_fields']['parameters'];
-
 		// Select the members from the database.
 		cl_selectCharacters($query_parameters, $where, $limit, $sort);
 
@@ -376,30 +363,9 @@ class Characterlist_Controller extends Action_Controller
 					$fields[$key] = 'LOWER(' . $field . ')';
 			}
 
-			$customJoin = array();
-			$customCount = 10;
+			
+			
 			$validFields = isset($input_fields) ? $input_fields : array();
-
-			// Any custom fields to search for - these being tricky?
-			foreach ($input_fields as $field)
-			{
-				$curField = substr($field, 5);
-				if (substr($field, 0, 5) === 'cust_' && isset($context['custom_search_fields'][$curField]))
-				{
-					$customJoin[] = 'LEFT JOIN {db_prefix}rps_character_fields_data AS cfd' . $field . ' ON (cfd' . $field . '.variable = {string:cfd' . $field . '} AND cfd' . $field . '.id_character = chr.id_character)';
-					$query_parameters['cfd' . $field] = $curField;
-					$fields += array($customCount++ => 'COALESCE(cfd' . $field . '.value, {string:blank_string})');
-					$validFields[] = $field;
-				}
-			}
-			$field = $sort;
-			$curField = substr($field, 5);
-			if (substr($field, 0, 5) === 'cust_' && isset($context['custom_search_fields'][$curField]))
-			{
-				$customJoin[] = 'LEFT JOIN {db_prefix}rps_character_fields_data AS cfd' . $field . ' ON (cfd' . $field . '.variable = {string:cfd' . $field . '} AND cfd' . $field . '.id_character = chr.id_character)';
-				$query_parameters['cfd' . $field] = $curField;
-				$validFields[] = $field;
-			}
 
 			if (empty($fields))
 				redirectexit('action=characterlist');
@@ -409,7 +375,7 @@ class Characterlist_Controller extends Action_Controller
 			$where = implode(' ' . $query . ' OR ', $fields) . ' ' . $query . $condition;
 
 			// Find the members from the database.
-			$numResults = cl_searchMembers($query_parameters, array_unique($customJoin), $where, $start);
+			$numResults = cl_searchMembers($query_parameters, $where, $start);
 			$context['letter_links'] = '';
 			$context['page_index'] = constructPageIndex($scripturl . '?action=characterlist;sa=search;search=' . $search . ';fields=' . implode(',', $validFields), $start, $numResults, $modSettings['defaultMaxMembers']);
 		}

@@ -1,18 +1,13 @@
 <?php
 
 /**
- * @name      ElkArte Forum
- * @copyright ElkArte Forum contributors
- * @license   BSD http://opensource.org/licenses/BSD-3-Clause
+ * Character Profile Templates
  *
- * This software is a derived product, based on:
- *
- * Simple Machines Forum (SMF)
- * copyright:	2011 Simple Machines (http://www.simplemachines.org)
- * license:  	BSD, See included LICENSE.TXT for terms and conditions.
- *
- * @version 1.0.2
- *
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
  */
 
 /**
@@ -414,56 +409,6 @@ function template_profile_block_user_info()
 				</dl>
 			</div>
 	</div>';
-}
-
-/**
- * Profile Custom Block
- *
- * Show the custom profile fields for standard (value 0) placement
- */
-function template_profile_block_user_customprofileinfo()
-{
-	global $txt, $context, $scripturl;
-
-	echo '
-		<div class="profileblock_left">
-			<h3 class="category_header hdicon cat_img_plus">
-				', ($context['user']['is_owner']) ? '<a href="' . $scripturl . '?action=profile;area=forumprofile;u=' . $context['member']['id'] . '">' . $txt['profile_info'] . '</a>' : $txt['profile_info'], '
-			</h3>
-			<div class="profileblock">';
-
-	// Any custom fields for standard placement?	
-	if (!empty($context['character_custom_fields']))
-	{
-		$shown = false;
-		foreach ($context['character_custom_fields'] as $field)
-		{
-			if ($field['placement'] != 0 || empty($field['output_html']))
-				continue;
-
-			if (empty($shown))
-			{
-				echo '
-				<dl>';
-				$shown = true;
-			}
-
-			echo '
-					<dt>', $field['name'], ':</dt>
-					<dd>', $field['output_html'], '</dd>';
-		}
-
-		if (!empty($shown))
-			echo '
-				</dl>';
-	}
-
-	if (empty($shown))
-		echo $txt['profile_additonal_no'];
-
-	echo '
-			</div>
-		</div>';
 }
 
 /**

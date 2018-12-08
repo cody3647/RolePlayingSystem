@@ -1,4 +1,13 @@
 <?php
+/**
+ * All integration hooks called, as well as methods for integrations needed across multiple controllers.
+ *
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ */
 
 class Role_Playing_System_Integrate
 {
@@ -239,45 +248,6 @@ class Role_Playing_System_Integrate
 					'approved' => $profile['approved'],
 					'retired' => $profile['retired'],
 				);
-				
-					// Are we also loading the members custom fields into context?
-					
-					if (!empty($modSettings['displayCharacterFields']))
-					{
-						if (!isset($context['display_character_fields']))
-							$context['display_character_fields'] = Util::unserialize($modSettings['displayCharacterFields']);
-						
-						foreach ($context['display_character_fields'] as $custom)
-						{
-							if (!isset($custom['title']) || trim($custom['title']) == '' || empty($profile['options'][$custom['colname']]))
-								continue;
-
-							$value = $profile['options'][$custom['colname']];
-
-							// BBC?
-							if ($custom['bbc'])
-								$value = $parsers->parseCustomFields($value);
-							// ... or checkbox?
-							elseif (isset($custom['type']) && $custom['type'] == 'check')
-								$value = $value ? $txt['yes'] : $txt['no'];
-
-							// Enclosing the user input within some other text?
-							if (!empty($custom['enclose']))
-								$value = strtr($custom['enclose'], array(
-									'{SCRIPTURL}' => $scripturl,
-									'{IMAGES_URL}' => $settings['images_url'],
-									'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-									'{INPUT}' => $value,
-								));
-
-							$memberContext[$user]['characters'][$id]['custom_fields'][] = array(
-								'title' => $custom['title'],
-								'colname' => $custom['colname'],
-								'value' => $value,
-								'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
-							);
-						}
-					}
 			}
 		}
 			

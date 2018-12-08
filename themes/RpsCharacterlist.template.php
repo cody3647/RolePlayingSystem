@@ -134,12 +134,6 @@ function template_characterlist()
 					', $member[$column] ,'
 					</div>';
 				}
-				// Any custom fields on display?
-				elseif (!empty($context['custom_profile_fields']['columns']) && isset($context['custom_profile_fields']['columns'][$column]))
-				{
-					echo '
-					<div class="' . $values['class'] . '">', $member['options'][substr($column, 5)], '</div>';
-				}
 			}
 
 			echo '

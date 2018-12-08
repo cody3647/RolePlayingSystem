@@ -1,18 +1,13 @@
 <?php
 
 /**
- * This file contains several functions for retrieving and manipulating calendar events, birthdays and holidays.
+ * Role Playing System admin menu and admin integration hooks.
  *
- * @name      ElkArte Forum
- * @copyright ElkArte Forum contributors
- * @license   BSD http://opensource.org/licenses/BSD-3-Clause
- *
- * This file contains code covered by:
- * copyright:	2011 Simple Machines (http://www.simplemachines.org)
- * license:  	BSD, See included LICENSE.TXT for terms and conditions.
- *
- * @version 1.1 beta 4
- *
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
  */
 
 /**
@@ -58,7 +53,6 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 					'tags' => array($txt['rps_manage_tags'], 'admin_rps'),
 					'events' => array($txt['rps_events'], 'admin_rps', 'active' => array('editevent')),
 					'phases' => array($txt['rps_phases'], 'admin_rps', 'active' => array('editphase')),
-					'fields' => array($txt['rps_fields'], 'admin_rps', 'active' => array('fieldedit')),
 					'download' => array($txt['rps_download'], 'admin_rps')
 				),
 			);

@@ -1,29 +1,15 @@
 <?php
 
 /**
- * This file is the main Package Manager.
+ * Functions for loading, saving, editing character information.
  *
- * @name      ElkArte Forum
- * @copyright ElkArte Forum contributors
- * @license   BSD http://opensource.org/licenses/BSD-3-Clause
- *
- * This software is a derived product, based on:
- *
- * Simple Machines Forum (SMF)
- * copyright:	2011 Simple Machines (http://www.simplemachines.org)
- * license:		BSD, See included LICENSE.TXT for terms and conditions.
- *
- * @version 1.0.8
- *
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
  */
-
- /**
- * Find the ID of the member whose character was requested
- *
- * @param int $charID character ID being requested
- *
- * @return int if no error.  May return false in case of problems
- */
+ 
 function memberID($charID) {
 	$db = database();
 	
@@ -529,130 +515,12 @@ function saveCharacterFields($memID, $charID)
 		updateCharacterData($charID, $profile_vars);
 	if ($changeOther && empty($post_errors))
 	{
-			makeCharacterCustomFieldChanges($memID, $charID, 'forumprofile');
-			
 		if (!empty($log_changes))
 			logActions($log_changes);
 	}
 
 	// Free memory!
 	unset($character_fields);
-}
-
-/**
- * Save any changes to the custom profile fields
- *
- * @param int $memID
- * @param string $area
- * @param bool $sanitize = true
- */
-function makeCharacterCustomFieldChanges($memID, $charID, $area, $sanitize = true)
-{
-	global $context, $user_profile, $user_info, $modSettings, $log_changes;
-
-	$db = database();
-
-	if ($sanitize && isset($_POST['customfield']))
-		$_POST['customfield'] = htmlspecialchars__recursive($_POST['customfield']);
-
-	$where = $area === 'register' ? 'show_reg != 0' : 'show_profile = {string:area}';
-
-	// Load the fields we are saving too - make sure we save valid data (etc).
-	$request = $db->query('', '
-		SELECT col_name, field_name, field_desc, field_type, field_length, field_options, default_value, show_reg, mask, private
-		FROM {db_prefix}rps_character_fields
-		WHERE ' . $where . '
-			AND active = {int:is_active}',
-		array(
-			'is_active' => 1,
-			'area' => $area,
-		)
-	);
-	$changes = array();
-
-	require_once(SUBSDIR . '/Profile.subs.php');
-	while ($row = $db->fetch_assoc($request))
-	{
-		
-		/* This means don't save if:
-			- The user is NOT an admin.
-			- The data is not freely viewable and editable by users.
-			- The data is not invisible to users but editable by the owner (or if it is the user is not the owner)
-			- The area isn't registration, and if it is that the field is not supposed to be shown there.
-		*/
-		if ($row['private'] != 0 && !allowedTo('admin_forum') && ($memID != $user_info['id'] || $row['private'] != 2) && ($area !== 'register' || $row['show_reg'] == 0))
-			continue;
-
-		// Validate the user data.
-		if ($row['field_type'] === 'check')
-			$value = isset($_POST['customfield'][$row['col_name']]) ? 1 : 0;
-		elseif ($row['field_type'] === 'select' || $row['field_type'] === 'radio')
-		{
-			$value = $row['default_value'];
-			foreach (explode(',', $row['field_options']) as $k => $v)
-			{
-				if (isset($_POST['customfield'][$row['col_name']]) && $_POST['customfield'][$row['col_name']] == $k)
-					$value = $v;
-			}
-		}
-		// Otherwise some form of text!
-		else
-		{
-			// TODO: This is a bit backwards.
-			$value = isset($_POST['customfield'][$row['col_name']]) ? $_POST['customfield'][$row['col_name']] : $row['default_value'];
-			$is_valid = isCustomFieldValid($row, $value);
-
-			if ($is_valid !== true)
-			{
-				switch ($is_valid)
-				{
-					case 'custom_field_too_long':
-						$value = Util::substr($value, 0, $row['field_length']);
-						break;
-					case 'custom_field_invalid_email':
-					case 'custom_field_inproper_format':
-						$value = $row['default_value'];
-						break;
-				}
-			}
-
-			if ($row['mask'] === 'number')
-				$value = (int) $value;
-		}
-
-		// Did it change or has it been set?
-		if ((!isset($user_profile[$memID]['characters'][$charID]['options'][$row['col_name']]) && !empty($value)) || (isset($user_profile[$memID]['characters'][$charID]['options'][$row['col_name']]) && $user_profile[$memID]['characters'][$charID]['options'][$row['col_name']] !== $value))
-		{
-			$log_changes[] = array(
-				'action' => 'customfield_' . $row['col_name'],
-				'log_type' => 'character',
-				'extra' => array(
-					'previous' => !empty($user_profile[$memID]['characters'][$charID]['options'][$row['col_name']]) ? $user_profile[$memID]['characters'][$charID]['options'][$row['col_name']] : '',
-					'new' => $value,
-					'applicator' => $user_info['id'],
-					'member_affected' => $memID,
-					'character' => $charID,
-				),
-			);
-
-			$changes[] = array($row['col_name'], $value, $charID);
-			$user_profile[$memID]['character'][$charID]['options'][$row['col_name']] = $value;
-		}
-	}
-	$db->free_result($request);
-
-	call_integration_hook('integrate_save_character_custom_profile_fields', array(&$changes, &$log_changes, $memID, $area, $sanitize));
-
-	// Make those changes!
-	if (!empty($changes))
-	{
-		$db->insert('replace',
-			'{db_prefix}rps_character_fields_data',
-			array('variable' => 'string-255', 'value' => 'string-65534', 'id_character' => 'int'),
-			$changes,
-			array('variable', 'id_character')
-		);
-	}
 }
 
 function updateCharacterData($characters, $data)
@@ -947,146 +815,4 @@ function characterSaveAvatarData(&$value)
 	$cur_profile['avatar'] = $profile_vars['avatar'];
 
 	return false;
-}
-
-/**
- * Load any custom fields for this area.
- * No area means load all, 'summary' loads all public ones.
- *
- * @param int $memID
- * @param string $area = 'summary'
- * @param mixed[] $custom_fields = array()
- */
-function loadCharacterCustomFields($memID, $charID, $area = 'summary', array $custom_fields = array())
-{
-	global $context, $txt, $cur_profile, $user_info, $settings, $scripturl;
-
-	$db = database();
-
-	// Get the right restrictions in place...
-	$where = 'active = 1';
-	if (!allowedTo('admin_forum') && $area !== 'register')
-	{
-		// If it's the owner they can see two types of private fields, regardless.
-		if ($memID == $user_info['id'])
-			$where .= $area === 'summary' ? ' AND private < 3' : ' AND (private = 0 OR private = 2)';
-		else
-			$where .= $area === 'summary' ? ' AND private < 2' : ' AND private = 0';
-	}
-
-	if ($area === 'register')
-		$where .= ' AND show_reg != 0';
-
-	// Load all the relevant fields - and data.
-	$request = $db->query('', '
-		SELECT
-			col_name, field_name, field_desc, field_type, show_reg, field_length, field_options,
-			default_value, bbc, enclose, placement, mask, vieworder, rows, cols
-		FROM {db_prefix}rps_character_fields
-		WHERE ' . $where . '
-		ORDER BY vieworder ASC',
-		array(
-		)
-	);
-	$context['character_custom_fields'] = array();
-	$context['character_custom_fields_required'] = false;
-	
-	$bbc_parser = \BBC\ParserWrapper::instance();
-	while ($row = $db->fetch_assoc($request))
-	{
-		// Shortcut.
-		$exists = isset($cur_profile, $cur_profile['options'][$row['col_name']]);
-		$value = $exists ? $cur_profile['options'][$row['col_name']] : $row['default_value'];
-
-		// If this was submitted already then make the value the posted version.
-		if (!empty($custom_fields) && isset($custom_fields[$row['col_name']]))
-		{
-			$value = Util::htmlspecialchars($custom_fields[$row['col_name']]);
-			if (in_array($row['field_type'], array('select', 'radio')))
-				$value = ($options = explode(',', $row['field_options'])) && isset($options[$value]) ? $options[$value] : '';
-		}
-
-		// HTML for the input form.
-		$output_html = $value;
-
-		// Checkbox inputs
-		if ($row['field_type'] === 'check')
-		{
-			$true = (bool) $value;
-			$input_html = '<input id="' . $row['col_name'] . '" type="checkbox" name="customfield[' . $row['col_name'] . ']" ' . ($true ? 'checked="checked"' : '') . ' class="input_check" />';
-			$output_html = $true ? $txt['yes'] : $txt['no'];
-		}
-		// A select list
-		elseif ($row['field_type'] === 'select')
-		{
-			$input_html = '<select id="' . $row['col_name'] . '" name="customfield[' . $row['col_name'] . ']"><option value=""' . ($row['default_value'] === 'no_default' ? ' selected="selected"' : '') . '></option>';
-			$options = explode(',', $row['field_options']);
-			foreach ($options as $k => $v)
-			{
-				$true = ($value == $v);
-				$input_html .= '<option value="' . $k . '"' . ($true ? ' selected="selected"' : '') . '>' . $v . '</option>';
-				if ($true)
-					$output_html = $v;
-			}
-
-			$input_html .= '</select>';
-		}
-		// Radio buttons
-		elseif ($row['field_type'] === 'radio')
-		{
-			$input_html = '<fieldset>';
-			$options = explode(',', $row['field_options']);
-			foreach ($options as $k => $v)
-			{
-				$true = ($value == $v);
-				$input_html .= '<label for="customfield_' . $row['col_name'] . '_' . $k . '"><input type="radio" name="customfield[' . $row['col_name'] . ']" class="input_radio" id="customfield_' . $row['col_name'] . '_' . $k . '" value="' . $k . '" ' . ($true ? 'checked="checked"' : '') . ' />' . $v . '</label><br />';
-				if ($true)
-					$output_html = $v;
-			}
-			$input_html .= '</fieldset>';
-		}
-		// A standard input field, including some html5 variants
-		elseif (in_array($row['field_type'], array('text', 'url', 'search', 'date', 'email', 'color')))
-		{
-			$input_html = '<input id="' . $row['col_name'] . '" type="' . $row['field_type'] . '" name="customfield[' . $row['col_name'] . ']" ' . ($row['field_length'] != 0 ? 'maxlength="' . $row['field_length'] . '"' : '') . ' size="' . ($row['field_length'] == 0 || $row['field_length'] >= 50 ? 50 : ($row['field_length'] > 30 ? 30 : ($row['field_length'] > 10 ? 20 : 10))) . '" value="' . $value . '" class="input_text" />';
-		}
-		// Only thing left, a textbox for you
-		else
-		{
-			$input_html = '<textarea id="' . $row['col_name'] . '" name="customfield[' . $row['col_name'] . ']" ' . (!empty($rows) ? 'rows="' . $row['rows'] . '"' : '') . ' ' . (!empty($cols) ? 'cols="' . $row['cols'] . '"' : '') . '>' . $value . '</textarea>';
-		}
-
-		// Parse BBCode
-		if ($row['bbc'])
-			$output_html = $bbc_parser->parseCustomFields($output_html);
-		// Allow for newlines at least
-		elseif ($row['field_type'] === 'textarea')
-			$output_html = strtr($output_html, array("\n" => '<br />'));
-
-		// Enclosing the user input within some other text?
-		if (!empty($row['enclose']) && !empty($output_html))
-			$output_html = strtr($row['enclose'], array(
-				'{SCRIPTURL}' => $scripturl,
-				'{IMAGES_URL}' => $settings['images_url'],
-				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-				'{INPUT}' => $output_html,
-			));
-
-		$context['character_custom_fields'][] = array(
-			'name' => $row['field_name'],
-			'desc' => $row['field_desc'],
-			'field_type' => $row['field_type'],
-			'input_html' => $input_html,
-			'output_html' => $output_html,
-			'placement' => $row['placement'],
-			'colname' => $row['col_name'],
-			'value' => $value,
-			'show_reg' => $row['show_reg'],
-			'field_length' => $row['field_length'],
-			'mask' => $row['mask'],
-		);
-		$context['character_custom_fields_required'] = $context['character_custom_fields_required'] || $row['show_reg'];
-	}
-
-	$db->free_result($request);
 }

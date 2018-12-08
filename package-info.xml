@@ -9,7 +9,7 @@
 /**
  * @name Role Playing System
  *
- * @author cody
+ * @author Cody Williams <williams.c@gmail.com>
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
  *
  * @version 1.0
@@ -19,8 +19,7 @@
 		<database>database.php</database>
 		<readme type="file" parsebbc="true">readme.txt</readme>
 		<modification type="file">install.xml</modification>
-		
-		<require-file name="admin/ManageCharacters.controller.php" destination="ADMINDIR" />
+
 		<require-file name="admin/ManageRolePlayingSystemModule.controller.php" destination="ADMINDIR" />
 		
 		<require-file name="controllers/Character.controller.php" destination="CONTROLLERDIR" />
@@ -55,11 +54,10 @@
 		<redirect url="?action=admin;area=corefeatures" timeout="5000">redirect.txt</redirect>
 	</install>
 
-	<uninstall for="1.0 - 1.0.99">
+	<uninstall for="1.1 - 1.1.99">
 		<readme type="file" parsebbc="true">readme-uninstall.txt</readme>
 		<modification type="file" reverse="true">install.xml</modification>
 		
-		<remove-file  name="ADMINDIR/ManageCharacters.controller.php" />
 		<remove-file  name="ADMINDIR/ManageRolePlayingSystemModule.controller.php" />
 		
 		<remove-file  name="CONTROLLERDIR/Character.controller.php" />

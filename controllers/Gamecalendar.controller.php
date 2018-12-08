@@ -1,18 +1,26 @@
 <?php
 
 /**
- * This file has only one real task, showing the calendar.
+ * Shows the Game Calendar.  Based on the Elkarte Forum Calendar.
+ *
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ * 
+ * 
  * Original module by Aaron O'Neil - aaron@mud-master.com
  *
- * @name      ElkArte Forum
- * @copyright ElkArte Forum contributors
- * @license   BSD http://opensource.org/licenses/BSD-3-Clause
+ * name      ElkArte Forum
+ * copyright ElkArte Forum contributors
+ * license   BSD http://opensource.org/licenses/BSD-3-Clause
  *
  * This file contains code covered by:
  * copyright:	2011 Simple Machines (http://www.simplemachines.org)
  * license:		BSD, See included LICENSE.TXT for terms and conditions.
  *
- * @version 1.1 Release Candidate 1
+ *
  *
  */
 
