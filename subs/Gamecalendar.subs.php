@@ -19,6 +19,7 @@
  * @param int $year
  * @param mixed[] $calendarOptions
  * @return array containing all the information needed to show a calendar grid for the given month
+ * @throws Exception
  */
 function getCalendarGrid($month, $year, $calendarOptions)
 {
@@ -152,6 +153,7 @@ function getCalendarGrid($month, $year, $calendarOptions)
  * @param int $day
  * @param mixed[] $calendarOptions
  * @return array
+ * @throws Exception
  */
 function getCalendarWeek($month, $year, $day, $calendarOptions)
 {
@@ -282,6 +284,7 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
  * @param string $low_date inclusive, YYYY-MM-DD
  * @param string $high_date inclusive, YYYY-MM-DD
  * @return mixed[] days, each of which an array of birthday information for the context
+ * @throws Exception
  */
 function getBirthdayRange($low_date, $high_date)
 {
@@ -355,6 +358,7 @@ function getBirthdayRange($low_date, $high_date)
  * @param bool $use_permissions = true
  * @param integer|null $limit
  * @return array contextual information if use_permissions is true, and an array of the data needed to build that otherwise
+ * @throws Exception
  */
 function getTopicRange($low_date, $high_date, $use_permissions = true, $limit = null)
 {
@@ -442,6 +446,7 @@ function getTopicRange($low_date, $high_date, $use_permissions = true, $limit = 
  * @param string $low_date YYYY-MM-DD
  * @param string $high_date YYYY-MM-DD
  * @return array an array of days, which are all arrays of holiday names.
+ * @throws Exception
  */
 function getHolidayRange($low_date, $high_date)
 {
@@ -511,8 +516,9 @@ function getPhaseRange($low_date, $high_date)
  * - used by the cache_getRecentEvents function to get the information needed to calculate the events taking the users time offset into account.
  *
  * @package Calendar
- * @param RpsCurrentDate $days_to_index
+ * @param RpsCurrentDate $current_dates
  * @return array
+ * @throws Exception
  */
 function cache_getCurrentEvents(RpsCurrentDate $current_dates)
 {
@@ -660,7 +666,9 @@ function cache_getRecentEvents($eventOptions)
  * Remove a holiday from the calendar.
  *
  * @package Calendar
- * @param int|int[] $holiday_ids An array of ids for holidays.
+ * @param $event_ids
+ * @param string $type
+ * @throws Exception
  */
 function removeEvents($event_ids, $type = 'event')
 {
@@ -686,9 +694,12 @@ function removeEvents($event_ids, $type = 'event')
  * Updates a calendar holiday
  *
  * @package Calendar
- * @param int $holiday
- * @param int $date
+ * @param $event
+ * @param $year
+ * @param $month
+ * @param $day
  * @param string $title
+ * @throws Exception
  */
 function editEvent($event, $year, $month, $day, $title)
 {
@@ -716,8 +727,11 @@ function editEvent($event, $year, $month, $day, $title)
  * Insert a new holiday
  *
  * @package Calendar
- * @param int $date
+ * @param $year
+ * @param $month
+ * @param $day
  * @param string $title
+ * @throws Exception
  */
 function insertEvent($year, $month, $day, $title)
 {
@@ -743,8 +757,9 @@ function insertEvent($year, $month, $day, $title)
  * Get a specific holiday
  *
  * @package Calendar
- * @param int $id_holiday
+ * @param $id_event
  * @return array
+ * @throws Exception
  */
 function getEvent($id_event)
 {
@@ -787,9 +802,10 @@ function getEvent($id_event)
  *
  * @package Calendar
  * @param int $start The item to start with (for pagination purposes)
- * @param int $items_per_page  The number of items to show per page
+ * @param int $items_per_page The number of items to show per page
  * @param string $sort A string indicating how to sort the results
  * @return array
+ * @throws Exception
  */
 function list_getEvents($start, $items_per_page, $sort)
 {
@@ -811,6 +827,7 @@ function list_getEvents($start, $items_per_page, $sort)
  *
  * @package Calendar
  * @return int
+ * @throws Exception
  */
 function list_getNumEvents()
 {
@@ -833,9 +850,10 @@ function list_getNumEvents()
  *
  * @package Calendar
  * @param int $start The item to start with (for pagination purposes)
- * @param int $items_per_page  The number of items to show per page
+ * @param int $items_per_page The number of items to show per page
  * @param string $sort A string indicating how to sort the results
  * @return array
+ * @throws Exception
  */
 function list_getPhases($start, $items_per_page, $sort)
 {
@@ -857,6 +875,7 @@ function list_getPhases($start, $items_per_page, $sort)
  *
  * @package Calendar
  * @return int
+ * @throws Exception
  */
 function list_getNumPhases()
 {

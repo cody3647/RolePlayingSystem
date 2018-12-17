@@ -61,12 +61,13 @@ class RolePlayingSystem_BoardIndex_Module extends ElkArte\sources\modules\Abstra
 		$context['calendar_can_edit'] = allowedTo('calendar_edit_any');
 	}
 
-	/**
-	 * post load functions, load Role Playing Game System elements into the board index.
-	 * An infocenter section and character that posted in in-character boards
-	 *
-	 * @param array $callbacks
-	 */
+    /**
+     * post load functions, load Role Playing Game System elements into the board index.
+     * An infocenter section and character that posted in in-character boards
+     *
+     * @param array $callbacks
+     * @throws Exception
+     */
 
 	public function post_load(&$callbacks)
 	{

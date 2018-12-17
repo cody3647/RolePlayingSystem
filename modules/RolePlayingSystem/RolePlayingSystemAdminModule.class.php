@@ -60,21 +60,15 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 		$admin_areas['config']['areas'] = elk_array_insert($admin_areas['config']['areas'], 'addonsettings', $rps_menu, 'before');
 	}
 
-	/**
-	 * Used to add the Calendar entry to the admin search.
-	 *
-	 * @param string[] $language_files
-	 * @param string[] $include_files
-	 * @param mixed[] $settings_search
-	 
-	 
-	public function search(&$language_files, &$include_files, &$settings_search)
-	{
-		$language_files[] = 'ManageCharacters';
-		$include_files[] = 'ManageCharacters.controller';
-		$settings_search[] = array('settings_search', 'area=managecharacters', 'ManageCharacters_Controller');
-	}
-	*/
+    /**
+     * Used to add the Calendar entry to the admin search.
+     *
+     * @param $permissionGroups
+     * @param $permissionList
+     * @param $leftPermissionGroups
+     * @param $hiddenPermissions
+     * @param $relabelPermissions
+     */
 	
 	public static function integrate_load_permissions(&$permissionGroups, &$permissionList, &$leftPermissionGroups, &$hiddenPermissions, &$relabelPermissions)
 	{

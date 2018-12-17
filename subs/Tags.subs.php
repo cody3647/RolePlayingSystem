@@ -7,6 +7,11 @@
  * @author Cody Williams <williams.c@gmail.com>
  * @copyright Cody Williams
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ * @param $input_tags
+ * @param $topic
+ * @param $memID
+ * @param $timestamp
+ * @throws Exception
  */
 
 function save_tags($input_tags, $topic, $memID, $timestamp)
@@ -268,10 +273,10 @@ function loadTag($tagid)
  * creates all you ever wanted on message index, returns the data in array
  * Function was originally messageIndexTopics
  *
- * @param int $id_board board to build the topic listing for
+ * @param $id_tag
  * @param int $id_member who we are building it for so we don't show unapproved topics
  * @param int $start where to start from
- * @param int $items_per_page  The number of items to show per page
+ * @param int $items_per_page The number of items to show per page
  * @param string $sort_by how to sort the results asc/desc
  * @param string $sort_column which value we sort by
  * @param mixed[] $indexOptions
@@ -282,6 +287,8 @@ function loadTag($tagid)
  *     'ascending' => ASC or DESC for the sort
  *     'fake_ascending' =>
  *     'custom_selects' => loads additional values from the tables used in the query, for addon use
+ * @return array
+ * @throws Exception
  */
 function tagIndexTopics($id_tag, $id_member, $start, $items_per_page, $sort_by, $sort_column, $indexOptions)
 {

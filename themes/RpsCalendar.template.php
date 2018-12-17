@@ -68,6 +68,7 @@ function template_show_calendar()
  * Display a monthly calendar grid.
  *
  * @param string $grid_name
+ * @return bool
  */
 function template_show_month_grid($grid_name)
 {
@@ -243,6 +244,7 @@ function template_show_month_grid($grid_name)
  * Or show a weekly one?
  *
  * @param string $grid_name
+ * @return bool
  */
 function template_show_week_grid($grid_name)
 {

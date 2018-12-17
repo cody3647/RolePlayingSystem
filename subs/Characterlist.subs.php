@@ -42,6 +42,8 @@ function cl_memberCount()
  * Get all all the members who's name starts below a given letter
  *
  * @param string $start single letter to start with
+ * @return string
+ * @throws Exception
  */
 function cl_alphaStart($start)
 {
@@ -71,6 +73,7 @@ function cl_alphaStart($start)
  * @param string $where
  * @param int $limit
  * @param string $sort
+ * @throws Exception
  */
 function cl_selectCharacters($query_parameters, $where = '', $limit = 0, $sort = '')
 {
@@ -100,10 +103,10 @@ function cl_selectCharacters($query_parameters, $where = '', $limit = 0, $sort =
  *  - Uses printMemberListRows to load the query results in to context
  *
  * @param mixed[] $query_parameters
- * @param string|string[]|null $customJoin
  * @param string $where
  * @param int $limit
  * @return integer
+ * @throws Exception
  */
 function cl_searchMembers($query_parameters, $where = '', $limit = 0)
 {
@@ -147,6 +150,7 @@ function cl_searchMembers($query_parameters, $where = '', $limit = 0)
  * Puts results of request into the context for the sub template.
  *
  * @param resource $request
+ * @throws Exception
  */
 function printCharacterListRows($request)
 {

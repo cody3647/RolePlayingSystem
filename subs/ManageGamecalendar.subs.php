@@ -14,7 +14,8 @@
  * Remove a holiday from the calendar.
  *
  * @package Calendar
- * @param int|int[] $holiday_ids An array of ids for holidays.
+ * @param $event_ids
+ * @throws Exception
  */
 function removeEvents($event_ids)
 {
@@ -40,9 +41,12 @@ function removeEvents($event_ids)
  * Updates a calendar holiday
  *
  * @package Calendar
- * @param int $holiday
- * @param int $date
+ * @param $event
+ * @param $year
+ * @param $month
+ * @param $day
  * @param string $title
+ * @throws Exception
  */
 function editEvent($event, $year, $month, $day, $title)
 {
@@ -67,13 +71,13 @@ function editEvent($event, $year, $month, $day, $title)
 }
 
 
-
 /**
  * Get a specific holiday
  *
  * @package Calendar
- * @param int $id_holiday
+ * @param $id_event
  * @return array
+ * @throws Exception
  */
 function getEvent($id_event)
 {
@@ -116,9 +120,10 @@ function getEvent($id_event)
  *
  * @package Calendar
  * @param int $start The item to start with (for pagination purposes)
- * @param int $items_per_page  The number of items to show per page
+ * @param int $items_per_page The number of items to show per page
  * @param string $sort A string indicating how to sort the results
  * @return array
+ * @throws Exception
  */
 function list_getEvents($start, $items_per_page, $sort)
 {
@@ -140,6 +145,7 @@ function list_getEvents($start, $items_per_page, $sort)
  *
  * @package Calendar
  * @return int
+ * @throws Exception
  */
 function list_getNumEvents()
 {
@@ -161,7 +167,8 @@ function list_getNumEvents()
  * Remove a holiday from the calendar.
  *
  * @package Calendar
- * @param int|int[] $holiday_ids An array of ids for holidays.
+ * @param $event_ids
+ * @throws Exception
  */
 function removePhases($event_ids)
 {
@@ -187,9 +194,11 @@ function removePhases($event_ids)
  * Updates a calendar holiday
  *
  * @package Calendar
- * @param int $holiday
+ * @param $id
  * @param int $date
- * @param string $title
+ * @param $time
+ * @param $phase
+ * @throws Exception
  */
 function editPhase($id, $date, $time, $phase)
 {
@@ -213,13 +222,13 @@ function editPhase($id, $date, $time, $phase)
 }
 
 
-
 /**
  * Get a specific holiday
  *
  * @package Calendar
- * @param int $id_holiday
+ * @param $id_phase
  * @return array
+ * @throws Exception
  */
 function getPhase($id_phase)
 {
@@ -258,9 +267,10 @@ function getPhase($id_phase)
  *
  * @package Calendar
  * @param int $start The item to start with (for pagination purposes)
- * @param int $items_per_page  The number of items to show per page
+ * @param int $items_per_page The number of items to show per page
  * @param string $sort A string indicating how to sort the results
  * @return array
+ * @throws Exception
  */
 function list_getPhases($start, $items_per_page, $sort)
 {
@@ -282,6 +292,7 @@ function list_getPhases($start, $items_per_page, $sort)
  *
  * @package Calendar
  * @return int
+ * @throws Exception
  */
 function list_getNumPhases()
 {
@@ -334,8 +345,8 @@ function insert_downloaded_events($holidays, $phases, $postData)
  * Insert a new holiday
  *
  * @package Calendar
- * @param int $date
- * @param string $title
+ * @param $events
+ * @throws Exception
  */
 function insertEvent($events)
 {
@@ -355,8 +366,8 @@ function insertEvent($events)
  * Insert a new holiday
  *
  * @package Calendar
- * @param int $date
- * @param string $title
+ * @param $phases
+ * @throws Exception
  */
 function insertPhase($phases)
 {

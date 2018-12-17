@@ -256,8 +256,8 @@ class Role_Playing_System_Integrate
 	public static function integrate_profile_summary($memID)
 	{
 		global $context;
-		
-		loadTemplate('RpsCharacter');
+
+        loadTemplate('RpsCharacter');
 		
 		$context['summarytabs']['summary']['templates'] = elk_array_insert($context['summarytabs']['summary']['templates'], 0, array('characters'), 'after');
 	}

@@ -8,6 +8,9 @@
  * @author Cody Williams <williams.c@gmail.com>
  * @copyright Cody Williams
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ * @param $charID
+ * @return bool|int
+ * @throws Exception
  */
  
 function memberID($charID) {
@@ -39,7 +42,6 @@ function memberID($charID) {
  * Setup the context for a page load!
  *
  * @param mixed[] $fields
- * @param string $hook a string that represent the hook that can be used to operate on $fields
  */
 function setupCharacterContext($fields)
 {
@@ -428,6 +430,8 @@ function characterLoadAvatarData()
 
 /**
  * Save the profile changes.
+ * @param $memID
+ * @param $charID
  */
 function saveCharacterFields($memID, $charID)
 {
@@ -624,8 +628,10 @@ function updateCharacterData($characters, $data)
  * @package Members
  * @param string $name
  * @param int $current_ID_MEMBER
- * @param bool $is_name
+ * @param int $character_id
  * @param bool $fatal
+ * @return bool
+ * @throws Exception
  */
 function isReservedCharacterName($name, $current_ID_MEMBER = 0, $character_id = 0, $fatal = true)
 {
@@ -746,7 +752,7 @@ function isReservedCharacterName($name, $current_ID_MEMBER = 0, $character_id = 
  * @param mixed[] $value
  *
  * @return false|string
- * @throws Elk_Exception attachments_no_write, attach_timeout
+ * @throws Exception
  */
 function characterSaveAvatarData(&$value)
 {

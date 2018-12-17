@@ -434,14 +434,12 @@ class Character_Controller extends Action_Controller
 		createToken('create');
 	}
 
-	/**
-	 * Actually register the member.
-	 * @todo split this function in two functions:
-	 *  - a function that handles action=register2, which needs no parameter;
-	 *  - a function that processes the case of OpenID verification.
-	 *
-	 * @param bool $verifiedOpenID = false
-	 */
+    /**
+     * Actually create the character
+     *
+     * @return bool
+     * @throws \ElkArte\Exceptions\Exception
+     */
 	public function action_create2()
 	{
 		global $txt, $modSettings, $context, $user_info;
@@ -555,25 +553,26 @@ class Character_Controller extends Action_Controller
 		else
 			$context['valid_name'] = !isReservedCharacterName($context['checked_name'], $context['id_member'], $context['id_character'], false);
 	}
-	
-	/**
-	 * Registers a member to the forum.
-	 *
-	 * What it does:
-	 * - Allows two types of interface: 'guest' and 'admin'. The first
-	 * - includes hammering protection, the latter can perform the registration silently.
-	 * - The strings used in the options array are assumed to be escaped.
-	 * - Allows to perform several checks on the input, e.g. reserved names.
-	 * - The function will adjust member statistics.
-	 * - If an error is detected will fatal error on all errors unless return_errors is true.
-	 *
-	 * @package Members
-	 * @uses Auth.subs.php
-	 * @uses Mail.subs.php
-	 * @param mixed[] $regOptions
-	 * @param string $ErrorContext
-	 * @return integer the ID of the newly created member
-	 */
+
+    /**
+     * Registers a member to the forum.
+     *
+     * What it does:
+     * - Allows two types of interface: 'guest' and 'admin'. The first
+     * - includes hammering protection, the latter can perform the registration silently.
+     * - The strings used in the options array are assumed to be escaped.
+     * - Allows to perform several checks on the input, e.g. reserved names.
+     * - The function will adjust member statistics.
+     * - If an error is detected will fatal error on all errors unless return_errors is true.
+     *
+     * @package Members
+     * @uses Auth.subs.php
+     * @uses Mail.subs.php
+     * @param $characterOptions
+     * @param string $ErrorContext
+     * @return integer the ID of the newly created member
+     * @throws Exception
+     */
 	function createCharacter(&$characterOptions, $ErrorContext = 'character')
 	{
 		global $scripturl, $txt, $modSettings, $user_info;
@@ -635,18 +634,17 @@ class Character_Controller extends Action_Controller
 
 		return $charID;
 	}
-	
-		/**
-	 * Returns the total number of posts or new topics a user has made
-	 *
-	 * - Counts all posts or just the topics made on a particular board
-	 *
-	 * @param int $this->_memID
-	 * @param int $this->_charID
-	 * @param boolean $posts
-	 * @param int|null $board
-	 * @return integer
-	 */
+
+    /**
+     * Returns the total number of posts or new topics a user has made
+     *
+     * - Counts all posts or just the topics made on a particular board
+     *
+     * @param boolean $posts
+     * @param int|null $board
+     * @return integer
+     * @throws Exception
+     */
 
 	function count_character_posts($posts=true, $board = null)
 	{
@@ -699,17 +697,17 @@ class Character_Controller extends Action_Controller
 		return $msgCount;
 	}
 
-	/**
-	 * Gets a members minimum and maximum message id
-	 *
-	 * - Can limit the results to a particular board
-	 * - Used to help limit queries by proving start/stop points
-	 *
-	 * @param int $this->_memID
-	 * @param int $this->_charID
-	 * @param boolean $posts
-	 * @param int|null $board
-	 */
+    /**
+     * Gets a members minimum and maximum message id
+     *
+     * - Can limit the results to a particular board
+     * - Used to help limit queries by proving start/stop points
+     *
+     * @param boolean $posts
+     * @param int|null $board
+     * @return array
+     * @throws Exception
+     */
 	function findMinMaxCharacterMessage($posts = true, $board = null)
 	{
 		global $modSettings, $user_info;
@@ -759,22 +757,22 @@ class Character_Controller extends Action_Controller
 		return empty($minmax) ? array(0, 0) : $minmax;
 	}
 
-	/**
-	 * Used to load all the posts of a user
-	 *
-	 * - Can limit to just the posts of a particular board
-	 * - If range_limit is supplied, will check if count results were returned, if not
-	 * will drop the limit and try again
-	 *
-	 * @param int $this->_memID
-	 * @param int $this->_charID
-	 * @param boolean $posts
-	 * @param int $start
-	 * @param int $count
-	 * @param string|null $range_limit
-	 * @param boolean $reverse
-	 * @param int|null $board
-	 */
+    /**
+     * Used to load all the posts of a user
+     *
+     * - Can limit to just the posts of a particular board
+     * - If range_limit is supplied, will check if count results were returned, if not
+     * will drop the limit and try again
+     *
+     * @param boolean $posts
+     * @param int $start
+     * @param int $count
+     * @param string|null $range_limit
+     * @param boolean $reverse
+     * @param int|null $board
+     * @return array
+     * @throws Exception
+     */
 	function load_character_posts($posts=true, $start, $count, $range_limit = '', $reverse = false, $board = null)
 	{
 		global $modSettings, $user_info;

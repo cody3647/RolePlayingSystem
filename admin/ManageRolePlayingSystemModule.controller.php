@@ -196,9 +196,11 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		$settingsForm->prepare();
 	}
 
-	/**
-	 * Retrieve and return all admin settings for the calendar.
-	 */
+    /**
+     * Retrieve and return all admin settings for the calendar.
+     * @param $errors
+     * @return array
+     */
 	private function _settings($errors)
 	{
 		global $txt, $modSettings;

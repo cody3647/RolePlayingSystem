@@ -168,14 +168,13 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 			',true);
 	
 	}
-	
-	/**
-	 * Checks if a character is set on an in character board
-	 *
-	 * @param ErrorContext $post_errors
-	 * @param array        $topic_info
-	 *
-	 */
+
+    /**
+     * Checks if a character is set on an in character board
+     *
+     * @param ErrorContext $post_errors
+     * @param $topic
+     */
 	public function before_save_post(&$post_errors, &$topic)
 	{
 		if ($this->_inCharacter && empty($_POST['character']))
