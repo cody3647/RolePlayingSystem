@@ -81,9 +81,9 @@ class Gamecalendar_Controller extends Action_Controller
 
 		// If the month and year are not passed in, use today's date as a starting point.
 		$curPage = array(
-			'day' => isset($_REQUEST['day']) ? (int) $_REQUEST['day'] : $this->current_dates->start_day,
-			'month' => isset($_REQUEST['month']) ? (int) $_REQUEST['month'] : $this->current_dates->start_month,
-			'year' => isset($_REQUEST['year']) ? (int) $_REQUEST['year'] : $this->current_dates->start_year
+			'day' => $this->_req->getQuery('day', 'intval', $this->current_dates->start_day),
+			'month' => $this->_req->getQuery('month', 'intval', $this->current_dates->start_month),
+			'year' => $this->_req->getQuery('year', 'intval', $this->current_dates->start_year)
 		);
 
 		// Make sure the year and month are in valid ranges.

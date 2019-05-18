@@ -55,6 +55,8 @@ $txt['permissionname_rps_remove_tags'] = 'Remove tags from topics';
 $txt['permissionhelp_rps_remove_tags'] = 'Allows a member to delete tags from topics.  If a tag is deleted from a topic and not present on any other topic it will be deleted completely.';
 $txt['permissionname_rps_remove_tags_own'] = 'Own topics';
 $txt['permissionname_rps_remove_tags_any'] = 'Any account';
+$txt['permissionname_rps_char_set_avatar'] = 'Select a character avatar';
+$txt['permissionname_rps_bio_approved'] = 'Automatically approve character biography changes.';
 
 //Settings
 $txt['rps_general_settings'] = 'General Settings';

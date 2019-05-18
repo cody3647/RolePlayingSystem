@@ -12,9 +12,7 @@
 class Role_Playing_System_Integrate
 {
 	public static function register()
-	{
-		loadLanguage('RolePlayingSystem');
-		loadCSSFile('RolePlayingSystem/rps.css');
+	{		
 		// $hook, $function, $file
 		return array(
 			array('integrate_log_types', 'Role_Playing_System_Integrate::integrate_log_types'),
@@ -32,6 +30,7 @@ class Role_Playing_System_Integrate
 			array('integrate_member_context', 'Role_Playing_System_Integrate::integrate_member_context'),
 
 			array('integrate_sa_xmlhttp', 'Role_Playing_System_Integrate::integrate_sa_xmlhttp'),
+			array('integrate_sa_xmlpreview', 'Role_Playing_System_Integrate::integrate_sa_xmlpreview'),
 
 			array('integrate_before_create_post', 'RolePlayingSystem_Post_Module::integrate_before_create_post'),
 			array('integrate_before_create_topic', 'RolePlayingSystem_Post_Module::integrate_before_create_topic'),
@@ -51,6 +50,7 @@ class Role_Playing_System_Integrate
 			array('integrate_tagindex_topics', 'RolePlayingSystem_MessageIndex_Module::integrate_messageindex_topics'),
 			array('integrate_tagindex_listing', 'RolePlayingSystem_MessageIndex_Module::integrate_messageindex_listing'),
 			array('integrate_action_tagindex_after', 'RolePlayingSystem_MessageIndex_Module::integrate_action_messageindex_after'),
+			
 		);
 	}
 	
@@ -78,8 +78,11 @@ class Role_Playing_System_Integrate
 	
 	public static function integrate_menu_buttons(&$buttons, &$menu_count)
 	{
-		global $scripturl, $txt, $context;
-
+		global $scripturl, $txt, $context, $user_profile;
+		
+		loadLanguage('RolePlayingSystem');
+		loadCSSFile('RolePlayingSystem/rps.css');
+		
 		$rps_buttons = array(
 			'rps' => array(
 				'title' => $txt['rps_game'],
@@ -110,6 +113,7 @@ class Role_Playing_System_Integrate
 				),
 			)
 		);
+		
 		$buttons = elk_array_insert($buttons, 'home', $rps_buttons, 'after');
 		if ($context['allow_admin'])
 		{
@@ -186,27 +190,10 @@ class Role_Playing_System_Integrate
 				'posts' => $row['posts'],
 				'date_created' => $row['date_created'],
 				'last_active' => $row['last_active'],
-				'main_group' => $row['main_group'],
 				'approved' => $row['approved'],
 				'retired' => $row['retired'],
 			);
 		$db->free_result($request);
-		
-		if ( $set !== 'minimal' )
-		{
-			$request = $db->query('', '
-				SELECT d.id_character, d.variable, d.value, c.id_member 
-				FROM {db_prefix}rps_character_fields_data AS d 
-				LEFT JOIN {db_prefix}rps_characters AS c ON c.id_character = d.id_character 			
-				WHERE c.id_member' . (count($new_loaded_ids) == 1 ? ' = {int:loaded_ids}' : ' IN ({array_int:loaded_ids})'),
-				array(
-					'loaded_ids' => count($new_loaded_ids) == 1 ? $new_loaded_ids[0] : $new_loaded_ids,
-				)
-			);
-			while ($row = $db->fetch_assoc($request))
-				$user_profile[$row['id_member']]['characters'][$row['id_character']]['options'][$row['variable']] = $row['value'];
-			$db->free_result($request);
-		}
 		
 	}
 
@@ -244,7 +231,6 @@ class Role_Playing_System_Integrate
 					'real_posts' => $profile['posts'],
 					'last_active' => empty($profile['last_active']) ? $txt['never'] : standardTime($profile['last_active']),
 					'last_active_timestamp' => empty($profile['last_active']) ? 0 : forum_time(false, $profile['last_active']),
-					'main_group' => $profile['main_group'],
 					'approved' => $profile['approved'],
 					'retired' => $profile['retired'],
 				);
@@ -257,9 +243,9 @@ class Role_Playing_System_Integrate
 	{
 		global $context;
 
-        loadTemplate('RpsCharacter');
+        loadTemplate('RpsCharacterInfo');
 		
-		$context['summarytabs']['summary']['templates'] = elk_array_insert($context['summarytabs']['summary']['templates'], 0, array('characters'), 'after');
+		$context['summarytabs']['summary']['templates'] = elk_array_insert($context['summarytabs']['summary']['templates'], 0, array('rps_characters'), 'after');
 	}
 	
 	public static function integrate_sa_xmlhttp(&$subActions)
@@ -269,6 +255,16 @@ class Role_Playing_System_Integrate
 			'controller' => 'ManageCharacters_Controller',
 			'function' => 'action_characterorder',
 			'permission' => 'admin_forum'
+		);
+		
+	}
+	
+	public static function integrate_sa_xmlpreview(&$subActions)
+	{
+		
+		$subActions['characterorder'] = array(
+			'controller' => 'Characters_Controller',
+			'function' => 'action_sig_preview',
 		);
 		
 	}

@@ -64,7 +64,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		isAllowedTo('admin_forum');
 		loadLanguage('RolePlayingSystemAdmin');
 		
-		loadCSSFile(array('RolePlayingSystem/jquery-ui.css', 'RolePlayingSystem/jquery-ui.theme.css', 'RolePlayingSystem/jquery-ui.structure.css'));
+		//loadCSSFile(array('RolePlayingSystem/jquery-ui.css', 'RolePlayingSystem/jquery-ui.theme.css', 'RolePlayingSystem/jquery-ui.structure.css'));
 
 		// Everything's gonna need this.
 		loadLanguage('Help');
@@ -211,8 +211,9 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		$boards = array('');
 		foreach ($boards_list as $board)
 			$boards[$board['id_board']] = $board['cat_name'] . ' - ' . $board['board_name'];
+		foreach(DateTimeZone::listIdentifiers() as $zone)
+			$timezones[$zone] = $zone;
 
-		// Look, all the calendar settings - of which there are many!
 		$config_vars = array(
 			array('title', 'rps_general_settings'),
 
@@ -230,6 +231,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 					array('text', 'rps_current_end', 'invalid' =>true, 'postinput' => $errors['end']),
 				
 			array('title', 'rps_calendar_settings'),
+				array('select', 'rps_timezone', $timezones),
 				// How many days to show on board index, and where to display events etc?
 				array('select', 'rps_showholidays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
 				array('select', 'rps_showbdays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
@@ -593,8 +595,6 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			require_once(SUBSDIR . '/ManageGamecalendar.subs.php');
 			removePhases($to_remove);
 		}
-		
-		$timezone = new DateTimeZone($modSettings['rps_timezone']);
 
 		createToken('admin-rps-phases');
 		$listOptions = array(
@@ -637,7 +637,9 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 					),
 					'data' => array(
 						'function' => function ($rowData) {
-							global $timezone, $user_info;
+							global $modSettings, $user_info;
+							
+							$timezone = new DateTimeZone($modSettings['rps_timezone']);
 							$date = new DateTime($rowData['phase_date'] . ' ' . $rowData['phase_time'], $timezone);
 
 							return $date->format( $user_info['datetime_format'] . ', G:i e ' );

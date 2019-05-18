@@ -296,15 +296,14 @@ function getBirthdayRange($low_date, $high_date)
 	$result = $db->query('birthday_array', '
 		SELECT id_character, name, birthdate, YEAR(birthdate) AS birth_year
 		FROM {db_prefix}rps_characters
-		WHERE YEAR(birthdate) > {string:year_zero}
-			AND MONTH(birthdate) != {int:no_month}
+		WHERE MONTH(birthdate) != {int:no_month}
 			AND DAYOFMONTH(birthdate) != {int:no_day}
 			AND YEAR(birthdate) <= {int:max_year}
 			AND (
 				DATE_FORMAT(birthdate, {string:year_low}) BETWEEN {date:low_date} AND {date:high_date}' . ($year_low == $year_high ? '' : '
 				OR DATE_FORMAT(birthdate, {string:year_high}) BETWEEN {date:low_date} AND {date:high_date}') . '
-			)
-			AND approved = {int:approved}',
+			)',
+	//		AND approved = {int:approved}',
 		array(
 			'approved' => 1,
 			'no_month' => 0,
@@ -483,7 +482,8 @@ function getHolidayRange($low_date, $high_date)
 function getPhaseRange($low_date, $high_date)
 {
 	$db = database();
-
+	$phases = array();
+	
 	// Find some holidays... ;).
 	$result = $db->query('', '
 		SELECT phase, phase_date, phase_time
@@ -498,7 +498,6 @@ function getPhaseRange($low_date, $high_date)
 
 	while ($row = $db->fetch_assoc($result))
 	{
-
 		$phases[$row['phase_date']] = $row['phase'];
 	}
 	$db->free_result($result);

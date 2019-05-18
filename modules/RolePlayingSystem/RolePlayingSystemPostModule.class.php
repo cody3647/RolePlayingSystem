@@ -62,11 +62,11 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 	public function prepare_modifying(&$context)
 	{
 		
-		if (isset($_REQUEST['character']))
+		if ($this->_req->__isset('character'))
 			$context['character'] = $_REQUEST['character'];
-		if (isset($_REQUEST['date']))
+		if ($this->_req->__isset('date'))
 			$context['date'] = $_REQUEST['date'];
-		if (isset($_REQUEST['tags']))
+		if ($this->_req->__isset('tags'))
 			$context['tags'] = $_REQUEST['tags'];
 	}
 	
@@ -76,7 +76,7 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		
 		$db = database();
 
-		$msgID = isset( $_REQUEST['msg'] ) ? (int) $_REQUEST['msg'] : 0;
+		$msgID = $this->_req->getQuery('msg', 'intval',0);
 		
 		$request = $db->query('', '
 			SELECT c.id_character, c.name, c.id_member, if(c.id_character = m.id_character, 1, 0) AS current_character
@@ -114,9 +114,10 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		global $context, $txt, $modSettings, $scripturl;
 		
 		loadTemplate('RolePlayingSystem');
-		
+		 
 		$modSettings['jquery_include_ui'] = true;
-		loadCSSFile(array('RolePlayingSystem/jquery-ui.css', 'RolePlayingSystem/jquery-ui.theme.css', 'RolePlayingSystem/jquery-ui.structure.css'));
+		//'RolePlayingSystem/jquery-ui.css', 
+		loadCSSFile(array('RolePlayingSystem/jquery-ui.theme.css', 'RolePlayingSystem/jquery-ui.structure.css'));
 		
 		$template_layers->addAfter('rps_post','postarea');
 		$token = createToken('post-rps-tags');
@@ -187,7 +188,8 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 	
 	public static function integrate_before_create_post( &$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters)
 	{
-		$charID = isset($_REQUEST['character']) ? (int) $_REQUEST['character'] : 0;
+		$req = HttpReq::instance();
+		$charID = $req->getPost('character', 'intval', 0);
 		$message_columns['id_character'] = 'int';
 		$message_parameters['id_character'] = &$charID;
 		$posterOptions['id_character'] = &$charID;
@@ -195,10 +197,12 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 	
 	public static function integrate_before_create_topic(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters)
 	{
-		if (isset($_REQUEST['date']))
+		$req = HttpReq::instance();
+		
+		if ( $req->__isset('date') )
 		{
 			$topic_columns['date_tag'] = 'date';
-			$topic_parameters['date_tag'] = $_REQUEST['date'];
+			$topic_parameters['date_tag'] = $this->_req->getQuery('date', '', 0);
 		}
 	}
 	
@@ -206,7 +210,9 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 	{
 		$messageInts[] = 'id_character';
 		if (isset($_REQUEST['character']))
+		{
 			$messages_columns['id_character'] = (int) $_REQUEST['character'];
+		}
 			
 	}
 	

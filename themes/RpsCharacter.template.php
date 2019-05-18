@@ -333,23 +333,22 @@ function template_character_signature_modify()
 	global $txt, $context;
 
 	echo '
-							<dt id="current_signature"', !isset($context['character']['current_signature']) ? ' style="display:none"' : '', '>
+							<dt id="current_signature"', !isset($context['character']['current_signature']) ? ' class="hide"' : '', '>
 								<strong>', $txt['current_signature'], ':</strong>
 							</dt>
-							<dd id="current_signature_display"', !isset($context['character']['current_signature']) ? ' style="display:none"' : '', '>
+							<dd id="current_signature_display"', !isset($context['character']['current_signature']) ? '  class="hide"' : '', '>
 								', isset($context['character']['current_signature']) ? $context['character']['current_signature'] : '', '<hr />
 							</dd>
 
-							<dt id="preview_signature"', !isset($context['character']['signature_preview']) ? ' style="display:none"' : '', '>
+							<dt id="preview_signature"', !isset($context['character']['signature_preview']) ? '  class="hide"' : '', '>
 								<strong>', $txt['signature_preview'], ':</strong>
 							</dt>
-							<dd id="preview_signature_display"', !isset($context['character']['signature_preview']) ? ' style="display:none"' : '', '>
+							<dd id="preview_signature_display"', !isset($context['character']['signature_preview']) ? '  class="hide"' : '', '>
 								', isset($context['character']['signature_preview']) ? $context['character']['signature_preview'] : '', '<hr />
 							</dd>
-
 							<dt>
-								<strong>', $txt['signature'], '</strong><br />
-								<span class="smalltext">', $txt['sig_info'], '</span>
+								<label>', $txt['signature'], '</label>
+								<p class="smalltext">', $txt['sig_info'], '</p>
 							</dt>
 							<dd>
 								<textarea class="editor" onkeyup="calcCharLeft();" id="signature" name="signature" rows="5" cols="50" style="min-width: 50%; max-width: 99%;">', $context['character']['signature'], '</textarea><br />';
@@ -357,7 +356,7 @@ function template_character_signature_modify()
 	// If there is a limit at all!
 	if (!empty($context['signature_limits']['max_length']))
 		echo '
-								<span class="smalltext">', sprintf($txt['max_sig_characters'], $context['signature_limits']['max_length']), ' <span id="signatureLeft">', $context['signature_limits']['max_length'], '</span></span><br />';
+								<p class="smalltext">', sprintf($txt['max_sig_characters'], $context['signature_limits']['max_length']), ' <span id="signatureLeft">', $context['signature_limits']['max_length'], '</span></p>';
 
 	if ($context['show_spellchecking'])
 		echo '
@@ -476,40 +475,79 @@ function template_character_avatar_select()
 							</dd>';
 }
 
+
 /**
- * Profile Summary Block
- *
- * Show avatar, title, group info, number of posts, karma, likes
- * Has links to show posts, drafts and attachments
+ * The main template for the post page.
  */
-function template_profile_block_characters()
+function template_action_biography_edit()
 {
-	global $txt, $context, $modSettings, $scripturl;
-
+	global $context, $scripturl, $txt;
+	
+	// Start the javascript...
 	echo '
-			
-				<h2 class="category_header hdicon cat_img_profile">
-					', $txt['rps_profile_characters'] , '
-				</h2>
-			
-			<div class="profileblock">
-			
-					';
-	if (!empty($context['member']['characters']))
-	{
-		foreach($context['member']['characters'] as $charid => $character) {
-			echo '
-				<a class="content floatleft centertext" href="' , $scripturl , '?action=character;c=' , $charid , '">' , $character['name'] , '<br />
-					' , !empty($character['title']) ?  $character['title'] : '&nbsp;' , '
-				</a>';
-		}
-	}
-	else
+		<script>';
+
+	// When using Go Back due to fatal_error, allow the form to be re-submitted with changes.
+	if (isBrowser('is_firefox'))
 		echo '
-				', ($context['user']['is_owner']) ? '<p><a href="' . $scripturl . '?action=character;sa=create">Create a character</a></p>' : '<p>TXT This member does not yet have any characters.</p>';
+			window.addEventListener("pageshow", reActivate, false);';
 
-	// close this block up
+	// End of the javascript
 	echo '
-				<div class="clear"></div>
+		</script>';
+
+	// Start the form and display the link tree.
+	echo '
+		<form id="rpsbiomodify" action="', $scripturl, '?action=', $context['destination'], '" method="post" accept-charset="UTF-8" name="rpsbiomodify" class="flow_hidden" onsubmit="', ($context['becomes_approved'] ? '' : 'alert(\'' . $txt['js_post_will_require_approval'] . '\');'), 'submitonce(this);smc_saveEntities(\'rpsbiomodify\', [\'', $context['post_box_name'], '\']);" enctype="multipart/form-data">
+			<input type="hidden" name="c" value="', $context['character']['id'], '">
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />';
+
+	// If the user wants to see how their message looks - the preview section is where it's at!
+	echo '
+			<div id="preview_section"', isset($context['preview_message']) ? '' : ' class="hide"', '>
+				<h2 class="category_header">
+					<span id="preview_subject">', $context['character']['name'], '</span>
+				</h2>
+				<div id="preview_body">
+					', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
+				</div>
 			</div>';
+
+	// Start the main table.
+	echo '
+			<div id="forumposts">
+				<h2 class="category_header">', $context['page_title'], '</h2>
+				<div class="forumposts">
+					<div class="editor_wrapper">';
+
+	// If an error occurred, explain what happened.
+	template_show_error('post_error');
+
+	// If this won't be approved let them know!
+	// @todo why not use the template_show_error above?
+	if (!$context['becomes_approved'])
+	{
+		echo '
+						<div class="successbox">
+							', $txt['wait_for_approval'], '
+							<input type="hidden" name="approved" value="0" />
+						</div>';
+	}
+
+
+
+	// Show the actual posting area...
+	echo '
+					', template_control_richedit($context['post_box_name'], null, 'bbcBox_message');
+
+
+
+	// Show our submit buttons before any more options
+	echo '
+						<div id="post_confirm_buttons" class="submitbutton">
+							', template_control_richedit_buttons($context['post_box_name']);
+
+
+	echo '
+						</div>';
 }

@@ -14,6 +14,40 @@ use ElkArte\Errors\ErrorContext;
 
 class Character_Controller extends Action_Controller
 {
+	/**
+	 * If the save was successful or not
+	 * @var boolean
+	 */
+	private $_completed_save = false;
+
+	/**
+	 * If this was a request to save an update
+	 * @var null
+	 */
+	private $_saving = null;
+
+	/**
+	 * What it says, on completion
+	 * @var bool
+	 */
+	private $_force_redirect;
+
+	/**
+	 * Holds the output of createMenu for the profile areas
+	 * @var array|boolean
+	 */
+	private $_profile_include_data;
+
+	/**
+	 * The current area chosen from the menu
+	 * @var string
+	 */
+	private $_current_area;
+
+	/**
+	 * Member id for the history being viewed
+	 * @var int
+	 */
 	private $_memID = 0;
 	
 	private $_charID = 0;
@@ -32,28 +66,145 @@ class Character_Controller extends Action_Controller
 		global $context, $user_info, $memberContext, $user_profile, $cur_profile;
 
 		require_once(SUBSDIR . '/Character.subs.php');
+		require_once(SUBSDIR . '/Menu.subs.php');
 		require_once(SUBSDIR . '/Profile.subs.php');
 
-		$this->_charID = !empty($_REQUEST['c']) ? (int) $_REQUEST['c'] : 0;
+		$this->_charID = $this->_req->getQuery('c', 'intval', 0);
 		$this->_memID = memberID($this->_charID);
 		
 		loadMemberContext($this->_memID);
 		$context['member'] = &$memberContext[$this->_memID];
 		$context['character'] = &$memberContext[$this->_memID]['characters'][$this->_charID];
+		
 		$cur_profile = $user_profile[$this->_memID]['characters'][$this->_charID];
 		$context['id_member'] = $this->_memID;
 		$context['id_character'] = $this->_charID;
 		
 		if (!isset($context['user']['is_owner']))
 			$context['user']['is_owner'] = in_array($this->_charID, $user_info['characters']);
-		
+
 		loadLanguage('Profile');
+		loadLanguage('RolePlayingSystem');
+	}
+	
+	/**
+	 * Allow the change or view of profiles.
+	 *
+	 * - Fires the pre_load event
+	 *
+	 * @see Action_Controller::action_index()
+	 */
+	public function action_index()
+	{
+		global $txt, $user_info, $context, $user_profile, $cur_profile, $memberContext;
+		global $profile_vars, $post_errors;
+
+		// Don't reload this as we may have processed error strings.
+		if (empty($post_errors))
+			loadLanguage('Profile');
+		loadTemplate('Profile');
+
+		// Trigger profile pre-load event
+		$this->_events->trigger('pre_load', array('post_errors' => $post_errors));
+
+		// A little bit about this member
+		$context['id_member'] = $this->_memID;
+		$cur_profile = $user_profile[$this->_memID];
+
+		// Let's have some information about this member ready, too.
+		loadMemberContext($this->_memID);
+		$context['member'] = $memberContext[$this->_memID];
+
+		// Is this the profile of the user himself or herself?
+		$context['user']['is_owner'] = (int) $this->_memID === (int) $user_info['id'];
+
+		// Create the menu of profile options
+		$this->_define_profile_menu();
+
+		// Is there an updated message to show?
+		if (isset($this->_req->query->updated))
+			$context['profile_updated'] = $txt['profile_updated_own'];
+
+		// If it said no permissions that meant it wasn't valid!
+		if ($this->_profile_include_data && empty($this->_profile_include_data['permission']))
+			$this->_profile_include_data['enabled'] = false;
+
+		// No menu and guest? A warm welcome to register
+		if (!$this->_profile_include_data && $user_info['is_guest'])
+			is_not_guest();
+
+		// No menu means no access at all.
+		if (!$this->_profile_include_data || (isset($this->_profile_include_data['enabled']) && $this->_profile_include_data['enabled'] === false))
+			throw new Elk_Exception('no_access', false);
+
+		// Make a note of the Unique ID for this menu.
+		$context['profile_menu_id'] = $context['max_menu_id'];
+		$context['profile_menu_name'] = 'menu_data_' . $context['profile_menu_id'];
+
+		// Set the selected item - now it's been validated.
+		$this->_current_area = $this->_profile_include_data['current_area'];
+		$context['menu_item_selected'] = $this->_current_area;
+
+		// Before we go any further, let's work on the area we've said is valid.
+		// Note this is done here just in case we ever compromise the menu function in error!
+		$this->_completed_save = false;
+		$context['do_preview'] = isset($this->_req->post->preview_signature);
+
+		// Are we saving data in a valid area?
+		$this->_saving = $this->_req->getPost('save', 'trim', $this->_req->getQuery('save', 'trim', null));
+		if (isset($this->_profile_include_data['sc']) && (isset($this->_saving) || $context['do_preview']))
+		{
+			checkSession($this->_profile_include_data['sc']);
+			$this->_completed_save = true;
+		}
+
+		// Permissions for good measure.
+		if (!empty($this->_profile_include_data['permission']))
+			isAllowedTo($this->_profile_include_data['permission'][$context['user']['is_owner'] ? 'own' : 'any']);
+
+		// Session validation and/or Token Checks
+		//$this->_check_access();
+
+		// Build the link tree.
+		$this->_build_profile_linktree();
+
+		// Set the template for this area... if you still can :P
+		// and add the profile layer.
+		$context['sub_template'] = $this->_profile_include_data['function'];
+		Template_Layers::instance()->add('profile');
+
+		// Need JS if we made it this far
+		loadJavascriptFile('profile.js');
+
+		// Have some errors for some reason?
+		// @todo check that this can be safely removed.
+		if (!empty($post_errors))
+		{
+			// Set all the errors so the template knows what went wrong.
+			foreach ($post_errors as $error_type)
+				$context['modify_error'][$error_type] = true;
+		}
+		// If it's you then we should redirect upon save.
+		elseif (!empty($profile_vars) && $context['user']['is_owner'] && !$context['do_preview'])
+			redirectexit('action=profile;area=' . $this->_current_area . ';updated');
+		elseif (!empty($this->_force_redirect))
+			redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $this->_memID) . ';area=' . $this->_current_area);
+
+		// Let go to the right place
+		if (isset($this->_profile_include_data['file']))
+			require_once($this->_profile_include_data['file']);
+
+		callMenu($this->_profile_include_data);
+
+		// Set the page title if it's not already set...
+		if (!isset($context['page_title']))
+			$context['page_title'] = $txt['profile'] . (isset($txt[$this->_current_area]) ? ' - ' . $txt[$this->_current_area] : '');
 	}
 	
 	/**
 	 * Intended as entry point which delegates to methods in this class...
 	 */
-	public function action_index()
+/*	public function action_index()
 	{
 		global $context;
 
@@ -62,11 +213,14 @@ class Character_Controller extends Action_Controller
 		// Little short on the list here
 		$subActions = array(
 			'summary' => array($this, 'action_summary'),
+			'showtopics' => array($this, 'action_topics'),
+			'showposts' => array($this, 'action_posts'),
 			'edit' => array($this, 'action_edit'),
 			'create' => array($this, 'action_create', 'permission' => ''),
 			'create2' => array($this, 'action_create2'),
 			'checkname' => array($this, 'action_checkname'),
 			'sig_preview' => array($this, 'action_sig_preview'),
+			'recent' => array($this, 'action_character_recent'),
 		);
 		
 		// I don't think we know what to do... throw dies?
@@ -75,238 +229,133 @@ class Character_Controller extends Action_Controller
 		
 		$context['sub_action'] = $subAction;
 		$action->dispatch($subAction);
-	}
-	
-	public function action_summary()
-	{
-		global $context, $memberContext, $txt, $modSettings, $user_info, $user_profile, $scripturl, $settings;
-		
-		// Attempt to load the member's profile data.
-		if (!loadMemberContext($this->_memID) || empty($context['character']))
-			throw new Elk_Exception('not_a_user', false);
-
-		loadTemplate('RpsCharacterProfile');
-
-		$context['sub_template'] = 'action_summary';
-
-		// Set up the stuff and load the user.
-		$context += array(
-			'page_title' => sprintf($txt['profile_of_username'], $context['character']['name']),
-			'can_send_pm' => allowedTo('pm_send'),
-		);
-		
-		// Set a canonical URL for this page.
-		$context['canonical_url'] = $scripturl . '?action=character;c=' . $this->_charID;
-		$context['linktree']+=array(
-			1=> array(
-				'name' => 'Profile of ' . $context['member']['name'],
-				'url' => $scripturl . '?action=profile;u=' . $this->_memID,
-			),
-			2 => array(
-				'name' => $context['character']['name'],
-				'url' => $context['canonical_url'],
-			)
-		);
-
-		// Profile summary tabs, like Summary, Recent, Buddies
-		$this->_register_summarytabs();
-
-		// They haven't even been registered for a full day!?
-		$days_registered = (int) ((time() - $context['character']['created']) / (3600 * 24));
-		if (empty($context['character']['created']) || $days_registered < 1)
-			$context['character']['posts_per_day'] = $txt['not_applicable'];
-		else
-			$context['character']['posts_per_day'] = comma_format($context['character']['real_posts'] / $days_registered, 3);
-
-		// Set the age...
-		if (empty($context['character']['birth_date']))
-		{
-			$context['character'] += array(
-				'age' => $txt['not_applicable'],
-				'today_is_birthday' => false
-			);
-		}
-		else
-		{
-			list ($birth_year, $birth_month, $birth_day) = sscanf($context['character']['birth_date'], '%d-%d-%d');
-			$datearray = getdate(forum_time());
-			$context['character'] += array(
-				'age' => $birth_year <= 4 ? $txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
-				'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day
-			);
-		}
-
-		// Is the signature even enabled on this forum?
-		$context['signature_enabled'] = substr($modSettings['signature_settings'], 0, 1) == 1;
-
-		// How about thier most recent posts?
-		if (in_array('posts', $this->_summary_areas))
-		{
-			// Is the load average too high just now, then let them know
-			if (!empty($modSettings['loadavg_show_posts']) && $modSettings['current_load'] >= $modSettings['loadavg_show_posts'])
-				$context['loadaverage'] = true;
-			else
-			{
-				// Set up to get the last 10 psots of this member
-				$msgCount = $this->count_character_posts();
-				$range_limit = '';
-				$maxIndex = 10;
-				$start = (int) $_REQUEST['start'];
-
-				// If they are a frequent poster, we guess the range to help minimize what the query work
-				if ($msgCount > 1000)
-				{
-					list ($min_msg_member, $max_msg_member) = findMinMaxCharacterMessage();
-					$margin = floor(($max_msg_member - $min_msg_member) * (($start + $modSettings['defaultMaxMessages']) / $msgCount) + .1 * ($max_msg_member - $min_msg_member));
-					$range_limit = 'm.id_msg > ' . ($max_msg_member - $margin);
-				}
-
-				// Find this user's most recent posts
-				$rows = $this->load_character_posts(true, 0, $maxIndex, $range_limit);
-				$context['posts'] = array();
-				foreach ($rows as $row)
-				{
-					// Censor....
-					censorText($row['body']);
-					censorText($row['subject']);
-
-					// Do the code.
-					$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
-					$preview = strip_tags(strtr($row['body'], array('<br />' => '&#10;')));
-					$preview = Util::shorten_text($preview, !empty($modSettings['ssi_preview_length']) ? $modSettings['ssi_preview_length'] : 128);
-					$short_subject = Util::shorten_text($row['subject'], !empty($modSettings['ssi_subject_length']) ? $modSettings['ssi_subject_length'] : 24);
-
-					// And the array...
-					$context['posts'][] = array(
-						'body' => $preview,
-						'board' => array(
-							'name' => $row['bname'],
-							'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['bname'] . '</a>'
-						),
-						'subject' => $row['subject'],
-						'short_subject' => $short_subject,
-						'time' => standardTime($row['poster_time']),
-						'html_time' => htmlTime($row['poster_time']),
-						'timestamp' => forum_time(true, $row['poster_time']),
-						'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow">' . $short_subject . '</a>',
-					);
-				}
-			}
-		}
-
-		// How about the most recent topics that they started?
-		if (in_array('topics', $this->_summary_areas))
-		{
-			// Is the load average still too high?
-			if (!empty($modSettings['loadavg_show_posts']) && $modSettings['current_load'] >= $modSettings['loadavg_show_posts'])
-				$context['loadaverage'] = true;
-			else
-			{
-				// Set up to get the last 10 topics of this member
-				$topicCount = $this->count_character_posts(false);
-				$range_limit = '';
-				$maxIndex = 10;
-
-				// If they are a frequent topic starter we guess the range to help the query
-				if ($topicCount > 1000)
-				{
-					list ($min_topic_member, $max_topic_member) = findMinMaxCharacterMessage(false);
-					$margin = floor(($max_topic_member - $min_topic_member) * (($start + $modSettings['defaultMaxMessages']) / $topicCount) + .1 * ($max_topic_member - $min_topic_member));
-					$margin *= 5;
-					$range_limit = 't.id_first_msg > ' . ($max_topic_member - $margin);
-				}
-
-				// Find this user's most recent topics
-				$rows = $this->load_character_posts(false, 0, $maxIndex, $range_limit);
-				$context['topics'] = array();
-				foreach ($rows as $row)
-				{
-					// Censor....
-					censorText($row['body']);
-					censorText($row['subject']);
-
-					// Do the code.
-					$short_subject = Util::shorten_text($row['subject'], !empty($modSettings['ssi_subject_length']) ? $modSettings['ssi_subject_length'] : 24);
-
-					// And the array...
-					$context['topics'][] = array(
-						'board' => array(
-							'name' => $row['bname'],
-							'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['bname'] . '</a>'
-						),
-						'subject' => $row['subject'],
-						'short_subject' => $short_subject,
-						'time' => standardTime($row['poster_time']),
-						'html_time' => htmlTime($row['poster_time']),
-						'timestamp' => forum_time(true, $row['poster_time']),
-						'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow">' . $short_subject . '</a>',
-					);
-				}
-			}
-		}
-
-		// To make tabs work, we need jQueryUI
-		$modSettings['jquery_include_ui'] = true;
-		addInlineJavascript('start_tabs();', true);
-		loadCSSFile('jquery.ui.tabs.css');
-		loadJavascriptFile('profile.js');
-	}
+	}*/
 	
 		/**
-	 * Prepares the tabs for the profile summary page
+	 * Define all the sections within the profile area!
 	 *
-	 * What it does:
-	 * - Tab information for use in the summary page
-	 * - Each tab template defines a div, the value of which are the template(s) to load in that div
-	 * - array(array(1, 2), array(3, 4)) <div>template 1, template 2</div><div>template 3 template 4</div>
-	 * - Templates are named template_profile_block_YOURNAME
-	 * - Tabs with href defined will not preload/create any page divs but instead be loaded via ajax
+	 * We start by defining the permission required - then we take this and turn
+	 * it into the relevant context ;)
+	 *
+	 * Possible fields:
+	 *   For Section:
+	 *    - string $title: Section title.
+	 *    - array $areas:  Array of areas within this section.
+	 *
+	 *   For Areas:
+	 *    - string $label:      Text string that will be used to show the area in the menu.
+	 *    - string $file:       Optional text string that may contain a file name that's needed for inclusion in order to display the area properly.
+	 *    - string $custom_url: Optional href for area.
+	 *    - string $function:   Function to execute for this section.
+	 *    - bool $enabled:      Should area be shown?
+	 *    - string $sc:         Session check validation to do on save - note without this save will get unset - if set.
+	 *    - bool $hidden:       Does this not actually appear on the menu?
+	 *    - bool $password:     Whether to require the user's password in order to save the data in the area.
+	 *    - array $subsections: Array of subsections, in order of appearance.
+	 *    - array $permission:  Array of permissions to determine who can access this area. Should contain arrays $own and $any.
 	 */
-	private function _register_summarytabs()
+	private function _define_profile_menu()
 	{
-		global $txt, $context, $modSettings, $scripturl;
+		global $txt, $scripturl, $context, $cur_profile, $modSettings;
 
-		$context['summarytabs'] = array(
-			'summary' => array(
-				'name' => $txt['summary'],
-				'templates' => array(
-					array('summary', 'user_info'),
-
+		$profile_areas = array(
+			'character' => array(
+				'title' => $txt['rps_profile_info'],
+				'areas' => array(
+					'summary' => array(
+						'label' => $txt['summary'],
+						'controller' => 'CharacterInfo_Controller',
+						'function' => 'action_summary',
+						'custom_url' => $this->_url('summary'),
+						'permission' => array(
+							'own' => array('rps_char_view'),
+							'any' => array('rps_char_view'),
+						),
+					),
+					'showposts' => array(
+						'label' => $txt['showPosts'],
+						'controller' => 'CharacterInfo_Controller',
+						'function' => 'action_showPosts',
+						'custom_url' => $this->_url('showposts'),
+						'permission' => array(
+							'own' => array('rps_char_view' ),
+							'any' => array('rps_char_view'),
+						),
+					),
+					'showtopics' => array(
+						'label' => $txt['rps_showTopics'],
+						'controller' => 'CharacterInfo_Controller',
+						'function' => 'action_showPosts',
+						'custom_url' => $this->_url('showtopics'),
+						'permission' => array(
+							'own' => array('rps_char_view'),
+							'any' => array('rps_char_view'),
+						),
+					),
 				),
-				'active' => true,
 			),
-			'recent' => array(
-				'name' => $txt['profile_recent_activity'],
-				'templates' => array('posts', 'topics'),
-				'active' => true,
-				'href' => $scripturl . '?action=profileInfo;sa=recent;xml;u=' . $this->_memID . ';' . $context['session_var'] . '=' . $context['session_id'],
+			'character_edit' => array(
+				'title' => $txt['rps_modify_character'],
+				'areas' => array(
+					'edit' => array(
+						'label' => $txt['rps_modify_profile'],
+						'controller' => 'Character_Controller',
+						'function' => 'action_edit',
+						'custom_url' => $this->_url('edit'),
+						'sc' => 'profile',
+						'token' => 'profile-ac%u',
+						'password' => true,
+						'permission' => array(
+							'own' => array('rps_char_edit_any', 'rps_char_edit_own', 'rps_char_title_any', 'rps_char_title_own'),
+							'any' => array('rps_char_edit_any', 'rps_char_title_any'),
+						),
+					),
+					'biography_edit' => array(
+						'label' => $txt['rps_modify_bio'],
+						'controller' => 'CharacterBiography_Controller',
+						'function' => 'action_biography_edit',
+						'custom_url' => $this->_url('biography_edit'),
+						'sc' => 'biography',
+						'token' => 'profile-fp%c',
+						'permission' => array(
+							'own' => array('rps_char_edit_any', 'rps_char_edit_own'),
+							'any' => array('rps_char_edit_any'),
+						),
+					),
+				),
 			),
 		);
-
-		// Let addons add or remove to the tabs array
-		call_integration_hook('integrate_character_summary', array($this->_memID));
-
-		// Go forward with whats left after integration adds or removes
-		$summary_areas = '';
-		foreach ($context['summarytabs'] as $id => $tab)
-		{
-			// If the tab is active we add it
-			if ($tab['active'] !== true)
-			{
-				unset($context['summarytabs'][$id]);
-			}
-			else
-			{
-				// All the active templates, used to prevent processing data we don't need
-				foreach ($tab['templates'] as $template)
-				{
-					$summary_areas .= is_array($template) ? implode(',', $template) : ',' . $template;
-				}
+		if(!empty($context['member']['characters']) && count($context['member']['characters']) > 1) {
+			$profile_areas['characters']['title'] = $txt['rps_profile_characters'];
+			
+			foreach($context['member']['characters'] as $character) {
+				$profile_areas['characters']['areas'][$character['name']] = array(
+					'label' => $character['name'],
+					'custom_url' => $character['href'],
+				);
 			}
 		}
 
-		$this->_summary_areas = explode(',', $summary_areas);
+		// Set a few options for the menu.
+		$menuOptions = array(
+			'disable_url_session_check' => true,
+			'hook' => 'character',
+			'default_include_dir' => CONTROLLERDIR,
+		);
+
+		// Actually create the menu!
+		$this->_profile_include_data = createMenu($profile_areas, $menuOptions);
+		unset($profile_areas);
 	}
+	
+	private function _url($area)
+	{
+		global $scripturl;
+		
+		return $scripturl . '?action=character;area=' . $area . ';c=' . $this->_charID;
+	}
+	
+	
 	
 	/**
 	 * Allow the user to change the forum options in their profile.
@@ -347,21 +396,8 @@ class Character_Controller extends Action_Controller
 		$context['show_preview_button'] = true;
 		$context['header_text'] = $txt['rps_edit_character'] . $context['character']['name'];
 		$context['submit_txt'] = $txt['rps_save_changes'];
-		$context['form_action'] = $scripturl . '?action=character;sa=edit;c=' . $this->_charID;
+		$context['form_action'] = $scripturl . '?action=character;area=edit;c=' . $this->_charID;
 		$context['page_title'] = $txt['rps_edit_character'] . $context['character']['name'];
-		$context['linktree']+=array(
-			1=> array(
-				'name' => $txt['rps_profile_of'] . $context['member']['name'],
-				'url' => $scripturl . '?action=profile;u=' . $this->_memID,
-			),
-			2 => array(
-				'name' => $context['character']['name'],
-				'url' => $scripturl . '?action=character;c=' . $this->_charID,
-			),
-			3 => array(
-				'name' => $txt['rps_edit_character'] . $context['character']['name'],
-			)
-		);
 
 		setupCharacterContext(
 			array(
@@ -635,67 +671,7 @@ class Character_Controller extends Action_Controller
 		return $charID;
 	}
 
-    /**
-     * Returns the total number of posts or new topics a user has made
-     *
-     * - Counts all posts or just the topics made on a particular board
-     *
-     * @param boolean $posts
-     * @param int|null $board
-     * @return integer
-     * @throws Exception
-     */
-
-	function count_character_posts($posts=true, $board = null)
-	{
-		global $modSettings, $user_info;
-
-		$db = database();
-
-		$is_owner = $this->_memID == $user_info['id'];
-		
-		if($posts)
-		{
-			$request = $db->query('', '
-				SELECT COUNT(*)
-				FROM {db_prefix}messages AS m' . ($user_info['query_see_board'] == '1=1' ? '' : '
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})') . '
-				WHERE m.id_member = {int:current_member}
-					AND m.id_character = {int:current_character}' . (!empty($board) ? '
-					AND m.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $is_owner ? '' : '
-					AND m.approved = {int:is_approved}'),
-				array(
-					'current_member' => $this->_memID,
-					'current_character' => $this->_charID,
-					'is_approved' => 1,
-					'board' => $board,
-				)
-			);
-		}
-		else
-		{
-			$request = $db->query('', '
-				SELECT COUNT(*)
-				FROM {db_prefix}topics AS t' . ($user_info['query_see_board'] == '1=1' ? '' : '
-					INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board AND {query_see_board})') . '
-					INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
-				WHERE t.id_member_started = {int:current_member}
-					AND m.id_character = {int:current_character}' . (!empty($board) ? '
-					AND t.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $is_owner ? '' : '
-					AND t.approved = {int:is_approved}'),
-				array(
-					'current_member' => $this->_memID,
-					'current_character' => $this->_charID,
-					'is_approved' => 1,
-					'board' => $board,
-				)
-			);
-		}
-		list ($msgCount) = $db->fetch_row($request);
-		$db->free_result($request);
-
-		return $msgCount;
-	}
+ 
 
     /**
      * Gets a members minimum and maximum message id
@@ -757,125 +733,9 @@ class Character_Controller extends Action_Controller
 		return empty($minmax) ? array(0, 0) : $minmax;
 	}
 
-    /**
-     * Used to load all the posts of a user
-     *
-     * - Can limit to just the posts of a particular board
-     * - If range_limit is supplied, will check if count results were returned, if not
-     * will drop the limit and try again
-     *
-     * @param boolean $posts
-     * @param int $start
-     * @param int $count
-     * @param string|null $range_limit
-     * @param boolean $reverse
-     * @param int|null $board
-     * @return array
-     * @throws Exception
-     */
-	function load_character_posts($posts=true, $start, $count, $range_limit = '', $reverse = false, $board = null)
-	{
-		global $modSettings, $user_info;
 
-		$db = database();
-
-		$is_owner = $this->_memID == $user_info['id'];
-		$user_posts = array();
-		
-		if ($posts) 
-		{
-			// Find this user's posts. The left join on categories somehow makes this faster, weird as it looks.
-			for ($i = 0; $i < 2; $i++)
-			{
-				$request = $db->query('', '
-					SELECT
-						b.id_board, b.name AS bname,
-						c.id_cat, c.name AS cname,
-						m.id_topic, m.id_msg, m.body, m.smileys_enabled, m.subject, m.poster_time, m.approved,
-						t.id_member_started, t.id_first_msg, t.id_last_msg
-					FROM {db_prefix}messages AS m
-						INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-						INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
-						LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-					WHERE m.id_member = {int:current_member}
-						AND m.id_character = {int:current_character}' . (!empty($board) ? '
-						AND b.id_board = {int:board}' : '') . (empty($range_limit) ? '' : '
-						AND ' . $range_limit) . '
-						AND {query_see_board}' . (!$modSettings['postmod_active'] || $is_owner ? '' : '
-						AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
-					ORDER BY m.id_msg ' . ($reverse ? 'ASC' : 'DESC') . '
-					LIMIT ' . $start . ', ' . $count,
-					array(
-						'current_member' => $this->_memID,
-						'current_character' => $this->_charID,
-						'is_approved' => 1,
-						'board' => $board,
-					)
-				);
-
-				// Did we get what we wanted, if so stop looking
-				if ($db->num_rows($request) === $count || empty($range_limit))
-					break;
-				else
-					$range_limit = '';
-			}
-		}
-		
-		else
-		{
-				// Find this user's topics.  The left join on categories somehow makes this faster, weird as it looks.
-			for ($i = 0; $i < 2; $i++)
-			{
-				$request = $db->query('', '
-					SELECT
-						b.id_board, b.name AS bname,
-						c.id_cat, c.name AS cname,
-						t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved,
-						m.body, m.smileys_enabled, m.subject, m.poster_time, m.id_topic, m.id_msg
-					FROM {db_prefix}topics AS t
-						INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
-						LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-						INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
-					WHERE t.id_member_started = {int:current_member}
-						AND m.id_character = {int:current_character}' . (!empty($board) ? '
-						AND t.id_board = {int:board}' : '') . (empty($range_limit) ? '' : '
-						AND ' . $range_limit) . '
-						AND {query_see_board}' . (!$modSettings['postmod_active'] || $is_owner ? '' : '
-						AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
-					ORDER BY t.id_first_msg ' . ($reverse ? 'ASC' : 'DESC') . '
-					LIMIT ' . $start . ', ' . $count,
-					array(
-						'current_member' => $this->_memID,
-						'current_character' => $this->_charID,
-						'is_approved' => 1,
-						'board' => $board,
-					)
-				);
-
-				// Did we get what we wanted, if so stop looking
-				if ($db->num_rows($request) === $count || empty($range_limit))
-					break;
-				else
-					$range_limit = '';
-			}
-		}
-		
-		// Place them in the post array
-		while ($row = $db->fetch_assoc($request))
-			$user_posts[] = $row;
-		$db->free_result($request);
-
-		return $user_posts;
-	}
 	
-	private function _load_summary()
-	{
-		// Load all areas of interest in to context for template use
-		$this->_determine_posts_per_day();
-		$this->_determine_age_birth();
-	}
-	
-		/**
+	/**
 	 * Let them see what their signature looks like before they use it like spam
 	 */
 	public function action_sig_preview()
@@ -974,6 +834,87 @@ class Character_Controller extends Action_Controller
 				),
 			);
 	}
+	
+	/**
+	 * Does session and token checks for the areas that require those
+	 */
+	private function _check_access()
+	{
+		global $context;
+
+		// Does this require session validating?
+		if (!empty($this->_profile_include_data['validate'])
+			|| (isset($this->_saving) && !$context['user']['is_owner']))
+		{
+			validateSession();
+		}
+
+		// Do we need to perform a token check?
+		if (!empty($this->_profile_include_data['token']))
+		{
+			if ($this->_profile_include_data['token'] !== true)
+			{
+				$token_name = str_replace('%u', $context['id_member'], $this->_profile_include_data['token']);
+			}
+			else
+			{
+				$token_name = 'profile-u' . $context['id_member'];
+			}
+
+			if (isset($this->_profile_include_data['token_type']) && in_array($this->_profile_include_data['token_type'], array('request', 'post', 'get')))
+			{
+				$token_type = $this->_profile_include_data['token_type'];
+			}
+			else
+			{
+				$token_type = 'post';
+			}
+
+			if (isset($this->_saving))
+			{
+				validateToken($token_name, $token_type);
+			}
+
+			createToken($token_name, $token_type);
+			$context['token_check'] = $token_name;
+		}
+	}
+
+	/**
+	 * Just builds the link tree based on where were are in the profile section
+	 * and who's profile is being viewed, etc.
+	 */
+	private function _build_profile_linktree()
+	{
+		global $context, $scripturl, $txt, $user_info;
+
+		$context['linktree'][] = array(
+			'url' => $scripturl . '?action=profile' . ($this->_memID != $user_info['id'] ? ';u=' . $this->_memID : ''),
+			'name' => sprintf($txt['profile_of_username'], $context['member']['name']),
+		);
+		
+		$context['linktree'][] = array(
+			'url' => $scripturl . '?action=character;c=' . $this->_charID,
+			'name' => $context['character']['name'],
+			);
+
+		if (!empty($this->_profile_include_data['label']))
+		{
+			$context['linktree'][] = array(
+				'url' => $scripturl . '?action=character;c=' . $this->_charID . ';area=' . $this->_profile_include_data['current_area'],
+				'name' => $this->_profile_include_data['label'],
+			);
+		}
+
+		if (!empty($this->_profile_include_data['current_subsection']) && $this->_profile_include_data['subsections'][$this->_profile_include_data['current_subsection']][0] != $this->_profile_include_data['label'])
+		{
+			$context['linktree'][] = array(
+				'url' => $scripturl . '?action=character;c=' . $this->_charID . ';area=' . $this->_profile_include_data['current_area'] . ';sa=' . $this->_profile_include_data['current_subsection'],
+				'name' => $this->_profile_include_data['subsections'][$this->_profile_include_data['current_subsection']][0],
+			);
+		}
+	}
+
 }
 
 

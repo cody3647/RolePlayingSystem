@@ -1,12 +1,24 @@
-/* Common admin center classes.
+/* Role Playing System classes.
 ------------------------------------------------------- */
+.profileblocks ul.characters {
+	display:flex;
+	flex-wrap:wrap;
+}
 
-/* @todo - Start stripping a pile of crud from this file.
-/* Once I can see how it looks without the crud, I can decide what it really needs.
-/* Can be simplified quite a lot before production builds. */
+.profileblock ul.characters li:not(:first-child):before{
+	content:none;
+}
 
-/* @todo - Special styling for admin descriptions. */
+.profileblock ul.characters li a {
+	display:block;
+}
 
+.profileblock ul.characters li a:hover {
+	display:block;
+	background: #f0f0f0;
+	text-decoration: none;
+	box-shadow: 1px 1px 2px #E4E4E4;
+}
 
 /* Drag sort lists show the move cursor and up/down arrow content */
 #character_fields td:nth-child(2) {

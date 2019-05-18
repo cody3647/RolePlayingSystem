@@ -28,6 +28,7 @@ class RpsCurrentDate
 	public $maxyear;
 	public $span_year;
 	public $span_months;
+	public $diff;
 	
 	private function __construct()
 	{
@@ -41,6 +42,8 @@ class RpsCurrentDate
 		$this->span_year = $this->start_year != $this->end_year;
 		$this->minyear = substr($modSettings['rps_begining'], 0, 4);
 		$this->maxyear = $this->end_year + 5;
+		
+		$this->diff = $this->start_date->diff($this->end_date);
 		//$this->getMonths();
 	}
 	

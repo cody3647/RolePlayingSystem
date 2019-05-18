@@ -57,7 +57,7 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 
 	public static function integrate_prepare_display_context( &$output, &$message) {
 		global $memberContext;
-		
+
 		$overrides = array('name','title','avatar','signature', 'custom_fields','href', 'posts');
 		
 		if (empty($output['member']['member'])) {
@@ -92,6 +92,7 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 			
 		$context['normal_buttons'] = elk_array_insert($context['normal_buttons'], 'reply', $tag_button, 'after');
 	}
+	
 	//$topicinfo is set in the query based on select name
 	public static function integrate_topic_query(&$topic_selects, &$topic_tables, &$topic_parameters)
 	{
@@ -130,11 +131,14 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 		while ($row = $db->fetch_assoc($request))
 			$context['tags'][$row['id_tag']] = un_htmlspecialchars($row['tag']);
 		$db->free_result($request);
-		$date = new DateTime($topicinfo['date_tag']);
-		$context['date_tag'] = $date->format($user_info['datetime_format']);
-		$context['year_tag'] = $topicinfo['year_tag'];
-		$context['month_tag'] = $topicinfo['month_tag'];
-		$context['day_tag'] = $topicinfo['day_tag'];
+		if(!empty($topicinfo['date_tag']))
+		{
+			$date = new DateTime($topicinfo['date_tag']);
+			$context['date_tag'] = $date->format($user_info['datetime_format']);
+			$context['year_tag'] = $topicinfo['year_tag'];
+			$context['month_tag'] = $topicinfo['month_tag'];
+			$context['day_tag'] = $topicinfo['day_tag'];
+		}
 
 		loadTemplate('RolePlayingSystem');
 	}

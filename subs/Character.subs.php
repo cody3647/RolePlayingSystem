@@ -271,12 +271,12 @@ function loadCharacterFields($force_reload = false)
 			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
 			'permission' => 'rps_char_title',
-			'input_validate' => create_function('&$value', '
+			'input_validate' => function (&$value) {
 				if (Util::strlen($value) > 50)
-					return \'user_title_too_long\';
+					return 'user_title_too_long';
 
 				return true;
-			'),
+			},
 		),
 	);
 
@@ -288,18 +288,17 @@ function loadCharacterFields($force_reload = false)
 	{
 		// Do we have permission to do this?
 		if (isset($field['permission']) && !allowedTo(($context['user']['is_owner'] ? array($field['permission'] . '_own', $field['permission'] . '_any') : $field['permission'] . '_any')) && !allowedTo($field['permission']))
-			unset($profile_fields[$key]);
+			unset($character_fields[$key]);
 	}
 }
 
 /**
  * Load key signature context data.
- *
  * @return boolean
  */
 function characterLoadSignatureData()
 {
-	global $modSettings, $context, $txt, $cur_profile, $memberContext;
+	global $modSettings, $context, $txt, $cur_profile;
 
 	// Signature limits.
 	list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
@@ -331,7 +330,7 @@ function characterLoadSignatureData()
 		loadJavascriptFile('spellcheck.js', array('defer' => true));
 
 	if (empty($context['do_preview']))
-		$context['character']['signature'] = empty($context['character']['signature']) ? '' : str_replace(array('<br />', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $context['character']['signature']);
+		$context['character']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br />', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
 	else
 	{
 		$signature = !empty($_POST['signature']) ? $_POST['signature'] : '';
@@ -347,11 +346,13 @@ function characterLoadSignatureData()
 		if ($validation !== true && $validation !== false)
 			$context['post_errors'][] = $validation;
 
-		censorText($context['character']['signature']);
+		$context['character']['signature'] = censor($context['character']['signature']);
 		$context['character']['current_signature'] = $context['character']['signature'];
-		censorText($signature);
-		$context['character']['signature_preview'] = parse_bbc($signature, true);
+		$signature = censor($signature);
+		$bbc_parser = \BBC\ParserWrapper::instance();
+		$context['character']['signature_preview'] = $bbc_parser->parseSignature($signature, true);
 		$context['character']['signature'] = $_POST['signature'];
+
 	}
 
 	return true;
@@ -380,7 +381,7 @@ function characterLoadAvatarData()
 	if ($context['user']['is_owner'])
 		$allowedChange = allowedTo('rps_char_set_avatar') && allowedTo(array('rps_char_edit_any', 'rps_char_edit_own'));
 	else
-		$allowedChange = allowedTo('rps_char_set_avatar') && allowedTo('rps_char_edit');
+		$allowedChange = allowedTo('rps_char_set_avatar') && allowedTo('rps_char_edit_any');
 
 	// Default context.
 	$context['character']['avatar'] += array(
@@ -822,3 +823,52 @@ function characterSaveAvatarData(&$value)
 
 	return false;
 }
+
+/**
+ * Returns the total number of new topics a user has made
+ *
+ * - Counts all posts or just the topics made on a particular board
+ *
+ * @param int $memID
+ * @param int|null $board
+ * @return integer
+ */
+function count_character_topics($memID, $board = null)
+{
+	global $modSettings, $user_info;
+
+	$db = database();
+
+	$is_owner = $memID == $user_info['id'];
+
+	$request = $db->query('', '
+		SELECT COUNT(*)
+		FROM {db_prefix}topics AS t' . ($user_info['query_see_board'] === '1=1' ? '' : '
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board AND {query_see_board})') . '
+		WHERE t.id_member_started = {int:current_member}' . (!empty($board) ? '
+			AND t.id_board = {int:board}' : '') . (!$modSettings['postmod_active'] || $is_owner ? '' : '
+			AND t.approved = {int:is_approved}'),
+		array(
+			'current_member' => $memID,
+			'is_approved' => 1,
+			'board' => $board,
+		)
+	);
+
+	list ($msgCount) = $db->fetch_row($request);
+	$db->free_result($request);
+
+	return $msgCount;
+}
+
+/*
+Select * FROM smf_topics AS t
+
+INNER JOIN smf_messages AS m ON t.id_topic = m.id_topic
+
+WHERE m.id_member = 156  
+GROUP BY t.id_topic
+ORDER BY `t`.`id_topic` ASC
+
+*/
+

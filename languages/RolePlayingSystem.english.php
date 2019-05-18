@@ -67,6 +67,16 @@ $txt['rps_create_character_success_desc'] = 'Congratulations, your character has
 $txt['rps_profile_of'] = 'Profile of ';
 //Profile
 $txt['rps_profile_characters'] = 'Characters';
+$txt['rps_profile_biography_title'] = 'Biography';
+$txt['rps_profile_info'] = 'Character Info';
+$txt['rps_showTopics'] = 'Show Topics';
+$txt['rps_modify_character'] = 'Modify Character';
+$txt['rps_modify_profile'] = 'Modify Character Profile';
+$txt['rps_modify_bio'] = 'Modify Biography';
+
+$txt['rps_profile_birthdate'] = 'Birthdate';
+
+$txt['rps_bio_save'] = 'Save Biography';
 
 //Character List
 $txt['rps_search_name'] = 'Search by Name';

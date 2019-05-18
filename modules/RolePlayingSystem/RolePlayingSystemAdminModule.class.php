@@ -95,9 +95,10 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 				'rps_char_view' => array(false, 'rps'),
 				'rps_char_edit' => array(true, 'rps'),
 				'rps_char_title' => array(true, 'rps'),
-				'rps_char_set_avatar' => array(true, 'rps'),
+				'rps_char_set_avatar' => array(false, 'rps'),
 				'rps_add_tags' => array(true, 'rps'),
 				'rps_remove_tags' => array(true, 'rps'),
+				'rps_bio_approved' => array(false, 'rps')
 			);
 		$permissionList['membergroup'] = array_merge($permissionList['membergroup'], $rpsPermissions);
 	}

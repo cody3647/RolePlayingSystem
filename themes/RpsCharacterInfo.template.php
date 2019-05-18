@@ -13,7 +13,7 @@
 /**
  * Add settings that will be used in the template
  */
-function template_Characterinfo_init()
+function template_RpsCharacterInfo_init()
 {
 	global $settings;
 
@@ -23,7 +23,7 @@ function template_Characterinfo_init()
 /**
  * This template displays users details without any option to edit them.
  */
-function template_action_summary()
+function template_action_rps_summary()
 {
 	global $context;
 
@@ -106,7 +106,7 @@ function template_action_summary()
 /**
  * Template for showing all the posts of the user, in chronological order.
  */
-function template_action_showPosts()
+function template_action_rps_showPosts()
 {
 	global $context, $txt;
 
@@ -154,155 +154,23 @@ function template_action_showPosts()
 }
 
 /**
- * Template for user statistics, showing graphs and the like.
+ * Consolidated profile block output.
  */
-function template_action_statPanel()
+function template_rps_profile_blocks()
 {
-	global $context, $txt;
+	global $context;
 
-	// First, show a few text statistics such as post/topic count.
-	echo '
-	<div id="profileview">
-		<div id="generalstats">
-			<div class="windowbg2">
-				<div class="content">
-					<dl>
-						<dt>', $txt['statPanel_total_time_online'], ':</dt>
-						<dd>', $context['time_logged_in'], '</dd>
-						<dt>', $txt['statPanel_total_posts'], ':</dt>
-						<dd>', $context['num_posts'], ' ', $txt['statPanel_posts'], '</dd>
-						<dt>', $txt['statPanel_total_topics'], ':</dt>
-						<dd>', $context['num_topics'], ' ', $txt['statPanel_topics'], '</dd>
-						<dt>', $txt['statPanel_users_polls'], ':</dt>
-						<dd>', $context['num_polls'], ' ', $txt['statPanel_polls'], '</dd>
-						<dt>', $txt['statPanel_users_votes'], ':</dt>
-						<dd>', $context['num_votes'], ' ', $txt['statPanel_votes'], '</dd>
-					</dl>
-				</div>
-			</div>
-		</div>';
-
-	// This next section draws a graph showing what times of day they post the most.
-	echo '
-		<div id="activitytime" class="flow_hidden">
-			<h3 class="category_header hdicon cat_img_clock">
-				', $txt['statPanel_activityTime'], '
-			</h3>
-			<div class="windowbg2">
-				<div class="content">';
-
-	// If they haven't post at all, don't draw the graph.
-	if (empty($context['posts_by_time']))
-		echo '
-					<span class="centertext">', $txt['statPanel_noPosts'], '</span>';
-	// Otherwise do!
+	if (empty($context['profile_blocks']))
+	{
+		return;
+	}
 	else
 	{
-		echo '
-					<ul class="activity_stats flow_hidden">';
-
-		// The labels.
-		foreach ($context['posts_by_time'] as $time_of_day)
+		foreach ($context['profile_blocks'] as $profile_block)
 		{
-			echo '
-						<li', $time_of_day['is_last'] ? ' class="last"' : '', '>
-							<div class="bar" style="padding-top: ', ((int) (100 - $time_of_day['relative_percent'])), 'px;" title="', sprintf($txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '">
-								<div style="height: ', (int) $time_of_day['relative_percent'], 'px;">
-									<span>', sprintf($txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '</span>
-								</div>
-							</div>
-							<span class="stats_hour">', $time_of_day['hour_format'], '</span>
-						</li>';
+			$profile_block();
 		}
-
-		echo '
-					</ul>';
 	}
-
-	echo '
-					<span class="clear" />
-				</div>
-			</div>
-		</div>';
-
-	// Two columns with the most popular boards by posts and activity (activity = users posts / total posts).
-	echo '
-		<div class="flow_hidden">
-			<div id="popularposts">
-				<h3 class="category_header hdicon cat_img_write">
-					', $txt['statPanel_topBoards'], '
-				</h3>
-				<div class="windowbg2">
-					<div class="content">';
-
-	if (empty($context['popular_boards']))
-		echo '
-						<span class="centertext">', $txt['statPanel_noPosts'], '</span>';
-
-	else
-	{
-		echo '
-						<dl>';
-
-		// Draw a bar for every board.
-		foreach ($context['popular_boards'] as $board)
-		{
-			echo '
-							<dt>', $board['link'], '</dt>
-							<dd>
-								<div class="profile_pie" style="background-position: -', ((int) ($board['posts_percent'] / 5) * 20), 'px 0;" title="', sprintf($txt['statPanel_topBoards_memberposts'], $board['posts'], $board['total_posts_member'], $board['posts_percent']), '">
-									', sprintf($txt['statPanel_topBoards_memberposts'], $board['posts'], $board['total_posts_member'], $board['posts_percent']), '
-								</div>
-								<span>', empty($context['hide_num_posts']) ? $board['posts'] : '', '</span>
-							</dd>';
-		}
-
-		echo '
-						</dl>';
-	}
-
-	echo '
-					</div>
-				</div>
-			</div>
-			<div id="popularactivity">
-				<h3 class="category_header hdicon cat_img_piechart">
-					', $txt['statPanel_topBoardsActivity'], '
-				</h3>
-				<div class="windowbg2">
-					<div class="content">';
-
-	if (empty($context['board_activity']))
-		echo '
-						<span>', $txt['statPanel_noPosts'], '</span>';
-	else
-	{
-		echo '
-						<dl>';
-
-		// Draw a bar for every board.
-		foreach ($context['board_activity'] as $activity)
-		{
-			echo '
-							<dt>', $activity['link'], '</dt>
-							<dd>
-								<div class="profile_pie" style="background-position: -', ((int) ($activity['percent'] / 5) * 20), 'px 0;" title="', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '">
-									', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '
-								</div>
-								<span>', $activity['percent'], '%</span>
-							</dd>';
-		}
-
-		echo '
-						</dl>';
-	}
-
-	echo '
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>';
 }
 
 /**
@@ -311,7 +179,7 @@ function template_action_statPanel()
  * Show avatar, title, blurb, group info, number of posts, karma, likes
  * Has links to show posts, drafts and attachments
  */
-function template_profile_block_summary()
+function template_profile_block_rps_summary()
 {
 	global $txt, $context, $modSettings, $scripturl, $settings;
 
@@ -334,6 +202,9 @@ echo
 	echo '
 						<dt>', $txt['display_name'], ':</dt>
 						<dd>', $context['character']['name'], '</dd>';
+	
+	echo '				<dt>', $txt['rps_profile_birthdate'], ':</dt>
+						<dd><time title="', $txt['rps_profile_birthdate'], '" datetime="', $context['character']['birth_datetime'], '">', $context['character']['birth_date'], '</time></dd>';
 
 
 	// And how old are we, oh my!
@@ -370,14 +241,14 @@ echo
  * localization details (language and time)
  * If user has permissions can see IP address
  */
-function template_profile_block_user_info()
+function template_profile_block_rps_user_info()
 {
 	global $settings, $txt, $context, $scripturl, $modSettings;
 
 	echo '
 		<div class="profileblock_right">
 			<h3 class="category_header hdicon cat_img_stats_info">
-				', ($context['user']['is_owner']) ? '<a href="' . $scripturl . '?action=profile;area=forumprofile;u=' . $context['member']['id'] . '">' . $txt['profile_user_info'] . '</a>' : $txt['profile_user_info'], '
+				', $txt['rps_profile_info'], '
 			</h3>
 			<div class="profileblock">
 				<dl>';
@@ -385,11 +256,11 @@ function template_profile_block_user_info()
 	echo '
 					<dt>', $txt['profile_activity'], ': </dt>
 					<dd>
-						<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['member']['id'], '">', $txt['showPosts'], '</a>
+						<a href="', $scripturl, '?action=character;area=showposts;c=', $context['character']['id'], '">', $txt['showPosts'], '</a>
 						<br />';
 
 	echo '
-						<a href="', $scripturl, '?action=profile;area=statistics;u=', $context['member']['id'], '">', $txt['statPanel'], '</a>
+						<a href="', $scripturl, '?action=character;area=showtopics;c=', $context['character']['id'], '">', $txt['rps_showTopics'], '</a>
 					</dd>';
 		// How long have they been a member, and when were they last on line?
 	echo '
@@ -416,14 +287,14 @@ function template_profile_block_user_info()
  *
  * Shows the most recent posts for this user
  */
-function template_profile_block_posts()
+function template_profile_block_rps_posts()
 {
 	global $txt, $context, $scripturl;
 
 	// The posts block
 	echo '
 	<h3 class="category_header hdicon cat_img_posts">
-		<a href="', $scripturl, '?action=profile;area=showposts;sa=messages;u=', $context['member']['id'], '">', $txt['profile_recent_posts'], '</a>
+		<a href="', $scripturl, '?action=character;sa=showposts;c=', $context['character']['id'], '">', $txt['profile_recent_posts'], '</a>
 	</h3>
 	<div class="windowbg">
 		<div class="content">
@@ -434,8 +305,8 @@ function template_profile_block_posts()
 		echo '
 				<tr>
 					<th class="recentpost">', $txt['message'], '</th>
-					<th class="recentposter">', $txt['board'], '</th>
 					<th class="recentboard">', $txt['subject'], '</th>
+					<th class="recentposter">', $txt['board'], '</th>
 					<th class="recenttime">', $txt['date'], '</th>
 				</tr>';
 
@@ -443,8 +314,8 @@ function template_profile_block_posts()
 			echo '
 				<tr>
 					<td class="recentpost">', $post['body'], '</td>
-					<td class="recentboard">', $post['board']['link'], '</td>
 					<td class="recentsubject">', $post['link'], '</td>
+					<td class="recentboard">', $post['board']['link'], '</td>
 					<td class="recenttime">', $post['time'], '</td>
 				</tr>';
 	}
@@ -467,14 +338,14 @@ function template_profile_block_posts()
  *
  * Shows the most recent topics that this user has started
  */
-function template_profile_block_topics()
+function template_profile_block_rps_topics()
 {
 	global $txt, $context, $scripturl;
 
 	// The topics block
 	echo '
 	<h3 class="category_header hdicon cat_img_topics">
-		<a href="', $scripturl, '?action=profile;area=showposts;sa=topics;u=', $context['member']['id'], '">', $txt['profile_topics'], '</a>
+		<a href="', $scripturl, '?action=character;sa=showtopics;c=', $context['character']['id'], '">', $txt['profile_topics'], '</a>
 	</h3>
 	<div class="windowbg">
 		<div class="content">
@@ -509,4 +380,53 @@ function template_profile_block_topics()
 			</table>
 		</div>
 	</div>';
+}
+
+/**
+ * Profile Summary Block
+ *
+ * Shows a list of characters 
+ * Has links to show posts, drafts and attachments
+ */
+function template_profile_block_rps_characters()
+{
+	global $txt, $context, $modSettings, $scripturl;
+
+	echo '
+			
+				<h2 class="category_header hdicon cat_img_profile">
+					', $txt['rps_profile_characters'] , '
+				</h2>
+			
+			<div class="profileblock">
+			
+					';
+	if (!empty($context['member']['characters']))
+	{
+		echo '<ul class="characters">';
+		foreach($context['member']['characters'] as $charid => $character)
+		{
+			echo '
+				<li>
+					<a class="content centertext" href="' , $scripturl , '?action=character;c=' , $charid , '" title="' , $character['name'] , '">' , $character['name'] , '
+					' , (!empty($character['title']) ?  '<br />' . $character['title'] : '') , '
+					</a>
+					
+				</li>';
+		}
+		echo '</ul>';
+	}
+	else
+		echo '
+				', ($context['user']['is_owner']) ? '<p><a href="' . $scripturl . '?action=character;sa=create">Create a character</a></p>' : '<p>TXT This member does not yet have any characters.</p>';
+
+	// close this block up
+	echo '
+				<div class="clear"></div>
+			</div>';
+}
+
+function template_profile_block_rps_biography()
+{
+	echo 'TEST';
 }

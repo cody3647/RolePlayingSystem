@@ -35,20 +35,16 @@ $new_tables = array(
 			array('name' => 'posts',		'type' => 'mediumint',	'size' => 8,	'unsigned' => true,	'default' => 0),
 			array('name' => 'date_created',	'type' => 'int',		'size' => 10,	'unsigned' => true,	'default' => 0),
 			array('name' => 'last_active',	'type' => 'int',		'size' => 10,	'unsigned' => true,	'default' => 0),
-			array('name' => 'approved',	'type' => 'tinyint',		'size' => 3,	'default' => 0	),
-			array('name' => 'retired',	'type' => 'tinyint',		'size' => 3,	'default' => 0	),
+			array('name' => 'approved',		'type' => 'tinyint',	'size' => 3,	'default' => 0	),
+			array('name' => 'retired',		'type' => 'tinyint',	'size' => 3,	'default' => 0	),
 			array('name' => 'title',		'type' => 'varchar',	'size' => 255,	'default' => ''),
 			array('name' => 'birthdate',	'type' => 'date',		'default' => '0000-00-01'),
-			array('name' => 'personal_text',		'type' => 'varchar',	'size' => 255,	'default' => ''),
-			array('name' => 'custom_1',		'type' => 'varchar',	'size' => 255,	'default' => ''),
-			array('name' => 'custom_2',		'type' => 'varchar',	'size' => 255,	'default' => ''),
-			array('name' => 'custom_3',		'type' => 'varchar',	'size' => 255,	'default' => ''),
-			array('name' => 'custom_4',		'type' => 'varchar',	'size' => 255,	'default' => ''),
-			array('name' => 'custom_5',		'type' => 'varchar',	'size' => 255,	'default' => ''),
+			array('name' => 'id_bio',		'type' => 'mediumint',	'size' => 8,	'unsigned' => true, 'default' => 0),
+			array('name' => 'personal_text','type' => 'varchar',	'size' => 255,	'default' => ''),
 			),
         'indexes' => array(
-			array('name' => 'primary', 'type' => 'primary',	'columns' => array('id_character')	),
-			array('name' => 'member', 'type' => 'key',	'columns' => array('id_member')		),
+			array('name' => 'primary', 		'type' => 'primary',	'columns' => array('id_character')	),
+			array('name' => 'member', 		'type' => 'key',		'columns' => array('id_member')		),
         )
     ),
 	array(
@@ -104,6 +100,19 @@ $new_tables = array(
 			array('name' => 'tag',		'type' => 'key',		'columns' => array('id_tag')	),
         )
     ),
+	array(
+        'name' => 'biographies',
+        'columns' => array(
+            array('name' => 'id_bio',		'type' => 'mediumint',	'size' => 8,	'unsigned' => true,	'auto' => true),
+			array('name' => 'id_character',	'type' => 'mediumint',	'size' => 8,	'unsigned' => true),
+			array('name' => 'approved',		'type' => 'tinyint',	'size' => 3,),
+			array('name' => 'date_added',	'type' => 'int',		'size' => 10,	'unsigned' => true),
+			array('name' => 'biography',	'type' => 'text'),
+        ),
+        'indexes' => array(
+			array('name' => 'primary',	'type' => 'primary',	'columns' => array('id_bio', 'id_character')	),
+        )
+    ),
 );
 
 foreach ($new_tables as $table)
@@ -128,6 +137,26 @@ $new_columns = array(
 			'null' => true,
 		)
 	),
+/*	array(
+		'table' => '{db_prefix}topics',
+		'info' => array(
+			'name' => 'id_character_started',
+			'type' => 'mediumint',
+			'size' => 8,
+			'unsigned' => true,
+			'default' => 0,
+		)
+	),
+	array(
+		'table' => '{db_prefix}topics',
+		'info' => array(
+			'name' => 'id_character_updated',
+			'type' => 'mediumint',
+			'size' => 8,
+			'unsigned' => true,
+			'default' => 0,
+		)
+	),*/
 	array(
 		'table' => '{db_prefix}messages',
 		'info' => array(
@@ -149,8 +178,11 @@ global $modSettings;
 
 $defaults = array(
 	'rps_current_start' => '2000-01-01',
-	'rps_current_end' => '2000-01-01',
+	'rps_current_end' => '2000-03-31',
 	'rps_begining' => '2000-01-01',
+	'rps_showholidays' => 2,
+	'rps_showbdays' => 2,
+	'rps_showtopics' => 1,
 
 );
 

@@ -62,7 +62,7 @@ function template_rps_post_above()
 								<label for="date" id="caption_date">' . $txt['rps_post_date'] . '</label>
 							</dt>
 							<dd class="post_date">
-								<input id="post_date" type="text" name="date" ', (isset($context['date']) ? 'value="'.$context['date'].'"' : 'value="" ' ) ,'style="position:relative; z-index:10;"/>
+								<input id="post_date" type="text" name="date" ', (isset($context['date']) ? 'value="'.$context['date'].'"' : 'value="" ' ) ,'style="position:relative; z-index:10;" autocomplete="off" />
 							</dd>';
 		}
 	}
@@ -78,13 +78,18 @@ function template_rps_post_above()
 	echo '
 						</dl>';
 	if ($context['is_new_topic'])
+	{
+		$current_dates = RpsCurrentDate::instance();
+
 		addInlineJavascript('
 						$( "#post_date" ).datepicker({
-							defaultDate: "2001-01-01",
+							defaultDate: "'. $current_dates->start_date->format('Y-m-d') .'",
 							dateFormat: "yy-mm-dd",
 							appendTo:".post_date",
+							numberOfMonths: '. ($current_dates->diff->m +1) .',
 						});
 						', true);
+	}
 }
 
 function template_rps_display_tags()
