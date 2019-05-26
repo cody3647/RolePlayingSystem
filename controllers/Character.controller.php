@@ -102,7 +102,7 @@ class Character_Controller extends Action_Controller
 		// Don't reload this as we may have processed error strings.
 		if (empty($post_errors))
 			loadLanguage('Profile');
-		loadTemplate('Profile');
+		//loadTemplate('Profile');
 
 		// Trigger profile pre-load event
 		$this->_events->trigger('pre_load', array('post_errors' => $post_errors));
@@ -120,10 +120,6 @@ class Character_Controller extends Action_Controller
 
 		// Create the menu of profile options
 		$this->_define_profile_menu();
-
-		// Is there an updated message to show?
-		if (isset($this->_req->query->updated))
-			$context['profile_updated'] = $txt['profile_updated_own'];
 
 		// If it said no permissions that meant it wasn't valid!
 		if ($this->_profile_include_data && empty($this->_profile_include_data['permission']))
@@ -176,20 +172,6 @@ class Character_Controller extends Action_Controller
 		// Need JS if we made it this far
 		loadJavascriptFile('profile.js');
 
-		// Have some errors for some reason?
-		// @todo check that this can be safely removed.
-		if (!empty($post_errors))
-		{
-			// Set all the errors so the template knows what went wrong.
-			foreach ($post_errors as $error_type)
-				$context['modify_error'][$error_type] = true;
-		}
-		// If it's you then we should redirect upon save.
-		elseif (!empty($profile_vars) && $context['user']['is_owner'] && !$context['do_preview'])
-			redirectexit('action=profile;area=' . $this->_current_area . ';updated');
-		elseif (!empty($this->_force_redirect))
-			redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $this->_memID) . ';area=' . $this->_current_area);
-
 		// Let go to the right place
 		if (isset($this->_profile_include_data['file']))
 			require_once($this->_profile_include_data['file']);
@@ -202,36 +184,6 @@ class Character_Controller extends Action_Controller
 	}
 	
 	/**
-	 * Intended as entry point which delegates to methods in this class...
-	 */
-/*	public function action_index()
-	{
-		global $context;
-
-		require_once(SUBSDIR . '/Action.class.php');
-
-		// Little short on the list here
-		$subActions = array(
-			'summary' => array($this, 'action_summary'),
-			'showtopics' => array($this, 'action_topics'),
-			'showposts' => array($this, 'action_posts'),
-			'edit' => array($this, 'action_edit'),
-			'create' => array($this, 'action_create', 'permission' => ''),
-			'create2' => array($this, 'action_create2'),
-			'checkname' => array($this, 'action_checkname'),
-			'sig_preview' => array($this, 'action_sig_preview'),
-			'recent' => array($this, 'action_character_recent'),
-		);
-		
-		// I don't think we know what to do... throw dies?
-		$action = new Action();
-		$subAction = $action->initialize($subActions, 'summary');
-		
-		$context['sub_action'] = $subAction;
-		$action->dispatch($subAction);
-	}*/
-	
-		/**
 	 * Define all the sections within the profile area!
 	 *
 	 * We start by defining the permission required - then we take this and turn
@@ -368,7 +320,7 @@ class Character_Controller extends Action_Controller
 		if (empty($context['character']))
 			throw new Elk_Exception('not_a_user', false);
 		
-		if (isset($_POST['save']))
+		if ($this->_req->__isset('save'))
 		{
 			saveCharacterFields($this->_memID, $this->_charID);
 			
@@ -403,7 +355,7 @@ class Character_Controller extends Action_Controller
 			array(
 				'name',
 				'avatar_choice', 'hr',
-				'bday1', 'gender', 'personal_text', 'hr',
+				'birth_year', 'gender', 'personal_text', 'hr',
 				'title', 'signature'
 			)
 		);
@@ -587,7 +539,7 @@ class Character_Controller extends Action_Controller
 			$context['valid_name'] = false;
 		}
 		else
-			$context['valid_name'] = !isReservedCharacterName($context['checked_name'], $context['id_member'], $context['id_character'], false);
+			$context['valid_name'] = !isReservedCharacterName($context['checked_name'], $memID, $charID, false);
 	}
 
     /**

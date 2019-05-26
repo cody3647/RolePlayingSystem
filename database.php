@@ -106,6 +106,7 @@ $new_tables = array(
             array('name' => 'id_bio',		'type' => 'mediumint',	'size' => 8,	'unsigned' => true,	'auto' => true),
 			array('name' => 'id_character',	'type' => 'mediumint',	'size' => 8,	'unsigned' => true),
 			array('name' => 'approved',		'type' => 'tinyint',	'size' => 3,),
+			array('name' => 'date_approved','type' => 'int',		'size' => 10,	'unsigned' => true),
 			array('name' => 'date_added',	'type' => 'int',		'size' => 10,	'unsigned' => true),
 			array('name' => 'biography',	'type' => 'text'),
         ),

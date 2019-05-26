@@ -221,41 +221,65 @@ function loadCharacterFields($force_reload = false)
 			'input_validate' => 'characterSaveAvatarData',
 			'save_key' => 'avatar',
 		),
-		'bday1' => array(
+		'birth_year' => array(
 			'type' => 'callback',
 			'callback_func' => 'birthdate',
 			'permission' => 'rps_char_edit',
 			'preload' =>  function () {
 				global $cur_profile, $context;
+				$req = HttpReq::instance();
 
 				// Split up the birth date....
 				list ($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) || $cur_profile['birthdate'] === '0001-01-01' ? '0000-00-00' : $cur_profile['birthdate']);
 				$context['character']['birth_date'] = array(
-					'year' => $uyear === '0004' ? '0000' : $uyear,
-					'month' => $umonth,
-					'day' => $uday,
+					'year' => !empty($req->post->birth_year) ? sprintf('%04d', $req->getPost('birth_year', 'intval')): $uyear,
+					'month' => !empty($req->post->birth_month) ? sprintf('%02d', $req->getPost('birth_month', 'intval')) : $umonth,
+					'day' => !empty($req->post->birth_day) ? sprintf('%02d', $req->getPost('birth_day', 'intval')) : $uday,
 				);
 
 				return true;
 			},
 			'input_validate' => function (&$value) {
-				global $profile_vars, $cur_profile;
+				global $profile_vars, $cur_profile, $context;
 
-				if (isset($_POST['bday2'], $_POST['bday3']) && $value > 0 && $_POST['bday2'] > 0)
+				$req = HttpReq::instance();
+
+				$birthdate = array(
+					'day' => $req->getPost('birth_day', 'intval', ''),
+					'month' => $req->getPost('birth_month', 'intval', ''),
+					'year' => $req->getPost('birth_year', 'intval', ''),
+				);
+				if( !empty($birthdate['day']) && !empty($birthdate['month']) && !empty($birthdate['year']) )
 				{
-					// Set to blank?
-					if ((int) $_POST['bday3'] == 1 && (int) $_POST['bday2'] == 1 && (int) $value == 1)
-						$value = '0001-01-01';
+					if(checkdate($birthdate['month'], $birthdate['day'], $birthdate['year']))
+					{
+						$profile_vars['birthdate'] = sprintf('%04d-%02d-%02d', $birthdate['year'], $birthdate['month'], $birthdate['day']);
+						$cur_profile['birthdate'] = $profile_vars['birthdate'];
+						return false;
+					}
+					
 					else
-						$value = checkdate($value, $_POST['bday2'], $_POST['bday3'] < 4 ? 4 : $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 4 ? 4 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '0001-01-01';
+					{
+						$days = $birthdate['month'] == 2 ? ($birthdate['year'] % 4 ? 28 : ($birthdate['year'] % 100 ? 29 : ($birthdate['year'] % 400 ? 28 : 29))) : (($birthdate['month'] - 1) % 7 % 2 ? 30 : 31);
+						
+						if($birthdate['month'] < 1 || $birthdate['month'] > 12)
+						{
+							
+							$context['error_birthmonth'] = true;
+							return 'rps_invalid_month';
+						}
+						elseif($days <= $birthdate['day'] || $birthdate['day'] < 0)
+						{
+							$context['error_birthday'] = true;
+							return 'rps_invalid_day';
+						}
+						else
+							return 'rps_invalid_date';
+					}
 				}
 				else
-					$value = '0001-01-01';
-
-				$profile_vars['birthdate'] = $value;
-				$cur_profile['birthdate'] = $value;
-				return false;
-			},
+					return 'rps_missing_date';
+				},
 		),
 		'signature' => array(
 			'type' => 'callback',
@@ -460,6 +484,7 @@ function saveCharacterFields($memID, $charID)
 		// Right - we have something that is enabled, we can act upon and has a value posted to it. Does it have a validation function?
 		if (isset($field['input_validate']))
 		{
+			
 			$is_valid = $field['input_validate']($_POST[$key]);
 
 			// An error occurred - set it as such!
@@ -691,7 +716,7 @@ function isReservedCharacterName($name, $current_ID_MEMBER = 0, $character_id = 
 	$request = $db->query('', '
 		SELECT id_member
 		FROM {db_prefix}members
-		WHERE ({raw:real_name} LIKE {string:check_name} OR {raw:member_name} LIKE {string:check_name})
+		WHERE ({raw:real_name} LIKE {string:check_name} OR {raw:member_name} LIKE {string:check_name}) AND id_member <> {int:current_member}
 		LIMIT 1',
 		array(
 			'real_name' => defined('DB_CASE_SENSITIVE') ? 'LOWER(real_name)' : 'real_name',
@@ -710,7 +735,7 @@ function isReservedCharacterName($name, $current_ID_MEMBER = 0, $character_id = 
 		SELECT id_character
 		FROM {db_prefix}rps_characters
 		WHERE ({raw:name} LIKE {string:check_name})
-			AND id_character != {int:char_id}
+			AND id_character <> {int:char_id}
 		LIMIT 1',
 		array(
 			'name' => defined('DB_CASE_SENSITIVE') ? 'LOWER(name)' : 'name',

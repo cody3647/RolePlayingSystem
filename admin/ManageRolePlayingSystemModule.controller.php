@@ -113,6 +113,16 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				'function' => 'action_editphase', 
 				'permission' => 'admin_forum'
 			),
+			'characters'  => array(
+				'controller' => $this, 
+				'function' => 'action_manage_characters', 
+				'permission' => 'admin_forum'
+			),
+			'bios' => array(
+				'controller' => $this,
+				'function' => 'action_manage_bios',
+				'permission' => 'admin_forum',
+			),
 		);
 
 		// Action control
@@ -124,6 +134,12 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			'tabs' => array(
 				'settings' => array(
 					'description' => $txt['rps_settings_desc'],
+				),
+				'characters' => array(
+					'description' => $txt['rps_manage_characters_desc'],
+				),
+				'bios' => array(
+					'description' => $txt['rps_manage_bios_desc'],
 				),
 				'tags' => array(
 					'description' => $txt['rps_manage_tags_desc'],
@@ -311,7 +327,9 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			
 			
 			//redirectexit('topic=' . $topic . ';updatetags');
-		}		
+		}
+		
+		loadLanguage('RolePlayingSystem');
 
 		// Set up the stuff and load the user.
 		$context += array(
@@ -385,7 +403,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			'additional_rows' => array(
 				array(
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="save" value="' . $txt['rps_save_changes'] . '" class="right_submit" />',
+					'value' => '<input type="submit" name="save" value="' . $txt['rps_save_changes'] . '" />',
 				),
 			),
 		);
@@ -494,7 +512,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				array(
 					'position' => 'below_table_data',
 					'class' => 'submitbutton',
-					'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="right_submit" onclick="return confirm(\'' . $txt['rps_events_delete_confirm'] . '\');" />
+					'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" onclick="return confirm(\'' . $txt['rps_events_delete_confirm'] . '\');" />
 					<a class="linkbutton" href="' . $scripturl . '?action=admin;area=rps;sa=editevent">'. $txt['rps_add_event'] .'</a>',
 				),
 			),
@@ -675,7 +693,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				array(
 					'position' => 'below_table_data',
 					'class' => 'submitbutton',
-					'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="right_submit" onclick="return confirm(\'' . $txt['rps_events_delete_confirm'] . '\');" />
+					'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" onclick="return confirm(\'' . $txt['rps_events_delete_confirm'] . '\');" />
 					<a class="linkbutton" href="' . $scripturl . '?action=admin;area=rps;sa=editphase">'. $txt['rps_add_event'] .'</a>',
 				),
 			),
@@ -860,5 +878,258 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		$context['download']['Islamic'] = array('Islamic New Year', 'First Day of Ramadan', 'First Day of Shawwal');
 		$context['download']['moon_phases'] = array('New Moon', 'First Quarter', 'Full Moon', 'Last Quarter');
 	}
+	
+	public function action_manage_characters()
+	{
+		global $context, $scripturl, $txt, $user_info;
+		
+		if(isset($this->_req->save))
+		{
+			$approved_characters = $this->_req->getPost('approve_characters');
+			$approved_bios = $this->_req->getPost('approve_bios');
+			
+			require_once(SUBSDIR . '/ManageCharacters.subs.php');
+			
+			if(!empty($approved_characters))
+				approve_characters($approved_characters);
+			if(!empty($approved_bios))
+				approve_bios($approved_bios);
+
+			//redirectexit('topic=' . $topic . ';updatetags');
+		}
+		
+		loadLanguage('RolePlayingSystem');
+
+		// Set up the stuff and load the user.
+		$context += array(
+			'page_title' => $txt['rps_manage_characters'],
+		);
+
+		createToken('admin-rps-characters');
+		
+				// Create a listing for all our standard fields
+		$listOptions = array(
+			'id' => 'manage_characters',
+			'title' => $txt['rps_manage_characters'],
+			'base_href' => $scripturl . '?action=admin;area=rps;sa=characters',
+			'items_per_page' => 25,
+			'default_sort_col' => 'character',
+			'no_items_label' => $txt['rps_characters_unapproved_list_none'],
+			'items_per_page' => 50,
+			'get_items' => array(
+				'file' => SUBSDIR . '/ManageCharacters.subs.php',
+				'function' => 'list_get_unapproved_characters',
+				'params' => array(
+				),
+			),
+			'get_count' => array(
+				'file' => SUBSDIR . '/ManageCharacters.subs.php',
+				'function' => 'list_num_unapproved_characters',
+				'params' => array(
+				),
+			),
+			'columns' => array(
+				'character' => array(
+					'header' => array(
+						'value' => $txt['rps_characters_list_character'],
+					),
+					'data' => array(
+						'sprintf' => array(
+							'format' => '<a href="'.$scripturl.'?action=character;c=%1$d">%2$s</a>',
+							'params' => array(
+								'id_character' => false,
+								'name' => false
+							),
+						),
+						'style' => 'width: 60%;',
+					),
+					'sort' => array(
+						'default' => 'name',
+						'reverse' => 'name DESC',
+					),
+				),
+				'member' => array(
+					'header' => array(
+						'value' => $txt['rps_characters_list_member'],
+					),
+					'data' => array(
+						'sprintf' => array(
+							'format' => '<a href="'.$scripturl.'?action=profile;u=%1$d">%2$s</a>',
+							'params' => array(
+								'id_member' => false,
+								'real_name' => false
+							),
+						),
+						'style' => 'width: 60%;',
+					),
+					'sort' => array(
+						'default' => 'real_name',
+						'reverse' => 'real_name DESC',
+					),
+				),
+				'approve' => array(
+					'header' => array(
+						'value' => $txt['rps_characters_list_approve'],
+						'class' => 'centertext',
+					),
+					'data' => array(
+						'sprintf' => array(
+							'format' => '<input type="checkbox" name="approve_characters[]" id="approve_%1$d" value="%1$s" class="input_check" />',
+							'params' => array(
+								'id_character' => false
+							),
+						),
+						'class' => 'centertext',
+					),
+				),
+			),
+			'form' => array(
+				'href' => $scripturl . '?action=admin;area=rps;sa=characters',
+				'token' => 'admin-rps-characters',
+			),
+			'additional_rows' => array(
+				array(
+					'position' => 'bottom_of_list',
+					'class' => 'submitbutton',
+					'value' => '<input type="submit" name="save" value="' . $txt['rps_approve_characters'] . '" />',
+				),
+			),
+		);
+		createList($listOptions);
+	}
+	
+	public function action_manage_bios()
+	{
+		global $context, $scripturl, $txt, $user_info;
+		
+		if(isset($this->_req->save))
+		{
+			$approved_bios = $this->_req->getPost('approve_bios');
+			
+			require_once(SUBSDIR . '/ManageCharacters.subs.php');
+			
+			if(!empty($approved_bios))
+				approve_bios($approved_bios);
+
+			//redirectexit('topic=' . $topic . ';updatetags');
+		}
+		
+		loadLanguage('RolePlayingSystem');
+
+		// Set up the stuff and load the user.
+		$context += array(
+			'page_title' => $txt['rps_manage_bios'],
+		);
+
+		createToken('admin-rps-characters');
+		
+		
+		// Create a listing for all our standard fields
+		$listOptions = array(
+			'id' => 'manage_bios',
+			'id' => 'manage_bios',
+			'title' => $txt['rps_manage_bios'],
+			'base_href' => $scripturl . '?action=admin;area=rps;sa=bios',
+			'items_per_page' => 25,
+			'default_sort_col' => 'biography',
+			'no_items_label' => $txt['rps_bios_unapproved_list_none'],
+			'items_per_page' => 50,
+			'get_items' => array(
+				'file' => SUBSDIR . '/ManageCharacters.subs.php',
+				'function' => 'list_get_unapproved_biographies',
+				'params' => array(
+				),
+			),
+			'get_count' => array(
+				'file' => SUBSDIR . '/ManageCharacters.subs.php',
+				'function' => 'list_num_unapproved_biographies',
+				'params' => array(
+				),
+			),
+			'columns' => array(
+				'biography' => array(
+					'header' => array(
+						'value' => $txt['rps_bios_list_character'],
+					),
+					'data' => array(
+						'sprintf' => array(
+							'format' => '<a href="'.$scripturl.'?action=character;c=%1$d#tab_2">%2$s</a>',
+							'params' => array(
+								'id_character' => false,
+								'name' => false
+							),
+						),
+						'style' => 'width: 20%;',
+					),
+					'sort' => array(
+						'default' => 'name',
+						'reverse' => 'name DESC',
+					),
+				),
+				'member' => array(
+					'header' => array(
+						'value' => $txt['rps_characters_list_member'],
+					),
+					'data' => array(
+						'sprintf' => array(
+							'format' => '<a href="'.$scripturl.'?action=profile;u=%1$d">%2$s</a>',
+							'params' => array(
+								'id_member' => false,
+								'real_name' => false
+							),
+						),
+						'style' => 'width: 20%;',
+					),
+					'sort' => array(
+						'default' => 'real_name',
+						'reverse' => 'real_name DESC',
+					),
+				),
+				'date_added' => array(
+					'header' => array(
+						'value' => $txt['rps_characters_list_member'],
+					),
+					'data' => array(
+						'db' => 'date_added',
+						'timeformat' => true,
+						'style' => 'width: 20%;',
+					),
+					'sort' => array(
+						'default' => 'date_added',
+						'reverse' => 'date_added DESC',
+					),
+				),
+				'approve' => array(
+					'header' => array(
+						'value' => $txt['rps_characters_list_approve'],
+						'class' => 'centertext',
+					),
+					'data' => array(
+						'sprintf' => array(
+							'format' => '<input type="checkbox" name="approve_bios[]" id="approve_%1$d" value="%1$s" class="input_check" />',
+							'params' => array(
+								'id_character' => false
+							),
+						),
+						'class' => 'centertext',
+					),
+				),
+			),
+			'form' => array(
+				'href' => $scripturl . '?action=admin;area=rps;sa=characters',
+				'token' => 'admin-rps-characters',
+			),
+			'additional_rows' => array(
+				array(
+					'position' => 'bottom_of_list',
+					'class' => 'submitbutton',
+					'value' => '<input type="submit" name="save" value="' . $txt['rps_approve_characters'] . '" />',
+				),
+			),
+		);
+		createList($listOptions);
+	}
+	
+	
 	
 }

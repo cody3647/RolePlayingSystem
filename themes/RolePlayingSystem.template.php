@@ -47,7 +47,7 @@ function template_rps_post_above()
 
 			foreach ($context['characters'] as $id_char => $character)
 				echo '
-									<option value="', $id_char, '"', ( (isset($context['character']) && $context['character'] == $id_char) ? ' selected="selected"' : '' ) ,'>', $character['name'], '</option>';
+									<option value="', $id_char, '"', ( (isset($context['character']) && $context['character'] == $id_char) ? ' selected' : '' ) , (empty($character['approved']) ? ' disabled' : ''), '>', $character['name'], '</option>';
 
 
 	

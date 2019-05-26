@@ -99,6 +99,8 @@ public function action_summary()
 		loadTemplate('RpsCharacterInfo');
 
 		$context['sub_template'] = 'action_rps_summary';
+		
+		$context['bio_tab'] = $this->_req->__isset('biography');
 
 		// Set up the stuff and load the user.
 		$context += array(
@@ -250,6 +252,69 @@ public function action_summary()
 				}
 			}
 		}
+		
+		if(in_array('rps_biography', $this->_summary_areas))
+		{
+			$db = database();
+
+			$request = $db->query('', '
+				SELECT
+					id_bio, id_character, approved, date_approved, date_added, biography
+				FROM {db_prefix}rps_biographies
+				WHERE id_character = {int:id_character}
+				ORDER BY id_bio DESC',
+				array(
+					'id_character' => $this->_charID,
+				)
+			);
+			
+			$num_rows = $db->num_rows($request);
+			
+			if ($num_rows == 0)
+			{
+				
+			}
+			else
+			{
+				$bbc_wrapper = \BBC\ParserWrapper::instance();
+				//0 = current approved, 1 = current bio not approved, 2 = no bio
+				$context['bio_approved'] = 0;
+				
+				while ($row = $db->fetch_assoc($request))
+					$context['biographies'][] = array(
+						'id_bio' => $row['id_bio'],
+						'id_character' => $row['id_character'],
+						'approved' => $row['approved' ],
+						'date_approved' => $row['date_approved'],
+						'date_added' => $row['date_added'],
+						'biography' => $bbc_wrapper->parseMessage(censor($row['biography']), false) ,
+				);
+
+				if($context['biographies'][0]['approved'] == 1)
+				{
+					$context['biography'] = $context['biographies'][0];
+				}
+				elseif($num_rows > 0)
+				{
+					$context['unapproved_biography'] = $context['biographies'][0]['biography'];
+					$context['bio_approved'] = 1;
+					foreach($context['biographies'] as $key => $bio)
+					{
+						if($bio['approved'] == 1)
+						{
+							$context['biography'] = $bio;
+						}
+					}
+				}
+				else {
+					$context['bio_approved'] = 2;
+				}
+			}
+			
+			$db->free_result($request);
+
+			
+		}
 
 		// To make tabs work, we need jQueryUI
 		$modSettings['jquery_include_ui'] = true;
@@ -290,9 +355,14 @@ public function action_summary()
 			),
 
 		);
+		
+		if(empty($context['character']['approved']))
+		{
+			array_unshift($context['summarytabs']['summary']['templates'], array('rps_unapproved'));
+		}
 
 		// Let addons add or remove to the tabs array
-		call_integration_hook('integrate_character_summary', array($this->_memID));
+		call_integration_hook('integrate_character_summary', array($this->_memID, $this->_charID));
 
 		// Go forward with whats left after integration adds or removes
 		$summary_areas = '';

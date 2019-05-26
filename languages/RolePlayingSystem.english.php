@@ -9,6 +9,11 @@ $txt['rps_tags'] = 'Tags List';
 $txt['rps_characters'] = 'Character List';
 $txt['rps_gamecalendar'] = 'In-game Calendar';
 
+$txt['rps_one_character_waiting'] = 'There is <a href="%1$s">one character</a> awaiting approval.';
+$txt['rps_many_characters_waiting'] = 'There are <a href="%1$s">%2$d characters</a> awaiting approval.';
+$txt['rps_one_bio_waiting'] = 'There is <a href="%1$s">one biography</a> awaiting approval.';
+$txt['rps_many_bios_waiting'] = 'There are <a href="%1$s">%2$d biographies</a> awaiting approval.';
+
 //BoardIndex
 $txt['rps_game_stats'] = 'Game Stats';
 $txt[''] = '';
@@ -63,17 +68,23 @@ $txt['rps_'] = '';
 
 $txt['rps_create_character_success'] = 'Character Created';
 $txt['rps_create_character_success_desc'] = 'Congratulations, your character has been successfully created.';
-//Character
-$txt['rps_profile_of'] = 'Profile of ';
-//Profile
+
+//Member Profile Block
 $txt['rps_profile_characters'] = 'Characters';
+$txt['rps_profile_none_create'] = 'Create a character';
+$txt['rps_profile_none_characters'] = 'This member does not yet have any characters.';
+$txt['rps_not_approved'] = 'Not Yet Approved';
+
+//Character Profile
+$txt['rps_profile_of'] = 'Profile of ';
 $txt['rps_profile_biography_title'] = 'Biography';
 $txt['rps_profile_info'] = 'Character Info';
 $txt['rps_showTopics'] = 'Show Topics';
 $txt['rps_modify_character'] = 'Modify Character';
 $txt['rps_modify_profile'] = 'Modify Character Profile';
 $txt['rps_modify_bio'] = 'Modify Biography';
-
+$txt['rps_bio_unapproved_msg'] = 'The following biography is not yet approved:';
+$txt['rps_character_unapproved_msg'] = 'This character is not yet approved.';
 $txt['rps_profile_birthdate'] = 'Birthdate';
 
 $txt['rps_bio_save'] = 'Save Biography';

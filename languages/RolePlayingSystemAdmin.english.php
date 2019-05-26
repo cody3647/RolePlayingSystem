@@ -24,6 +24,12 @@ $txt['core_settings_item_rps_desc'] = 'This enables the Role Playing System Mod.
 $txt['rps_manage'] = 'Manage Role Playing System';
 $txt['rps_settings'] = 'General Settings';
 $txt['rps_settings_desc'] = 'From this page you can set the Role Playing Date Range, the first major date of the game, and other settings';
+$txt['rps_manage_characters'] = 'Approve Characters';
+$txt['rps_manage_characters_desc'] = 'From this page you can approve new characters.';
+$txt['rps_manage_bios'] = 'Approve Biographies';
+$txt['rps_manage_bios_desc'] = 'From this page you can approve new or changed character biographies.';
+$txt['rps_approve_bios'] = 'Approve Biographies';
+$txt['rps_approve_bios_desc'] = 'From this page you can approve new and modified biographies.';
 $txt['rps_manage_tags'] = 'Manage Tags';
 $txt['rps_manage_tags_desc'] = 'From this page you can edit and remove tags from the entire forum.  <br /><br />If a tag is changed to be the same as another, the tags will be merged.  They cannot be seperated.';
 $txt['rps_events'] = 'Events';
@@ -123,3 +129,18 @@ $txt['rps_tags_'] = '';
 $txt['rps_tags_'] = '';
 $txt['rps_tags_'] = '';
 $txt['rps_tags_'] = '';
+
+//ManageCharacters
+$txt['rps_manage_characters'] = 'Manage Characters';
+$txt['rps_characters_unapproved_list_none'] = 'There are no unapproved characters right now.';
+$txt['rps_approve_characters'] = 'Approve Characters';
+$txt['rps_characters_list_approve'] = 'Approve';
+$txt['rps_characters_list_character'] = 'Character';
+$txt['rps_characters_list_member'] = 'Member';
+
+//ManageBios
+$txt['rps_manage_bio'] = 'Manage Biographies';
+$txt['rps_bios_unapproved_list_none'] = 'There are no unapproved biographies right now.';
+$txt['rps_bios_list_character'] = 'Character';
+$txt['rps_bios_list_member'] = 'Member';
+$txt['rps_bios_list_date'] = 'Date Added/Last Modified';

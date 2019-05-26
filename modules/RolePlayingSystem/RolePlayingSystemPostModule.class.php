@@ -79,10 +79,10 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		$msgID = $this->_req->getQuery('msg', 'intval',0);
 		
 		$request = $db->query('', '
-			SELECT c.id_character, c.name, c.id_member, if(c.id_character = m.id_character, 1, 0) AS current_character
-			FROM elkarte_rps_characters as c
-			LEFT JOIN elkarte_messages AS m ON id_msg = {int:msg_id}
-			WHERE c.id_member = ' . ( empty($msgID) ? '{int:member_id}' : 'm.id_member' ),
+			SELECT c.id_character, c.name, c.id_member, if(c.id_character = m.id_character, 1, 0) AS current_character, c.approved
+			FROM {db_prefix}rps_characters as c
+			LEFT JOIN {db_prefix}messages AS m ON id_msg = {int:msg_id}
+			WHERE c.retired = 0 AND c.id_member = ' . ( empty($msgID) ? '{int:member_id}' : 'm.id_member' ),
 			array(
 				'member_id' => $context['user']['id'],
 				'msg_id' => $msgID,
@@ -92,6 +92,7 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		{
 			$context['characters'][$row['id_character']] = array(
 				'name' => $row['name'],
+				'approved' => $row['approved'],
 			);
 			if ($row['current_character'])
 				$context['character'] = $row['id_character'];

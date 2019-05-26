@@ -173,6 +173,23 @@ function template_rps_profile_blocks()
 	}
 }
 
+function template_profile_block_rps_unapproved()
+{
+	global $txt, $user_info;
+	echo '
+		<div class="information">
+		<p><i class="icon i-warning"></i>', $txt['rps_character_unapproved_msg'], '</p>';
+	
+	if($user_info['is_admin'])
+	{
+		
+	}
+		
+	echo'
+		</div>';
+	
+}
+
 /**
  * Profile Summary Block
  *
@@ -398,35 +415,96 @@ function template_profile_block_rps_characters()
 					', $txt['rps_profile_characters'] , '
 				</h2>
 			
-			<div class="profileblock">
+			<div class="profileblock">';
 			
-					';
 	if (!empty($context['member']['characters']))
 	{
-		echo '<ul class="characters">';
+		$characterList = '';
 		foreach($context['member']['characters'] as $charid => $character)
 		{
-			echo '
+			if(!empty($character['approved']))
+			{
+				$characterList .= '
 				<li>
-					<a class="content centertext" href="' , $scripturl , '?action=character;c=' , $charid , '" title="' , $character['name'] , '">' , $character['name'] , '
-					' , (!empty($character['title']) ?  '<br />' . $character['title'] : '') , '
+					<a class="content centertext" href="' . $scripturl . '?action=character;c=' . $charid . '" title="' . $character['name'] . '">' . $character['name'] . '
+					' . (!empty($character['title']) ?  '<br />' . $character['title'] : '') . '
 					</a>
-					
 				</li>';
+			}
+			elseif($context['user']['is_owner'])
+			{
+				$characterList .=  '
+				<li>
+					<a class="content centertext" href="' . $scripturl . '?action=character;c=' . $charid . '" title="' . $character['name'] . '"><i class="icon i-warning"></i>' . $character['name'] . '
+					<br />' . $txt['rps_not_approved'] . '
+					</a>
+				</li>';
+			}
 		}
-		echo '</ul>';
+		
+	}
+	
+	if(empty($characterList))
+	{
+		echo '
+				', ($context['user']['is_owner']) ? '<p><a href="' . $scripturl . '?action=character;sa=create">' . $txt['rps_profile_none_create'] . '</a></p>' : '<p>' . $txt['rps_profile_none_characters'] . '</p>';
 	}
 	else
+	{
 		echo '
-				', ($context['user']['is_owner']) ? '<p><a href="' . $scripturl . '?action=character;sa=create">Create a character</a></p>' : '<p>TXT This member does not yet have any characters.</p>';
+				<ul class="characters">',
+				$characterList,'
+				</ul>';
+	}
 
 	// close this block up
 	echo '
-				<div class="clear"></div>
 			</div>';
 }
 
 function template_profile_block_rps_biography()
 {
-	echo 'TEST';
+	global $context, $user_info, $txt;
+
+	//0 = current approved, 1 = current bio not approved, 2 = no bio
+	switch($context['bio_approved'])
+	{
+		case 0:
+			break;
+		case 1:
+			if($context['user']['is_owner'] || $user_info['is_admin'])
+			{
+				echo '
+				<div class="information">
+					<p><i class="icon i-warning"></i>', $txt['rps_bio_unapproved_msg'], '</p>
+					<hr />
+					', $context['unapproved_biography'], '
+				</div>';
+			}
+			else
+			{
+				no_bio_yet($context['character']['name']);
+			}
+			break;
+		case 2:
+			no_bio_yet($context['character']['name']);
+			break;
+		default;
+	}
+	
+	if(!empty($context['biography']))
+	{
+		echo '
+			<div>
+			',$context['biography']['biography'],'
+			</div>';
+	}
+}
+
+function no_bio_yet($name)
+{
+	echo '
+			<div class="information">
+				<p><i class="icon i-warning"></i>', $name, ' does not have a biography yet.</p>
+			</div>';
 }

@@ -50,6 +50,8 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 				'enabled' => in_array('rps', $context['admin_features']),
 				'subsections' => array(
 					'settings' => array($txt['rps_settings'], 'admin_rps'),
+					'characters' => array($txt['rps_manage_characters'], 'admin_rps'),
+					'bios' => array($txt['rps_manage_bios'], 'admin_rps'),
 					'tags' => array($txt['rps_manage_tags'], 'admin_rps'),
 					'events' => array($txt['rps_events'], 'admin_rps', 'active' => array('editevent')),
 					'phases' => array($txt['rps_phases'], 'admin_rps', 'active' => array('editphase')),
@@ -109,9 +111,9 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 		loadLanguage('RolePlayingSystemAdmin');
 		loadTemplate('RolePlayingSystem');
 		
-		$_req = HttpReq::instance();
+		$req = HttpReq::instance();
 		
-		if ($_req->query->sa == 'newboard')
+		if ($req->query->sa == 'newboard')
 		{
 			$context['board']['in_character']= true;
 		}
@@ -134,8 +136,8 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 	
 	public static function integrate_save_board($board_id, &$boardOptions)
 	{
-		$_req = HttpReq::instance();
-		$boardOptions['in_character'] = isset($_req->post->in_character);
+		$req = HttpReq::instance();
+		$boardOptions['in_character'] = isset($req->post->in_character);
 	}
 	
 	public static function integrate_modify_board($board_id, $boardOptions, &$boardUpdates, &$boardUpdateParameters)

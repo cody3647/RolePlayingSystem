@@ -23,6 +23,7 @@ class Role_Playing_System_Integrate
 			array('integrate_profile_summary', 'Role_Playing_System_Integrate::integrate_profile_summary'),
 			
 			//Load.php
+			array('integrate_pre_load', 'Role_Playing_System_Integrate::integrate_pre_load'),
 			array('integrate_user_info', 'Role_Playing_System_Integrate::integrate_user_info'),
 			array('integrate_load_board_query', 'Role_Playing_System_Integrate::integrate_load_board_query'),
 			array('integrate_loaded_board', 'Role_Playing_System_Integrate::integrate_loaded_board'),
@@ -121,9 +122,39 @@ class Role_Playing_System_Integrate
 				'title' => $txt['rps'],
 				'href' => $scripturl . '?action=admin;area=rps',
 				'show' => allowedTo('admin_rps'),
+				'counter' => 'rps',
 			);
 			
 			$buttons['admin']['sub_buttons'] = elk_array_insert($buttons['admin']['sub_buttons'], 'errorlog', $rps_admin, 'after');
+		}
+		
+		if(allowedTo('moderate_forum'))
+		{
+			require_once(SUBSDIR . '/ManageCharacters.subs.php');
+			$characters = list_num_unapproved_characters();
+			$bios = list_num_unapproved_biographies();
+			
+			$total = $characters + $bios;
+			
+			if(!empty($characters))
+			{
+				$context['warning_controls']['rps_character'] = sprintf($txt[$characters == 1 ? 'rps_one_character_waiting' : 'rps_many_characters_waiting'], $scripturl . '?action=admin;area=rps;sa=characters', $characters);
+			}
+			
+			if(!empty($bios))
+			{
+				$context['warning_controls']['rps_bio'] = sprintf($txt[$bios == 1 ? 'rps_one_bio_waiting' : 'rps_many_bios_waiting'], $scripturl . '?action=admin;area=rps;sa=bios', $bios);
+			}
+			
+			if(!empty($total))
+			{
+				$menu_count['grand_total'] = $menu_count['grand_total'] + $total;
+				$menu_count['rps'] = $total;
+			}
+			
+			
+			
+			
 		}
 	}
 	
@@ -341,5 +372,3 @@ class Role_Playing_System_Integrate
 		return $avatar;
 	}
 }
-
-

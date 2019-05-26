@@ -150,10 +150,30 @@ function template_after()
 function template_character_form()
 {
 	global $context, $scripturl, $txt, $settings;
+	
+	echo '
+		<div id="fprofile_error" class="errorbox', empty($context['post_errors']) ? ' hide"' : '"', '>';
 
+	if (!empty($context['post_errors']))
+	{
+		echo '
+			<span>', !empty($context['custom_error_title']) ? $context['custom_error_title'] : $txt['profile_errors_occurred'], ':</span>
+			<ul id="list_errors">';
+
+		// Cycle through each error and display an error message.
+		foreach ($context['post_errors'] as $error)
+			echo '
+				<li>', isset($txt['profile_error_' . $error]) ? $txt['profile_error_' . $error] : $error, '</li>';
+
+		echo '
+			</ul>';
+	}
+
+	echo '
+		</div>';
 	// The main header!
 	echo '
-		<form action="', $context['form_action'], '" method="post" accept-charset="UTF-8" name="creator" id="creator" enctype="multipart/form-data">
+		<form action="', $context['form_action'], '" method="post" accept-charset="UTF-8" name="creator" id="creator" enctype="multipart/form-data" autocomplete="off">
 			<h2 class="category_header hdicon cat_img_profile">
 				', $context['header_text'] ,'
 			</h2>';
@@ -314,15 +334,27 @@ function template_character_birthdate()
 
 	// Just show the pretty box!
 	echo '
-							<dt>
+							<dt', isset($context['post_errors']['birth_year']) ? ' class="error"' :'' ,'>
 								<strong>', $txt['dob'], '</strong><br />
 								<span class="smalltext">', $txt['dob_year'], ' - ', $txt['dob_month'], ' - ', $txt['dob_day'], '</span>
 							</dt>
 							<dd>
-								<input type="text" name="bday3" size="4" maxlength="4" value="', $context['character']['birth_date']['year'], '" class="input_text" /> -
-								<input type="text" name="bday1" size="2" maxlength="2" value="', $context['character']['birth_date']['month'], '" class="input_text" /> -
-								<input type="text" name="bday2" size="2" maxlength="2" value="', $context['character']['birth_date']['day'], '" class="input_text" />
+								<input type="number" name="birth_year" size="4" maxlength="4" pattern="[0-9]{4}" value="', $context['character']['birth_date']['year'], '" class="input_text" required onchange="changeMax()" /> -
+								<input type="number" name="birth_month" size="2" maxlength="2" min="1" max="12" pattern="[0-9]{2}" value="', $context['character']['birth_date']['month'], '" class="input_text', isset($context['error_birthmonth']) ? '  border_error"' :'' ,'" required  onchange="changeMax()" /> -
+								<input type="number" name="birth_day" size="2" maxlength="2" min="1" max="31" pattern="[0-9]{2}" value="', $context['character']['birth_date']['day'], '" class="input_text', isset($context['error_birthday']) ? ' border_error"' :'' ,'" required />
 							</dd>';
+	addInlineJavascript('
+	function changeMax() {
+		var year = document.getElementsByName("birth_year");
+		var month = document.getElementsByName("birth_month");
+		var day = document.getElementsByName("birth_day");
+		
+		day[0].setAttribute( "max", new Date(year[0].value, month[0].value, 0).getDate());
+		
+		
+		};
+	
+	', true);
 }
 
 /**

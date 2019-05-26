@@ -24,6 +24,11 @@ class CharacterBiography_Controller extends Action_Controller
 	
 	private $_saving;
 	
+	/** @var null|ErrorContext The post (messages) errors object */
+	protected $_character_errors = null;
+
+	/** @var \BBC\PreparseCode */
+	protected $preparse;
 	
 	/**
 	 * Called before all other methods when coming from the dispatcher or
@@ -77,21 +82,70 @@ class CharacterBiography_Controller extends Action_Controller
 		loadTemplate('GenericControls');
 		require_once(SUBSDIR . '/Editor.subs.php');		
 		
-		$this->_saving = $this->_req->getPost('save', 'trim', $this->_req->getQuery('save', 'trim', false));
+		$this->_bio_errors = ErrorContext::context('bio', 1);
+		$this->preparse = \BBC\PreparseCode::instance();
 		
-		if($this->_saving)
-			redirectExit($scripturl . '?action=character;area=summary');
+		$context['becomes_approved'] = allowedTo('rps_bio_approved');
+
+		if($this->_req->__isset('post'))
+		{
+			$this->save_bio();
+			
+			// There was a problem, let them try to re-enter.
+			if (!empty($post_errors))
+			{
+				// Load the language file so we can give a nice explanation of the errors.
+				loadLanguage('Errors');
+				$context['post_errors'] = $post_errors;
+			}
+			
+			else
+			{
+				redirectexit('action=character;c=' . $this->_charID . ';area=summary;#tab_2');
+			}		
+		}
 		
+		if($this->_req->__isset('rps_bio'))
+		{
+			$context['biography'] = $this->_req->getPost('rps_bio');
+		}
+		else
+		{
+			$db = database();
+
+			$request = $db->query('', '
+				SELECT
+					id_bio, id_character, approved, date_approved, date_added, biography
+				FROM {db_prefix}rps_biographies
+				WHERE id_character = {int:id_character}
+				ORDER BY id_bio DESC
+				LIMIT 1',
+				array(
+					'id_character' => $this->_charID,
+				)
+			);
+			
+			while ($row = $db->fetch_assoc($request))
+			{
+				$context['biography'] = array(
+					'id_bio' => $row['id_bio'],
+					'id_character' => $row['id_character'],
+					'approved' => $row['approved' ],
+					'date_approved' => $row['date_approved'],
+					'date_added' => $row['date_added'],
+					'biography' => censor($this->preparse->un_preparsecode($row['biography'])),
+				);
+			}
+			
+			$db->free_result($request);
+		}
 		
-		$context['becomes_approved'] = false;
-		if (allowedTo('rps_bio_approved'))
-			$context['becomes_approved'] = true;
-		$context['destination'] = 'character;area=biography_edit';
+		$context['destination'] = 'character;area=biography_edit;c=' . $this->_charID;
 		$context['page_title'] = $context['character']['name'] . ' - Edit Biography';
 		
 		$editorOptions = array(
 			'id' => 'rps_bio',
-			'value' => 'OLD BIO',
+			'value' => $context['biography']['biography'],
 			'labels' => array(
 				'post_button' => $txt['rps_bio_save'],
 			),
@@ -104,5 +158,77 @@ class CharacterBiography_Controller extends Action_Controller
 		);
 		create_control_richedit($editorOptions);
 		return;
+	}
+	
+	public function save_bio()
+	{
+		global $context;
+		$db = database();
+		
+		$approved = $context['becomes_approved'] ? 1 : 0;
+		$approved_time = $context['becomes_approved'] ? time() : 0;
+		
+		
+		if (!isset($_POST['rps_bio']) || Util::htmltrim(Util::htmlspecialchars($_POST['rps_bio'], ENT_QUOTES)) === '')
+			$this->_bio_errors->addError('no_message');
+		elseif (Util::strlen($_POST['rps_bio']) > 55534)
+			$this->_bio_errors->addError(array('long_message', array('55534')));
+		else
+		{
+			// Prepare the message a bit for some additional testing.
+			$_POST['rps_bio'] = Util::htmlspecialchars($_POST['rps_bio'], ENT_QUOTES, 'UTF-8', true);
+
+			$this->preparse->preparsecode($_POST['rps_bio']);
+
+			$bbc_parser = \BBC\ParserWrapper::instance();
+
+			// Let's see if there's still some content left without the tags.
+			if (Util::htmltrim(strip_tags($bbc_parser->parseMessage($_POST['rps_bio'], false), '<img>')) === '' && (strpos($_POST['message'], '[html]') === false))
+				$this->_post_errors->addError('no_message');
+		}
+		
+		$bio_columns = array(
+			'id_character' => 'int',
+			'approved' => 'int',
+			'date_approved' => 'int',
+			'date_added' => 'int',
+			'biography' => 'string-65534',
+		);
+		
+		$bio_parameters = array(
+			'id_character' => $this->_charID,
+			'approved' => $approved,
+			'date_approved' => $approved_time,
+			'date_added' => time(),
+			'biography' => $_POST['rps_bio'],
+		);
+		
+		// Insert the post.
+		$db->insert('',
+			'{db_prefix}rps_biographies',
+			$bio_columns,
+			$bio_parameters,
+			array('id_bio', 'id_character')
+		);
+		$id_bio = $db->insert_id('{db_prefix}rps_bio', 'id_bio');
+		
+		// Something went wrong creating the message...
+		if (empty($id_bio))
+		{
+			return false;
+		}
+		if($context['becomes_approved'])
+		{
+			// Change the post.
+			$db->query('', '
+				UPDATE {db_prefix}rps_characters
+				SET id_bio = {int:id_bio}
+				WHERE id_character = {int:id_character}',
+				array(
+					'id_bio' => $id_bio,
+					'id_character' => $this->_charID,
+				)
+			);
+		}
 	}
 }
