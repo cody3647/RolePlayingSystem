@@ -1,23 +1,24 @@
 <?php
 
 /**
- * Handles the retrieving and display of a users posts, attachments, stats, permissions
- * warnings and the like
+ * Handles the retrieving and display of a Character's information
  *
- * @name      ElkArte Forum
- * @copyright ElkArte Forum contributors
- * @license   BSD http://opensource.org/licenses/BSD-3-Clause
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
  *
  * This file contains code covered by:
+ * copyright: ElkArte Forum contributors
+ * license:   BSD http://opensource.org/licenses/BSD-3-Clause
+ *
  * copyright:	2011 Simple Machines (http://www.simplemachines.org)
  * license:		BSD, See included LICENSE.TXT for terms and conditions.
- *
- * @version 1.1
- *
  */
 
 /**
- * CharacterInfo_Controller Class
+ * CharacterInfo Controller Class
  * Access all profile summary areas for a character including overall summary,
  * post listing
  */

@@ -8,6 +8,14 @@
  * @author Cody Williams <williams.c@gmail.com>
  * @copyright Cody Williams
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ *
+ * This file contains code covered by:
+ * copyright: ElkArte Forum contributors
+ * license:   BSD http://opensource.org/licenses/BSD-3-Clause
+ *
+ * copyright:	2011 Simple Machines (http://www.simplemachines.org)
+ * license:		BSD, See included LICENSE.TXT for terms and conditions.
+ *
  */
 
 /**

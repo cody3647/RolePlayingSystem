@@ -11,10 +11,9 @@
  */
 
 /**
- * This class's task is to bind the posting of a topic to a calendar event.
- * Used when from the calendar controller the poster is redirected to the post page.
- *
- * @package Calendar
+ * Class RolePlayingSystem Admin Module
+ * 
+ * Events and functions for adding RolePlayingSystem to Admin
  */
 class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Module
 {
@@ -32,7 +31,9 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 	}
 
 	/**
-	 * Used to add the Calendar entry to the admin menu.
+	 * Used to add the RolePlayingSystem entry to the admin menu.
+	 *
+	 * Event triggered in admin/Admin.controller.php
 	 *
 	 * @param mixed[] $admin_areas The admin menu array
 	 */
@@ -61,23 +62,30 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 
 		$admin_areas['config']['areas'] = elk_array_insert($admin_areas['config']['areas'], 'addonsettings', $rps_menu, 'before');
 	}
+	
+	public static function integrate_load_illegal_guest_permissions()
+	{
+		//Placeholder for if the hook ever does anything useful.
+	}
 
     /**
-     * Used to add the Calendar entry to the admin search.
+     * Used to add RolePlayingSystem Permissions
+	 *
+	 * Called in admin/ManagePermissions.subs.php loadAllPermissions()
      *
-     * @param $permissionGroups
-     * @param $permissionList
-     * @param $leftPermissionGroups
-     * @param $hiddenPermissions
-     * @param $relabelPermissions
+     * @param array $permissionGroups
+     * @param array $permissionList
+     * @param array $leftPermissionGroups
+     * @param array $hiddenPermissions
+     * @param array $relabelPermissions
      */
 	
 	public static function integrate_load_permissions(&$permissionGroups, &$permissionList, &$leftPermissionGroups, &$hiddenPermissions, &$relabelPermissions)
 	{
 		global $context;
-		loadLanguage('RolePlayingSystemAdmin');
 		
 		$permissionGroups['membergroup'][] = 'rps';
+		
 		/*   The format of this list is as follows:
 			'membergroup' => array(
 				'permissions_inside' => array(has_multiple_options, view_group),
@@ -87,6 +95,7 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 			);
 		*/
 		
+		//Only allow the guest membergroup to be given the ability to see character profiles
 		if (isset($context['group']['id']) && $context['group']['id'] == -1)
 			$rpsPermissions = array(
 				'rps_char_view' => array(false, 'rps'),
@@ -105,10 +114,17 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 		$permissionList['membergroup'] = array_merge($permissionList['membergroup'], $rpsPermissions);
 	}
 	
+	/**
+	 * Defaults new boards to be In Character boards
+	 * 
+	 * Called in controllers/ManageBoards.controller.php
+	 *
+	 */
+	
 	public static function integrate_edit_board()
 	{
 		global $context;
-		loadLanguage('RolePlayingSystemAdmin');
+		//loadLanguage('RolePlayingSystemAdmin');
 		loadTemplate('RolePlayingSystem');
 		
 		$req = HttpReq::instance();
@@ -119,10 +135,26 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 		}
 	}
 	
+	/**
+	 * Adds in_character column to the board tree query
+	 *
+	 * Called in subs/Boards.subs.php getBoardTree()
+	 *
+	 * @param array $query
+	 */
+	
 	public static function integrate_board_tree_query(&$query)
 	{
 		$query['select'] = ', b.in_character';
 	}
+	
+	/**
+	 * Processes the in_character column
+	 *
+	 * Called in subs/Boards.subs.php getBoardTree()
+	 *
+	 * @param array $row
+	 */
 
 	public static function integrate_board_tree($row)
 	{
@@ -134,11 +166,33 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 		}
 	}
 	
+	/**
+	 * Adds in_character to board options to be saved
+	 *
+	 * Called in admin/ManageBoards.controller.php action_board2()
+	 *
+	 * @param int $board_id
+	 * @param mixed[] $boardOptions
+	 *
+	 */
+	
 	public static function integrate_save_board($board_id, &$boardOptions)
 	{
 		$req = HttpReq::instance();
 		$boardOptions['in_character'] = isset($req->post->in_character);
 	}
+	
+	/**
+	 * Adds in_character to the database updates
+	 * 
+	 * Called in subs/Boards.subs.php modifyBoard()
+	 *
+	 * @param int $board_id
+	 * @param mixed[] $boardOptions
+	 * @param array $boardUpdates
+	 * @param $boardUpdateParameters
+	 *
+	 */
 	
 	public static function integrate_modify_board($board_id, $boardOptions, &$boardUpdates, &$boardUpdateParameters)
 	{

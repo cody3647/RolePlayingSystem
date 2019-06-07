@@ -1,16 +1,30 @@
 <?php
 
 /**
- * Editing and display of character profiles.
+ * Editing and display of a Character's information
  *
  * @package Role Playing System
  * @version 1.0
  * @author Cody Williams <williams.c@gmail.com>
  * @copyright Cody Williams
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ *
+ * This file contains code covered by:
+ * copyright: ElkArte Forum contributors
+ * license:   BSD http://opensource.org/licenses/BSD-3-Clause
+ *
+ * copyright:	2011 Simple Machines (http://www.simplemachines.org)
+ * license:		BSD, See included LICENSE.TXT for terms and conditions.
+ *
  */
 
 use ElkArte\Errors\ErrorContext;
+
+/*
+ * Character Controller Class
+ * Handles creating and editing characters
+ * and directing to other character functions
+ */
 
 class Character_Controller extends Action_Controller
 {
@@ -63,7 +77,7 @@ class Character_Controller extends Action_Controller
 	 */
 	public function pre_dispatch()
 	{
-		global $context, $user_info, $memberContext, $user_profile, $cur_profile;
+		global $context, $memberContext, $user_profile, $cur_profile;
 
 		require_once(SUBSDIR . '/Character.subs.php');
 		require_once(SUBSDIR . '/Menu.subs.php');
@@ -79,9 +93,6 @@ class Character_Controller extends Action_Controller
 		$cur_profile = $user_profile[$this->_memID]['characters'][$this->_charID];
 		$context['id_member'] = $this->_memID;
 		$context['id_character'] = $this->_charID;
-		
-		if (!isset($context['user']['is_owner']))
-			$context['user']['is_owner'] = in_array($this->_charID, $user_info['characters']);
 
 		loadLanguage('Profile');
 		loadLanguage('RolePlayingSystem');
@@ -161,9 +172,6 @@ class Character_Controller extends Action_Controller
 		// Session validation and/or Token Checks
 		//$this->_check_access();
 
-		// Build the link tree.
-		$this->_build_profile_linktree();
-
 		// Set the template for this area... if you still can :P
 		// and add the profile layer.
 		$context['sub_template'] = $this->_profile_include_data['function'];
@@ -177,6 +185,9 @@ class Character_Controller extends Action_Controller
 			require_once($this->_profile_include_data['file']);
 
 		callMenu($this->_profile_include_data);
+		
+		// Build the link tree.
+		$this->_build_profile_linktree();
 
 		// Set the page title if it's not already set...
 		if (!isset($context['page_title']))
@@ -381,7 +392,7 @@ class Character_Controller extends Action_Controller
 		// Show the user the right form.
 		$context['sub_template'] = 'create_form';
 		$context['page_title'] = $txt['rps_create_character'];
-		loadJavascriptFile('rps_character.js');
+		loadJavascriptFile('RolePlayingSystem.js');
 		addInlineJavascript('disableAutoComplete();', true);
 
 		// Add the register chain to the link tree.
@@ -563,7 +574,7 @@ class Character_Controller extends Action_Controller
      */
 	function createCharacter(&$characterOptions, $ErrorContext = 'character')
 	{
-		global $scripturl, $txt, $modSettings, $user_info;
+		global $scripturl, $txt, $modSettings;
 
 		$db = database();
 
@@ -702,7 +713,7 @@ class Character_Controller extends Action_Controller
 		loadLanguage('Errors');
 
 		$character = isset($this->_req->post->character) ? (int) $this->_req->post->character : 0;
-		$is_owner =  is_array($user_info['characters']) ? in_array($character, $user_info['characters']) : ($user_info['characters'] == $character) ;
+		$is_owner =  $context['user']['is_owner'];
 
 		// @todo Temporary
 		// Borrowed from loadAttachmentContext in Display.controller.php

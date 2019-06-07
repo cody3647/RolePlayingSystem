@@ -75,11 +75,19 @@ $txt['setting_rps_current_start'] = 'Start';
 $txt['setting_rps_current_end'] = 'End';
 $txt['rps_date_format'] = '(YYYY-MM-DD)';
 
-
 $txt['rps_error_incorrect_format'] = '<span class="error">%1$s is not in YYYY-MM-DD format.</span>';
 $txt['rps_error_begining_date_later_start'] = '<span class="error">The Start Date, %1$s, is earlier than the Beginning Date, %2$s.</span>';
 $txt['rps_error_start_date_later_end'] = '<span class="error">The Start Date, %1$s, is after the End Date, %2$s.</span>';
 $txt['rps_error_large_range'] = '<span class="error">The range, %3$s - %4$s, is %1$d month(s) and %2$d day(s) greater than 4 months.</span>';
+
+$txt['rps_biography_settings'] = 'Biography Edit Settings';
+$txt['rps_bio_edit_count'] = 'Minor Edits Before Re-approval';
+$txt['rps_bio_edit_count_desc'] = 'The number of minor edits a member can make before the biography needs re-approval.';
+$txt['rps_bio_edit_count_after'] = '(0 for all edits need approval)';
+$txt['rps_bio_edit_chars'] = 'Maximum Character Count of a Minor Edit';
+$txt['rps_bio_edit_chars_desc'] = 'This is the number of characters that can be changed while still counting as a minor edit.';
+$txt['rps_bio_edit_chars_after'] = '(0 for no maximum.  All changes are considered a small edit.)';
+
 
 $txt['rps_calendar_settings'] = 'Game Calendar Settings';
 $txt['setting_rps_showholidays'] = 'Show Holidays';
@@ -144,3 +152,5 @@ $txt['rps_bios_unapproved_list_none'] = 'There are no unapproved biographies rig
 $txt['rps_bios_list_character'] = 'Character';
 $txt['rps_bios_list_member'] = 'Member';
 $txt['rps_bios_list_date'] = 'Date Added/Last Modified';
+$txt['rps_bios_list_approve'] = 'Approve';
+$txt['rps_approve_bios'] = 'Approve Biographies';

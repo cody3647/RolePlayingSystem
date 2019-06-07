@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Editing and display of character profiles.
+ * Editing and saving of character biographies.
  *
  * @package Role Playing System
  * @version 1.0
@@ -11,6 +11,11 @@
  */
 
 use ElkArte\Errors\ErrorContext;
+
+/*
+* CharacterBiography Controller Class
+* Handles editing and saving of character biographies
+*/
 
 class CharacterBiography_Controller extends Action_Controller
 {
@@ -30,6 +35,8 @@ class CharacterBiography_Controller extends Action_Controller
 	/** @var \BBC\PreparseCode */
 	protected $preparse;
 	
+	protected $approve;
+	
 	/**
 	 * Called before all other methods when coming from the dispatcher or
 	 * action class.
@@ -39,28 +46,13 @@ class CharacterBiography_Controller extends Action_Controller
 	 */
 	public function pre_dispatch()
 	{
-		global $context, $user_info, $memberContext, $user_profile, $cur_profile;
-
-		require_once(SUBSDIR . '/Character.subs.php');
-		require_once(SUBSDIR . '/Menu.subs.php');
-		require_once(SUBSDIR . '/Profile.subs.php');
+		global $context;
 
 		$this->_charID = $this->_req->getQuery('c', 'intval', 0);
 		$this->_memID = memberID($this->_charID);
 		
-		loadMemberContext($this->_memID);
-		$context['member'] = &$memberContext[$this->_memID];
-		$context['character'] = &$memberContext[$this->_memID]['characters'][$this->_charID];
-		
-		$cur_profile = $user_profile[$this->_memID]['characters'][$this->_charID];
-		$context['id_member'] = $this->_memID;
-		$context['id_character'] = $this->_charID;
-		
-		if (!isset($context['user']['is_owner']))
-			$context['user']['is_owner'] = in_array($this->_charID, $user_info['characters']);
-		
-		loadLanguage('Profile');
-		loadLanguage('RolePlayingSystem');
+		$this->becomes_approved = allowedTo('rps_bio_approved') ? 1 : 0;
+		$context['becomes_approved'] = $this->becomes_approved;	
 	}
 	
 	/**
@@ -76,16 +68,20 @@ class CharacterBiography_Controller extends Action_Controller
 	
 	public function action_biography_edit()
 	{
-		global $context, $user_info, $txt, $scripturl;
+		global $context, $txt, $scripturl, $modSettings;
 		
 		loadTemplate('RpsCharacter');
 		loadTemplate('GenericControls');
 		require_once(SUBSDIR . '/Editor.subs.php');		
+		loadJavascriptFile('RolePlayingSystem.js');
+		loadJavascriptFile('post.js');
+		
+		addInlineJavascript('
+			var txt_preview_fetch = "' . $txt['rps_bio_preview_fetch'] . '";
+		');
 		
 		$this->_bio_errors = ErrorContext::context('bio', 1);
 		$this->preparse = \BBC\PreparseCode::instance();
-		
-		$context['becomes_approved'] = allowedTo('rps_bio_approved');
 
 		if($this->_req->__isset('post'))
 		{
@@ -105,39 +101,40 @@ class CharacterBiography_Controller extends Action_Controller
 			}		
 		}
 		
+		if($this->_req->__isset('preview'))
+		{
+			$bbc_wrapper = \BBC\ParserWrapper::instance();
+			$context['preview_message'] = $bbc_wrapper->parseMessage(censor($this->_req->getPost('rps_bio')), false);
+		}
+		
 		if($this->_req->__isset('rps_bio'))
 		{
-			$context['biography'] = $this->_req->getPost('rps_bio');
+			$context['biography'] = $this->get_biography($this->_req->getPost('id_bio', 'intval',0));
+			$context['biography']['biography'] = $this->_req->getPost('rps_bio');
 		}
 		else
 		{
-			$db = database();
+			$context['biography'] = $this->get_biography();
+		}
+		
+		if(!empty($context['biography']['approved']))
+		{
+			addInlineJavascript('
+				$(function() {
 
-			$request = $db->query('', '
-				SELECT
-					id_bio, id_character, approved, date_approved, date_added, biography
-				FROM {db_prefix}rps_biographies
-				WHERE id_character = {int:id_character}
-				ORDER BY id_bio DESC
-				LIMIT 1',
-				array(
-					'id_character' => $this->_charID,
-				)
-			);
-			
-			while ($row = $db->fetch_assoc($request))
-			{
-				$context['biography'] = array(
-					'id_bio' => $row['id_bio'],
-					'id_character' => $row['id_character'],
-					'approved' => $row['approved' ],
-					'date_approved' => $row['date_approved'],
-					'date_added' => $row['date_added'],
-					'biography' => censor($this->preparse->un_preparsecode($row['biography'])),
-				);
-			}
-			
-			$db->free_result($request);
+					$editor_container["rps_bio"].bind("keydown paste pasteraw valuechange blur focus", biography_length);
+				});
+				var rps_minor_edit_text = "' . $txt['rps_bio_minor_edit'] . '".split("%1$d");
+				var rps_modified_remaining_text = "' . sprintf($txt['rps_bio_modified_remaining'], $modSettings['rps_bio_edit_count'] - $context['biography']['modified_count']) . '";
+				var rps_modified_approval_text = "' . $txt['rps_bio_modified_approval'] . '";
+				var rps_minor_edit = ' . $modSettings['rps_bio_edit_chars'] . ';
+				var rps_length = ' . $context['biography']['bio_length'] . ';
+				
+				var rps_span_length = document.getElementById("rps_length");
+				var rps_span_modified = document.getElementById("rps_modified");
+				
+
+			', true);
 		}
 		
 		$context['destination'] = 'character;area=biography_edit;c=' . $this->_charID;
@@ -154,21 +151,85 @@ class CharacterBiography_Controller extends Action_Controller
 			'width' => '100%',
 			'disable_smiley_box' => true,
 			// We do XML preview here.
-			'preview_type' => 2
+			'preview_type' => 0,
+			'buttons' => array(
+				'preview' => array(
+					'name' => 'preview',
+					'value' => $txt['preview'],
+					'options' => 'date-test="test" accesskey="p" onclick="return false || previewBio();"',
+				),
+			),
+			'hidden_fields' => array(
+				array(
+					'name' => 'id_bio',
+					'value' => !empty($context['biography']['id_bio']) ? $context['biography']['id_bio'] : 0,
+					),
+			),
 		);
+		
 		create_control_richedit($editorOptions);
 		return;
 	}
 	
-	public function save_bio()
+	public function action_biography_preview()
 	{
 		global $context;
+		
+		loadTemplate('RpsCharacter');
+		$context['sub_template'] = 'biography_preview';
+		
+		// Prepare the message a bit for some additional testing.
+		$biography = Util::htmlspecialchars($this->_req->getPost('rps_bio'), ENT_QUOTES, 'UTF-8', true);
+		
+		$bbc_parser = \BBC\ParserWrapper::instance();
+
+		$context['preview_biography'] = $bbc_parser->parseMessage($biography, false);
+			
+	}
+	
+	private function get_biography($id = 0)
+	{
 		$db = database();
+
+		$request = $db->query('', '
+			SELECT
+				id_bio, id_character, approved, date_approved, date_added, modified_count, biography
+			FROM {db_prefix}rps_biographies
+			WHERE id_character = {int:id_character} ' . (!empty($id) ? 'AND id_bio = {int:id_bio}' : '') . '
+			ORDER BY id_bio DESC
+			LIMIT 1',
+			array(
+				'id_character' => $this->_charID,
+				'id_bio' => $id,
+			)
+		);
 		
-		$approved = $context['becomes_approved'] ? 1 : 0;
-		$approved_time = $context['becomes_approved'] ? time() : 0;
+		while ($row = $db->fetch_assoc($request))
+		{
+			$bio = censor($this->preparse->un_preparsecode($row['biography']));
+			$biography = array(
+				'id_bio' => $row['id_bio'],
+				'id_character' => $row['id_character'],
+				'approved' => $row['approved' ],
+				'date_approved' => $row['date_approved'],
+				'date_added' => $row['date_added'],
+				'modified_count' => $row['modified_count'],
+				'biography' => $bio,
+				'bio_length' => Util::strlen($bio),
+				'hash' => hash('md5', $row['biography']),
+			);
+		}
 		
+		$db->free_result($request);
 		
+		return $biography;
+	}
+	
+	public function save_bio()
+	{
+		global $context, $modSettings;
+		$db = database();
+
 		if (!isset($_POST['rps_bio']) || Util::htmltrim(Util::htmlspecialchars($_POST['rps_bio'], ENT_QUOTES)) === '')
 			$this->_bio_errors->addError('no_message');
 		elseif (Util::strlen($_POST['rps_bio']) > 55534)
@@ -187,6 +248,68 @@ class CharacterBiography_Controller extends Action_Controller
 				$this->_post_errors->addError('no_message');
 		}
 		
+		
+		if(!empty($this->_req->getPost('id_bio', 'intval')))
+			$prev_bio = $this->get_biography($this->_req->getPost('id_bio', 'intval'));
+		
+		if(!empty($prev_bio))
+		{
+			if($prev_bio['hash'] == hash('md5', $_POST['rps_bio']) )
+				return;
+
+			if($prev_bio['modified_count'] < $modSettings['rps_bio_edit_count'] || empty($prev_bio['approved']))
+			{
+				$diff_length = abs($prev_bio['bio_length'] - Util::strlen($_POST['rps_bio']));
+				
+				if( $diff_length <= $modSettings['rps_bio_edit_chars'] || empty($prev_bio['approved']))
+				{
+					$db->query('', '
+						UPDATE {db_prefix}rps_biographies
+						SET biography = {string:bio}' . ( empty($prev_bio['approved']) ? '' : ', modified_count = modified_count +1') . '
+						WHERE id_bio = {int:id_bio}',
+						array(
+							'id_bio' => $prev_bio['id_bio'],
+							'bio' => $_POST['rps_bio'],
+						)
+					);
+				}
+				
+				else
+				{
+					$id_bio = $this->insert_bio($_POST['rps_bio']);
+				}
+			}
+			
+			else
+			{
+				$id_bio = $this->insert_bio($_POST['rps_bio']);
+			}
+		}
+		
+		else
+		{
+			$id_bio = $this->insert_bio($_POST['rps_bio']);
+		}
+		if($this->becomes_approved && !empty($id_bio))
+		{
+			// 
+			$db->query('', '
+				UPDATE {db_prefix}rps_characters
+				SET id_bio = {int:id_bio}
+				WHERE id_character = {int:id_character}',
+				array(
+					'id_bio' => $id_bio,
+					'id_character' => $this->_charID,
+				)
+			);
+		}
+		
+	}
+	
+	private function insert_bio($bio)
+	{
+		$db = database();
+		
 		$bio_columns = array(
 			'id_character' => 'int',
 			'approved' => 'int',
@@ -197,10 +320,10 @@ class CharacterBiography_Controller extends Action_Controller
 		
 		$bio_parameters = array(
 			'id_character' => $this->_charID,
-			'approved' => $approved,
-			'date_approved' => $approved_time,
+			'approved' => $this->becomes_approved,
+			'date_approved' => $this->becomes_approved ? time() : 0,
 			'date_added' => time(),
-			'biography' => $_POST['rps_bio'],
+			'biography' => $bio,
 		);
 		
 		// Insert the post.
@@ -217,18 +340,8 @@ class CharacterBiography_Controller extends Action_Controller
 		{
 			return false;
 		}
-		if($context['becomes_approved'])
-		{
-			// Change the post.
-			$db->query('', '
-				UPDATE {db_prefix}rps_characters
-				SET id_bio = {int:id_bio}
-				WHERE id_character = {int:id_character}',
-				array(
-					'id_bio' => $id_bio,
-					'id_character' => $this->_charID,
-				)
-			);
-		}
+		
+		else
+			return $id_bio;
 	}
 }

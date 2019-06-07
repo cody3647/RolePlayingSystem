@@ -11,15 +11,14 @@
  */
 
 /**
- * Drafts administration controller.
- * This class allows to modify admin drafts settings for the forum.
+ * RolePlayingSystem administration controller.
+ * This class allows to modify admin RPS settings for the forum.
  *
- * @package Drafts
  */
 class ManageRolePlayingSystemModule_Controller extends Action_Controller
 {
 	/**
-	 * Used to add the Drafts entry to the Core Features list.
+	 * Used to add the RolePlayingSystem entry to the Core Features list.
 	 *
 	 * @param mixed[] $core_features The core features array
 	 */
@@ -245,7 +244,9 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				empty($errors['end']) ?
 					array('text', 'rps_current_end', 'postinput' => $txt['rps_date_format']) :
 					array('text', 'rps_current_end', 'invalid' =>true, 'postinput' => $errors['end']),
-				
+			array('title', 'rps_biography_settings'),
+				array('int', 'rps_bio_edit_count', 'subtext' => $txt['rps_bio_edit_count_desc'], 'postinput' => $txt['rps_bio_edit_count_after']),
+				array('int', 'rps_bio_edit_chars', 'subtext' => $txt['rps_bio_edit_chars_desc'], 'postinput' => $txt['rps_bio_edit_chars_after']),
 			array('title', 'rps_calendar_settings'),
 				array('select', 'rps_timezone', $timezones),
 				// How many days to show on board index, and where to display events etc?
@@ -255,7 +256,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		);
 
 		// Add new settings with a nice hook, makes them available for admin settings search as well
-		call_integration_hook('integrate_modify_calendar_settings', array(&$config_vars));
+		call_integration_hook('integrate_modify_rps_settings', array(&$config_vars));
 
 		return $config_vars;
 	}
@@ -881,7 +882,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 	
 	public function action_manage_characters()
 	{
-		global $context, $scripturl, $txt, $user_info;
+		global $context, $scripturl, $txt;
 		
 		if(isset($this->_req->save))
 		{
@@ -892,8 +893,6 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			
 			if(!empty($approved_characters))
 				approve_characters($approved_characters);
-			if(!empty($approved_bios))
-				approve_bios($approved_bios);
 
 			//redirectexit('topic=' . $topic . ';updatetags');
 		}
@@ -1000,7 +999,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 	
 	public function action_manage_bios()
 	{
-		global $context, $scripturl, $txt, $user_info;
+		global $context, $scripturl, $txt;
 		
 		if(isset($this->_req->save))
 		{
@@ -1021,7 +1020,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			'page_title' => $txt['rps_manage_bios'],
 		);
 
-		createToken('admin-rps-characters');
+		createToken('admin-rps-bios');
 		
 		
 		// Create a listing for all our standard fields
@@ -1068,7 +1067,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				),
 				'member' => array(
 					'header' => array(
-						'value' => $txt['rps_characters_list_member'],
+						'value' => $txt['rps_bios_list_member'],
 					),
 					'data' => array(
 						'sprintf' => array(
@@ -1087,7 +1086,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				),
 				'date_added' => array(
 					'header' => array(
-						'value' => $txt['rps_characters_list_member'],
+						'value' => $txt['rps_bios_list_date'],
 					),
 					'data' => array(
 						'db' => 'date_added',
@@ -1101,14 +1100,14 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				),
 				'approve' => array(
 					'header' => array(
-						'value' => $txt['rps_characters_list_approve'],
+						'value' => $txt['rps_bios_list_approve'],
 						'class' => 'centertext',
 					),
 					'data' => array(
 						'sprintf' => array(
 							'format' => '<input type="checkbox" name="approve_bios[]" id="approve_%1$d" value="%1$s" class="input_check" />',
 							'params' => array(
-								'id_character' => false
+								'id_bio' => false
 							),
 						),
 						'class' => 'centertext',
@@ -1116,14 +1115,14 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				),
 			),
 			'form' => array(
-				'href' => $scripturl . '?action=admin;area=rps;sa=characters',
-				'token' => 'admin-rps-characters',
+				'href' => $scripturl . '?action=admin;area=rps;sa=bios',
+				'token' => 'admin-rps-bios',
 			),
 			'additional_rows' => array(
 				array(
 					'position' => 'bottom_of_list',
 					'class' => 'submitbutton',
-					'value' => '<input type="submit" name="save" value="' . $txt['rps_approve_characters'] . '" />',
+					'value' => '<input type="submit" name="save" value="' . $txt['rps_approve_bios'] . '" />',
 				),
 			),
 		);

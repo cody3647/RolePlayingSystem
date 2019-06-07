@@ -8,6 +8,7 @@
  * @author Cody Williams <williams.c@gmail.com>
  * @copyright Cody Williams
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ *
  */
 
 function template_ic_role_playing_system()
@@ -28,7 +29,7 @@ function template_ic_role_playing_system()
 
 function template_rps_post_above()
 {
-	global $user_info, $txt, $context, $board_info;
+	global $txt, $context, $board_info;
 
 	echo '
 						<dl class="postbox">';
@@ -94,7 +95,7 @@ function template_rps_post_above()
 
 function template_rps_display_tags()
 {
-	global $context, $scripturl, $user_info, $txt;
+	global $context, $scripturl, $txt;
 	if(!empty($context['date_tag']) || !empty($context['tags']))
 	{
 		echo '

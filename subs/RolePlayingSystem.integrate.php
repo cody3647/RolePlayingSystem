@@ -11,6 +11,10 @@
 
 class Role_Playing_System_Integrate
 {
+	/**
+	 * Registers hooks as needed for the drafts function to work
+	 * @return array
+	 */
 	public static function register()
 	{		
 		// $hook, $function, $file
@@ -18,21 +22,16 @@ class Role_Playing_System_Integrate
 			array('integrate_log_types', 'Role_Playing_System_Integrate::integrate_log_types'),
 			array('integrate_quickhelp', 'Role_Playing_System_Integrate::integrate_quickhelp'),
 			array('integrate_menu_buttons', 'Role_Playing_System_Integrate::integrate_menu_buttons'),
-		
-//			array('integrate_profile_areas', 'Role_Playing_System_Integrate::integrate_profile_areas'),
 			array('integrate_profile_summary', 'Role_Playing_System_Integrate::integrate_profile_summary'),
-			
-			//Load.php
 			array('integrate_pre_load', 'Role_Playing_System_Integrate::integrate_pre_load'),
 			array('integrate_user_info', 'Role_Playing_System_Integrate::integrate_user_info'),
 			array('integrate_load_board_query', 'Role_Playing_System_Integrate::integrate_load_board_query'),
 			array('integrate_loaded_board', 'Role_Playing_System_Integrate::integrate_loaded_board'),
 			array('integrate_add_member_data', 'Role_Playing_System_Integrate::integrate_add_member_data'),
 			array('integrate_member_context', 'Role_Playing_System_Integrate::integrate_member_context'),
-
 			array('integrate_sa_xmlhttp', 'Role_Playing_System_Integrate::integrate_sa_xmlhttp'),
 			array('integrate_sa_xmlpreview', 'Role_Playing_System_Integrate::integrate_sa_xmlpreview'),
-
+			
 			array('integrate_before_create_post', 'RolePlayingSystem_Post_Module::integrate_before_create_post'),
 			array('integrate_before_create_topic', 'RolePlayingSystem_Post_Module::integrate_before_create_topic'),
 			array('integrate_before_modify_topic', 'RolePlayingSystem_Post_Module::integrate_before_modify_topic'),
@@ -47,7 +46,6 @@ class Role_Playing_System_Integrate
 			array('integrate_messageindex_topics', 'RolePlayingSystem_MessageIndex_Module::integrate_messageindex_topics'),
 			array('integrate_messageindex_listing', 'RolePlayingSystem_MessageIndex_Module::integrate_messageindex_listing'),
 			array('integrate_action_messageindex_after', 'RolePlayingSystem_MessageIndex_Module::integrate_action_messageindex_after'),
-			
 			array('integrate_tagindex_topics', 'RolePlayingSystem_MessageIndex_Module::integrate_messageindex_topics'),
 			array('integrate_tagindex_listing', 'RolePlayingSystem_MessageIndex_Module::integrate_messageindex_listing'),
 			array('integrate_action_tagindex_after', 'RolePlayingSystem_MessageIndex_Module::integrate_action_messageindex_after'),
@@ -55,6 +53,11 @@ class Role_Playing_System_Integrate
 		);
 	}
 	
+	/**
+	 * Returns the config settings from the RolePlayingSettings module
+	 *
+	 * @return array
+	 */
 	public static function settingsRegister()
 	{
 		return array(
@@ -63,9 +66,16 @@ class Role_Playing_System_Integrate
 			array('integrate_board_tree', 'RolePlayingSystem_Admin_Module::integrate_board_tree'),
 			array('integrate_save_board', 'RolePlayingSystem_Admin_Module::integrate_save_board'),
 			array('integrate_modify_board', 'RolePlayingSystem_Admin_Module::integrate_modify_board'),
+			//array('integrate_load_illegal_guest_permissions', 'RolePlayingSystem_Admin_Module::integrate_load_illegal_guest_permissions'),
 			array('integrate_load_permissions', 'RolePlayingSystem_Admin_Module::integrate_load_permissions'),
 		);
 	}
+	
+	/**
+	 * Adds a log_type, Called in sources/Logging.php logActions
+	 *
+	 * @param array $log_types
+	 */
 	
 	public static function integrate_log_types(&$log_types) {
 		$log_types += array(
@@ -73,17 +83,29 @@ class Role_Playing_System_Integrate
 			);
 	}
 	
+	/**
+	 * Loads the RolePlayingSystemAdmin language file for controllers/Help.controller.php action_quickhelp()
+	 *
+	 */
 	public static function integrate_quickhelp() {
 		loadLanguage('RolePlayingSystemAdmin');
 	}
 	
+	
+	/**
+	 * Adds RolePlayingSystem links to the menu, Called in themes' Theme.php setupMenuContext()
+	 *
+	 * @param array $buttons
+	 * @param array $menu_count
+	 */
 	public static function integrate_menu_buttons(&$buttons, &$menu_count)
 	{
-		global $scripturl, $txt, $context, $user_profile;
+		global $scripturl, $txt, $context, $user_info;
 		
 		loadLanguage('RolePlayingSystem');
 		loadCSSFile('RolePlayingSystem/rps.css');
 		
+		//Main game button
 		$rps_buttons = array(
 			'rps' => array(
 				'title' => $txt['rps_game'],
@@ -116,6 +138,8 @@ class Role_Playing_System_Integrate
 		);
 		
 		$buttons = elk_array_insert($buttons, 'home', $rps_buttons, 'after');
+		
+		//Add quick link to RolePlayingSystem settings under Admin
 		if ($context['allow_admin'])
 		{
 			$rps_admin['rps'] = array(
@@ -128,6 +152,26 @@ class Role_Playing_System_Integrate
 			$buttons['admin']['sub_buttons'] = elk_array_insert($buttons['admin']['sub_buttons'], 'errorlog', $rps_admin, 'after');
 		}
 		
+		//Adds character links to the Account button
+		if (!empty($user_info['characters']))
+		{
+			$characters['characters'] = array(
+				'title' => $txt['rps_account_characters'],
+				'href' => '',
+				'show' => true,
+				);
+			foreach($user_info['characters'] as $character)
+			{
+				$characters['characters']['sub_buttons'][$character['name']] = array(
+					'title' => $character['name'],
+					'href' => $scripturl . '?action=character;c=' . $character['id'],
+					'show' => true,
+				);
+			}
+			$buttons['profile']['sub_buttons'] = elk_array_insert($buttons['profile']['sub_buttons'], 'account', $characters, 'after');
+		}
+		
+		//If there are bios or characters to approve, add the number to Admin and to Role Playing System buttons
 		if(allowedTo('moderate_forum'))
 		{
 			require_once(SUBSDIR . '/ManageCharacters.subs.php');
@@ -158,14 +202,20 @@ class Role_Playing_System_Integrate
 		}
 	}
 	
+	/**
+	 * Adds Character name and ID to $user_info. Called in sources/Load.php loadUserSettings()
+	 * 
+	 * Also adds $user_info['datetime_format'] and $user_info['datetime_format_noyear']
+	 */
+	
 	public static function integrate_user_info()
 	{
-		global $user_info, $context;
+		global $user_info;
 
 		$db = database();
 		
 		$request = $db->query('', '
-			SELECT id_character
+			SELECT id_character, name
 			FROM {db_prefix}rps_characters
 			WHERE id_member = {int:id_member}',
 			array(
@@ -174,7 +224,12 @@ class Role_Playing_System_Integrate
 		);
 		$user_info['characters'] = array();
 		while ($row = $db->fetch_assoc($request))
-			$user_info['characters'][] = $row['id_character'];
+		{
+			$user_info['characters'][] = array(
+				'id' => $row['id_character'],
+				'name' => $row['name'],
+				);
+		}
 		$db->free_result($request);
 		
 		$search = 	array('/%a/','/%A/','/%b/',	'/%B/','/%d/','/%D/',	'/%e/','/%m/','/%[y|Y]/',	'/%\w/','/[[:punct:]\s]{2,}$/');
@@ -184,19 +239,40 @@ class Role_Playing_System_Integrate
 		$user_info['datetime_format_noyear'] = preg_replace('/[[:punct:][:space:]]{0,2}[Y|y][[:punct:]]{0,1}/', '', $user_info['datetime_format']);
 	}
 	
+	/**
+	 * Adds the in_character column to the load board query, Called in sources/Load.php loadBoard()
+	 *
+	 * @param array $select_columns
+	 * @param array $select_tables
+	 */
+	
 	public static function integrate_load_board_query(&$select_columns, &$select_tables)
 	{
 		$select_columns = array_merge($select_columns, array('b.in_character'));
 	}
 	
+	/**
+	 * Add in_character to board_info, Called in sources/Load.php loadBoard()
+	 *
+	 * @param array $board_info
+	 * @param array $row
+	 */
+	 
 	public static function integrate_loaded_board(&$board_info, &$row)
 	{
 		$board_info['in_character'] = $row['in_character'];
 	}
 	
+	/**
+	 * Adds characters info to $user_profile, Called in sources/Load.php loadMemberData()
+	 *
+	 * @param array $new_loaded_ids
+	 * @param string $set
+	 */
+	
 	public static function integrate_add_member_data ($new_loaded_ids, $set)
 	{
-		global $user_profile, $txt;
+		global $user_profile;
 
 		$db = database();
 
@@ -227,6 +303,13 @@ class Role_Playing_System_Integrate
 		$db->free_result($request);
 		
 	}
+	
+	/**
+	 * Adds characters context to $memberContext, Called in sources/Load.php loadMemberContext()
+	 *
+	 * @param array $user
+	 * @param array $display_custom_fields
+	 */
 
 	public static function integrate_member_context($user, $display_custom_fields)
 	{
@@ -270,6 +353,12 @@ class Role_Playing_System_Integrate
 			
 	}
 	
+	/**
+	 * Adds character section to member profile, Called in controllers/ProfileInfo.controller.php _register_summarytabs()
+	 *
+	 * @param array $memID
+	 */
+	
 	public static function integrate_profile_summary($memID)
 	{
 		global $context;
@@ -278,32 +367,31 @@ class Role_Playing_System_Integrate
 		
 		$context['summarytabs']['summary']['templates'] = elk_array_insert($context['summarytabs']['summary']['templates'], 0, array('rps_characters'), 'after');
 	}
+
 	
-	public static function integrate_sa_xmlhttp(&$subActions)
+	/**
+	 * Adds signature and biography preview xml response subactions, Called in controllers/XmlPreview.controller.php action_index()
+	 *
+	 * @param array $subActions
+	 */
+	
+	public static function integrate_sa_xml_preview(&$subActions)
 	{
 		
-		$subActions['characterorder'] = array(
-			'controller' => 'ManageCharacters_Controller',
-			'function' => 'action_characterorder',
-			'permission' => 'admin_forum'
-		);
-		
-	}
-	
-	public static function integrate_sa_xmlpreview(&$subActions)
-	{
-		
-		$subActions['characterorder'] = array(
+		$subActions['character_signature'] = array(
 			'controller' => 'Characters_Controller',
 			'function' => 'action_sig_preview',
+		);
+		
+		$subActions['character_biography'] = array(
+			'controller' => 'CharacterBiography_Controller',
+			'function' => 'action_biography_preview',
 		);
 		
 	}
 	
 	/**
-	 * Determine the user's avatar type and return the information as an array
-	 *
-	 * @todo this function seems more useful than expected, it should be improved. :P
+	 * Determine the characters's avatar type and return the information as an array
 	 *
 	 * @param mixed[] $profile array containing the users profile data
 	 * @return mixed[] $avatar

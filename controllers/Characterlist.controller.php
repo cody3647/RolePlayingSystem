@@ -1,23 +1,26 @@
 <?php
 
 /**
- * This file contains the functions for displaying and searching in the
- * members list.
+ * Handles the displaying and searching in the Character list.
  *
- * @name      ElkArte Forum
- * @copyright ElkArte Forum contributors
- * @license   BSD http://opensource.org/licenses/BSD-3-Clause
+ * @package Role Playing System
+ * @version 1.0
+ * @author Cody Williams <williams.c@gmail.com>
+ * @copyright Cody Williams
+ * @license BSD http://opensource.org/licenses/BSD-3-Clause
  *
  * This file contains code covered by:
+ * copyright: ElkArte Forum contributors
+ * license:   BSD http://opensource.org/licenses/BSD-3-Clause
+ *
  * copyright:	2011 Simple Machines (http://www.simplemachines.org)
  * license:		BSD, See included LICENSE.TXT for terms and conditions.
- *
- * @version 1.1 Release Candidate 1
  *
  */
 
 /**
- * Memberlist Controller class
+ * Characterlist_Controller Class
+ * Access and search the Character list.
  */
 class Characterlist_Controller extends Action_Controller
 {
@@ -34,6 +37,7 @@ class Characterlist_Controller extends Action_Controller
 	{
 		global $context, $txt;
 
+		loadLanguage('RolePlayingSystem');
 		// These are all the possible fields.
 		$this->_search_fields = array(
 			'name' => $txt['rps_search_name'],

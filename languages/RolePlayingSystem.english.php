@@ -8,6 +8,7 @@ $txt['rps_create'] = 'Create Character';
 $txt['rps_tags'] = 'Tags List';
 $txt['rps_characters'] = 'Character List';
 $txt['rps_gamecalendar'] = 'In-game Calendar';
+$txt['rps_account_characters'] = 'Characters';
 
 $txt['rps_one_character_waiting'] = 'There is <a href="%1$s">one character</a> awaiting approval.';
 $txt['rps_many_characters_waiting'] = 'There are <a href="%1$s">%2$d characters</a> awaiting approval.';
@@ -87,6 +88,11 @@ $txt['rps_bio_unapproved_msg'] = 'The following biography is not yet approved:';
 $txt['rps_character_unapproved_msg'] = 'This character is not yet approved.';
 $txt['rps_profile_birthdate'] = 'Birthdate';
 
+$txt['rps_bio_modified_remaining'] = 'You have %1$d minor edits left before needing re-approval.';
+$txt['rps_bio_modified_approval'] = 'This edit will require re-approval.';
+$txt['rps_bio_minor_edit'] = 'Minor Edit: %1$d Characters Remaining';
+$txt['rps_bio_not_approved_changes'] = 'This biography is not yet approved, you can continue to make changes until it has been.';
+$txt['rps_bio_preview_fetch'] = 'Biography Preview Fetching';
 $txt['rps_bio_save'] = 'Save Biography';
 
 //Character List

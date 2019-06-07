@@ -9,12 +9,13 @@
  * @copyright Cody Williams
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
  */
+ 
+use ElkArte\Errors\ErrorContext;
 
 /**
- * This class's task is to bind the posting of a topic to a calendar event.
- * Used when from the calendar controller the poster is redirected to the post page.
+ * Class RolePlayingSystem MessageIndex Module
  *
- * @package Calendar
+ * Hooks and functions for 
  */
 class RolePlayingSystem_MessageIndex_Module extends ElkArte\sources\modules\Abstract_Module
 {
@@ -25,6 +26,13 @@ class RolePlayingSystem_MessageIndex_Module extends ElkArte\sources\modules\Abst
 	{
 		return array();
 	}
+	
+	/**
+	 * Gets the character and topic information for the messageindex, Called in controller/MessageIndex.controller.php action_messageindex()
+	 *
+	 * @param string $sort_column
+	 * @param array $indexOptions
+	 */
 
 	public static function integrate_messageindex_topics(&$sort_column, &$indexOptions)
 	{
@@ -51,6 +59,13 @@ class RolePlayingSystem_MessageIndex_Module extends ElkArte\sources\modules\Abst
 			}
 		}
 	}
+	
+	/**
+	 * Add the RPS topic info into $context, Called in controller/MessageIndex.controller.php action_messageindex()
+	 *
+	 * @param string $sort_column
+	 * @param array $indexOptions
+	 */
 	
 	public static function integrate_messageindex_listing($topics_info)
 	{
@@ -95,7 +110,12 @@ class RolePlayingSystem_MessageIndex_Module extends ElkArte\sources\modules\Abst
 		}
 	}
 	
-	public static function integrate_action_messageindex_after($test)
+	/**
+	 * Add the RPS topic info into $context, Called after MessageIndex_Controller by SiteDispatcher
+	 *
+	 */
+	
+	public static function integrate_action_messageindex_after()
 	{
 		global $board_info, $context, $user_info;
 		
@@ -104,16 +124,26 @@ class RolePlayingSystem_MessageIndex_Module extends ElkArte\sources\modules\Abst
 		}
 	}
 	
+	/**
+	 * Formats the Date Tag in the Member's choosen format
+	 *
+	 * @param string $date
+	 *
+	 * @return string formatted date
+	 */
+	
 	public static function dateComparedFormat($date = null)
 	{
 		global $user_info;
+		
 		$current_dates = RpsCurrentDate::instance();
 		$tag_date = new DateTime($date);
-		
-		//$format = 'j M Y';
+
 		$format = $user_info['datetime_format'];
+		
+		//Do not show year if the year is the current RPS end year
 		if($tag_date->format('Y') == $current_dates->end_year)
-			$format = $user_info['datetime_format_noyear']; //str_replace(array('y', 'Y'), '', $format);
+			$format = $user_info['datetime_format_noyear'];
 		
 		return $tag_date->format($format);
 	}

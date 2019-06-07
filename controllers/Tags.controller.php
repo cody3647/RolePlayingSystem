@@ -8,10 +8,23 @@
  * @author Cody Williams <williams.c@gmail.com>
  * @copyright Cody Williams
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ 
+ * This file contains code covered by:
+ * copyright: ElkArte Forum contributors
+ * license:   BSD http://opensource.org/licenses/BSD-3-Clause
+ *
+ * copyright:	2011 Simple Machines (http://www.simplemachines.org)
+ * license:		BSD, See included LICENSE.TXT for terms and conditions.
+ *
  */
  
 
 use ElkArte\Errors\ErrorContext;
+
+/*
+* Tags Controller Class
+* Handles displaying and editing of tags outside of posts
+*/
 
 class Tags_Controller extends Action_Controller
 {
@@ -27,6 +40,7 @@ class Tags_Controller extends Action_Controller
 		require_once(SUBSDIR . '/Tags.subs.php');
 		
 		loadTemplate('RpsTags');
+		loadLanguage('RolePlayingSystem');
 		// Is the Role Playing System Enabled?
 		if (empty($modSettings['rps_enabled']))
 			throw new Elk_Exception('feature_disabled', true);

@@ -8,6 +8,14 @@
  * @author Cody Williams <williams.c@gmail.com>
  * @copyright Cody Williams
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
+ *
+ * This file contains code covered by:
+ * copyright: ElkArte Forum contributors
+ * license:   BSD http://opensource.org/licenses/BSD-3-Clause
+ *
+ * copyright:	2011 Simple Machines (http://www.simplemachines.org)
+ * license:		BSD, See included LICENSE.TXT for terms and conditions.
+ *
  */
 
 
@@ -513,7 +521,7 @@ function template_character_avatar_select()
  */
 function template_action_biography_edit()
 {
-	global $context, $scripturl, $txt;
+	global $context, $scripturl, $txt, $modSettings;
 	
 	// Start the javascript...
 	echo '
@@ -530,7 +538,7 @@ function template_action_biography_edit()
 
 	// Start the form and display the link tree.
 	echo '
-		<form id="rpsbiomodify" action="', $scripturl, '?action=', $context['destination'], '" method="post" accept-charset="UTF-8" name="rpsbiomodify" class="flow_hidden" onsubmit="', ($context['becomes_approved'] ? '' : 'alert(\'' . $txt['js_post_will_require_approval'] . '\');'), 'submitonce(this);smc_saveEntities(\'rpsbiomodify\', [\'', $context['post_box_name'], '\']);" enctype="multipart/form-data">
+		<form id="rpsbiomodify" action="', $scripturl, '?action=', $context['destination'], '" method="post" accept-charset="UTF-8" name="rpsbiomodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'rpsbiomodify\', [\'', $context['post_box_name'], '\']);" enctype="multipart/form-data">
 			<input type="hidden" name="c" value="', $context['character']['id'], '">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />';
 
@@ -572,6 +580,17 @@ function template_action_biography_edit()
 	echo '
 					', template_control_richedit($context['post_box_name'], null, 'bbcBox_message');
 
+	if(!empty($context['biography']['approved']))
+		echo '
+						<div class="submitbutton">
+							<span id="rps_length" class="shortcuts">', sprintf($txt['rps_bio_minor_edit'], $modSettings['rps_bio_edit_chars']), '</span>
+							<span id="rps_modified" class="smalltext">', sprintf($txt['rps_bio_modified_remaining'], $modSettings['rps_bio_edit_count'] - $context['biography']['modified_count']), '</span>
+						</div>';
+	else
+		echo '
+						<div class="submitbutton">
+							<span id="rps_not_approved" class="smalltext">', $txt['rps_bio_not_approved_changes'], '</span>
+						</div>';
 
 
 	// Show our submit buttons before any more options
@@ -581,5 +600,31 @@ function template_action_biography_edit()
 
 
 	echo '
-						</div>';
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>';
+}
+
+function template_biography_preview()
+{
+	global $context, $txt;
+
+	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>
+<elk>
+	<preview>
+		<body><![CDATA[', $context['preview_biography'], ']]></body>
+	</preview>
+	<errors serious="', empty($context['error_type']) || $context['error_type'] != 'serious' ? '0' : '1', '">';
+
+	if (!empty($context['post_error']['errors']))
+		foreach ($context['post_error']['errors'] as $key => $message)
+			echo '
+		<error code="', cleanXml($key), '"><![CDATA[', cleanXml($message), ']]></error>';
+	echo isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '<post_error />' : '' , '
+	</errors>';
+
+	echo '
+</elk>';
 }

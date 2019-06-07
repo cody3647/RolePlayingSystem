@@ -10,7 +10,6 @@
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
  * 
  * 
- * Original module by Aaron O'Neil - aaron@mud-master.com
  *
  * name      ElkArte Forum
  * copyright ElkArte Forum contributors
@@ -20,13 +19,11 @@
  * copyright:	2011 Simple Machines (http://www.simplemachines.org)
  * license:		BSD, See included LICENSE.TXT for terms and conditions.
  *
- *
- *
  */
 
 /**
- * Calendar_Controller class
- * Displays the calendar for the site and provides for its navigation
+ * Gamecalendar Controller Class
+ * Displays the game calendar for the site and provides for its navigation
  */
 class Gamecalendar_Controller extends Action_Controller
 {
@@ -62,6 +59,7 @@ class Gamecalendar_Controller extends Action_Controller
 
 		// This is gonna be needed...
 		loadTemplate('RpsCalendar');
+		loadLanguage('RolePlayingSystem');
 
 		// Set the page title to mention the calendar ;).
 		$context['page_title'] = $txt['rps_game_calendar'];

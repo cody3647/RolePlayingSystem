@@ -12,7 +12,6 @@
 
 function list_get_unapproved_characters($start, $items_per_page, $sort, $where = '1 = 1')
 {
-	global $user_info;
 	$db = database();
 	
 	$request = $db->query('', '
@@ -62,7 +61,7 @@ function approve_characters($ids)
 
 	$request = $db->query('', '
 		UPDATE {db_prefix}rps_characters
-		SET approved=1 
+		SET approved=1
 		WHERE id_character IN({array_int:ids})', 
 		array(
 			'ids' => $ids
@@ -73,12 +72,11 @@ function approve_characters($ids)
 
 function list_get_unapproved_biographies($start, $items_per_page, $sort, $where = '1 = 1')
 {
-	global $user_info;
 	$db = database();
 	
 	$request = $db->query('', '
 		SELECT
-			b.id_character, b.date_added, c.name, m.real_name, m.id_member
+			b.id_bio, b.id_character, b.date_added, c.name, m.real_name, m.id_member
 			FROM {db_prefix}rps_biographies AS b
 			LEFT JOIN {db_prefix}rps_characters AS c
 				ON b.id_character = c.id_character
@@ -117,19 +115,20 @@ function list_num_unapproved_biographies()
 	return $biographyCount;
 }
 
-function approve_biography($ids)
+function approve_bios($ids)
 {
 	$db = database();
 	
+	$time = time();
 	$ids = is_array($ids) ? $ids : array($ids);
 
 	$request = $db->query('', '
 		UPDATE {db_prefix}rps_biographies
-		SET approved=1 
+		SET approved = 1, date_approved = {int:timestamp}
 		WHERE id_bio IN({array_int:ids})', 
 		array(
+			'timestamp' => $time,
 			'ids' => $ids
 		)
-	);
-		
+	);		
 }

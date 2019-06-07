@@ -13,9 +13,9 @@
 use ElkArte\Errors\ErrorContext;
 
 /**
- * Class Drafts_Post_Module
+ * Class RolePlayingSystem Display Module
  *
- * Events and functions for post based drafts
+ * Hooks and events for Displaying Characters instead of Members
  */
 class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_Module
 {
@@ -49,11 +49,26 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 		return $return;
 	}
 	
+	/**
+	 * Adds the id_characgter column to the message query, Called in controller/Display.controller.php action_display()
+	 *
+	 * @param array $msg_selects
+	 * @param array $msg_tables
+	 * @param array $msg_parameters
+	 */
+	
 	public static function integrate_message_query(&$msg_selects, &$msg_tables, &$msg_parameters) {
 		$msg_selects[] = 'm.id_character';
 		
 	
 	}
+	
+	/**
+	 * Overrides member with character for display, Called in controller/Display.controller.php prepareDisplayContext_callback()
+	 *
+	 * @param array $output
+	 * @param array $message
+	 */
 
 	public static function integrate_prepare_display_context( &$output, &$message) {
 		global $memberContext;
@@ -76,6 +91,11 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 		}
 	}
 	
+	/**
+	 * Adds edit tags button to thread, Called in controllers/Display.controller.php action_display()
+	 *
+	 */
+	
 	public static function integrate_display_buttons()
 	{
 		global $context, $scripturl;
@@ -93,9 +113,17 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 		$context['normal_buttons'] = elk_array_insert($context['normal_buttons'], 'reply', $tag_button, 'after');
 	}
 	
-	//$topicinfo is set in the query based on select name
+	/**
+	 * Adds date tag column to the topic query,  controllers/Display.controller.php action_display()
+	 *
+	 * @param array $topic_selects
+	 * @param array $topic_tables
+	 * @param array $topic_parameter
+	 */
+	
 	public static function integrate_topic_query(&$topic_selects, &$topic_tables, &$topic_parameters)
 	{
+		//$topicinfo is set in the query based on select name
 		$topic_selects = array_merge(
 			$topic_selects, 
 			array('t.date_tag', 'YEAR(t.date_tag) as year_tag', 'MONTH(t.date_tag) as month_tag','DAYOFMONTH(t.date_tag) as day_tag')
@@ -106,6 +134,11 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 		);
 	}
 	
+	/**
+	 * Only allow a member to reply on in character board if they have characters, event trigger in controller/Display.controller.php
+	 *
+	 */
+	
 	public function prepare_context()
 	{
 		global $context, $user_info;
@@ -113,6 +146,14 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 		if(self::$_inCharacter)
 			$context['can_reply'] &= !empty($user_info['characters']);
 	}
+	
+	/**
+	 * Adds the in_character column to the load board query, event trigger in controller/Display.controller.php
+	 *
+	 * @param array $topicinfo
+	 * @param array $context
+	 * @param array $user_info
+	 */
 	
 	public function topicinfo(&$topicinfo, &$context, $user_info)
 	{

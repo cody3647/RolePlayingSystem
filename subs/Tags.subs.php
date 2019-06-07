@@ -7,11 +7,6 @@
  * @author Cody Williams <williams.c@gmail.com>
  * @copyright Cody Williams
  * @license BSD http://opensource.org/licenses/BSD-3-Clause
- * @param $input_tags
- * @param $topic
- * @param $memID
- * @param $timestamp
- * @throws Exception
  */
 
 function save_tags($input_tags, $topic, $memID, $timestamp)
@@ -184,7 +179,6 @@ function getNumTaggedTopics($tag)
 
 function list_getTags($start, $items_per_page, $sort, $where = '1=1')
 {
-	global $user_info;
 	$db = database();
 	
 	$request = $db->query('', '
@@ -265,7 +259,7 @@ function loadTag($tagid)
 			);
 		$db->free_result($request);
 		
-		return $tag;
+		return (!empty($tag) ? $tag : 0);
 }
 
 /**

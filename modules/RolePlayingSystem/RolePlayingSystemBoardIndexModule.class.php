@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Integration of characters into last posted by on the board index.
+ * Integration of RolePlayingSystem onto the board index.
  *
  * @package Role Playing System
  * @version 1.0
@@ -13,9 +13,9 @@
 use ElkArte\Errors\ErrorContext;
 
 /**
- * Class Drafts_Post_Module
+ * Class RolePlayingSystem BoardIndex Module
  *
- * Events and functions for post based drafts
+ * Events for altering the boardindex
  */
 class RolePlayingSystem_BoardIndex_Module extends ElkArte\sources\modules\Abstract_Module
 {

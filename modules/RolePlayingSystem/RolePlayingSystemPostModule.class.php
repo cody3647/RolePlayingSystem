@@ -13,9 +13,9 @@
 use ElkArte\Errors\ErrorContext;
 
 /**
- * Class Drafts_Post_Module
+ * Class RolePlayingSystem Post Module
  *
- * Events and functions for post based drafts
+ * Events and functions for characters and tags in Posts
  */
 class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Module
 {
@@ -51,6 +51,14 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		return $return;
 	}
 	
+	/**
+	 * Sets if the board is in_character or not
+	 *
+	 * Event triggered in controller/Post.controller.php
+	 *
+	 * @param array $board_info
+	 */
+	
 	public function prepare(&$board_info)
 	{
 		$this->_inCharacter = $board_info['in_character'];
@@ -58,19 +66,13 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 			$this->_get_characters();
 	}
 	
+	/**
+	 * Gets the characters from either the current member or from the member who originally posted.
+	 *
+	 * @param array $board_info
+	 */
 	
-	public function prepare_modifying(&$context)
-	{
-		
-		if ($this->_req->__isset('character'))
-			$context['character'] = $_REQUEST['character'];
-		if ($this->_req->__isset('date'))
-			$context['date'] = $_REQUEST['date'];
-		if ($this->_req->__isset('tags'))
-			$context['tags'] = $_REQUEST['tags'];
-	}
-	
-	protected function _get_characters($memID = 0)
+	protected function _get_characters()
 	{
 		global $context;
 		
@@ -100,9 +102,29 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		$db->free_result($request);
 	}
 	
+	/**
+	 * Get the RPS additons to save
+	 *
+	 * Event triggered in controller/Post.controller.php
+	 *
+	 * @param array $context
+	 */
+	
+	public function prepare_modifying(&$context)
+	{
+		
+		if ($this->_req->__isset('character'))
+			$context['character'] = $_REQUEST['character'];
+		if ($this->_req->__isset('date'))
+			$context['date'] = $_REQUEST['date'];
+		if ($this->_req->__isset('tags'))
+			$context['tags'] = $_REQUEST['tags'];
+	}	
 
 	/**
 	 * Add form items for the Role Playing System
+	 * 
+	 * Event triggered in controller/Post.controller.php
 	 *
 	 * What it does:
 	 * - Loads a subtemplate from RolePlayingSystem to add a character
@@ -173,6 +195,8 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 
     /**
      * Checks if a character is set on an in character board
+	 *
+	 * Event triggered in controller/Post.controller.php
      *
      * @param ErrorContext $post_errors
      * @param $topic
@@ -187,6 +211,18 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 
 	}
 	
+	/**
+     * Adds columns and parameters to the message query
+	 *
+	 * Called in subs/Post.subs.php createPost()
+     *
+     * @param array $msgOptions
+     * @param array $topicOptions
+     * @param array $posterOptions
+     * @param array $message_columns
+     * @param array $message_parameters
+     */
+	
 	public static function integrate_before_create_post( &$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters)
 	{
 		$req = HttpReq::instance();
@@ -195,6 +231,18 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		$message_parameters['id_character'] = &$charID;
 		$posterOptions['id_character'] = &$charID;
 	}
+	
+	/**
+     * Adds columns and parameters to the topic query
+	 *
+	 * Called in subs/Post.subs.php createPost()
+     *
+     * @param array $msgOptions
+     * @param array $topicOptions
+     * @param array $posterOptions
+     * @param array $topic_columns
+     * @param array $topic_parameters
+     */
 	
 	public static function integrate_before_create_topic(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters)
 	{
@@ -207,6 +255,19 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		}
 	}
 	
+	/**
+     * Adds columns and parameters to the modify message query
+	 *
+	 * Called in subs/Post.subs.php modifyPost()
+     *
+	 * @param array $messasge_columns
+     * @param array $update_parameters
+     * @param array $msgOptions
+     * @param array $topicOptions
+     * @param array $posterOptions
+	 * @param array $messageInts
+     */
+	
 	public static function integrate_before_modify_post(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts)
 	{
 		$messageInts[] = 'id_character';
@@ -216,6 +277,16 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		}
 			
 	}
+	
+	/**
+     * Increments Character's post count and saves tags
+	 *
+	 * Event triggered in controller/Post.controller.php
+     *
+     * @param int $topic
+     * @param array $posterOptions
+	 * @param array $msgOptions
+     */
 	
 	public function after_save_post(&$topic, &$posterOptions, &$msgOptions)
 	{

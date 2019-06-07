@@ -105,9 +105,10 @@ $new_tables = array(
         'columns' => array(
             array('name' => 'id_bio',		'type' => 'mediumint',	'size' => 8,	'unsigned' => true,	'auto' => true),
 			array('name' => 'id_character',	'type' => 'mediumint',	'size' => 8,	'unsigned' => true),
-			array('name' => 'approved',		'type' => 'tinyint',	'size' => 3,),
+			array('name' => 'approved',		'type' => 'tinyint',	'size' => 3,	'default' => 0),
 			array('name' => 'date_approved','type' => 'int',		'size' => 10,	'unsigned' => true),
 			array('name' => 'date_added',	'type' => 'int',		'size' => 10,	'unsigned' => true),
+			array('name' => 'modified_count', 'type' => 'tinyint',	'size' => 4,	'default' => 0),
 			array('name' => 'biography',	'type' => 'text'),
         ),
         'indexes' => array(
@@ -181,6 +182,9 @@ $defaults = array(
 	'rps_current_start' => '2000-01-01',
 	'rps_current_end' => '2000-03-31',
 	'rps_begining' => '2000-01-01',
+	'rps_bio_edit_count' => 5,
+	'rps_bio_edit_chars' => 1000,
+	'rps_timezone' => date_default_timezone_get(),
 	'rps_showholidays' => 2,
 	'rps_showbdays' => 2,
 	'rps_showtopics' => 1,
