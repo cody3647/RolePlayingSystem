@@ -66,7 +66,7 @@ class Gamecalendar_Controller extends Action_Controller
 		$context['sub_template'] = 'show_calendar';
 
 		// Is this a week view?
-		$context['view_week'] = isset($_GET['viewweek']);
+		$context['view_week'] = $this->_req->__isset('viewweek');
 		$context['cal_minyear'] = $this->current_dates->minyear;
 		$context['cal_maxyear'] = $this->current_dates->maxyear;
 
@@ -148,7 +148,7 @@ class Gamecalendar_Controller extends Action_Controller
 		$context['current_day'] = $curPage['day'];
 		$context['current_month'] = $curPage['month'];
 		$context['current_year'] = $curPage['year'];
-		$context['show_all_birthdays'] = isset($_GET['showbd']);
+		$context['show_all_birthdays'] = $this->_req->__isset('showbd');
 
 		// Set the page title to mention the month or week, too
 		$context['page_title'] .= ' - ' . ($context['view_week'] ? sprintf($txt['calendar_week_title'], $context['calendar_grid_main']['week_number'], ($context['calendar_grid_main']['week_number'] == 53 ? $context['current_year'] - 1 : $context['current_year'])) : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);

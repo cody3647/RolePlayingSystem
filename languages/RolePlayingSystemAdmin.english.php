@@ -41,8 +41,11 @@ $txt['rps_download_desc'] = 'Download Christian, Jewish, and  Islamic holidays w
 
 //Permissions
 $txt['permissiongroup_rps'] = 'Role Playing System';
+$txt['permissionname_admin_rps'] = 'Administrate Role Playing System';
 $txt['permissionname_rps_char_view'] = 'View character summary and stats';
-$txt['permissionhelp_rps_char_view'] = 'This permission allows users clicking on a user name to see a summary of profile settings, some statistics and all posts of the character.';
+$txt['permissionhelp_rps_char_view'] = 'This permission allows users clicking on a character name to see a summary of profile settings, some statistics and all posts of the character.';
+$txt['permissionname_rps_charlist_view'] = 'View character the character list';
+$txt['permissionhelp_rps_charlist_view'] = 'This permission allows users to view the character list.';
 $txt['permissionname_rps_char_edit'] = 'Edit Character Profiles';
 $txt['permissionhelp_rps_char_edit'] = 'The ability to edit the information in a character profile.';
 $txt['permissionname_rps_char_edit_own'] = 'Own character';
@@ -51,8 +54,8 @@ $txt['permissionname_rps_char_title'] = 'Edit custom title of character';
 $txt['permissionhelp_rps_char_title'] = 'The custom title is shown on the topic display page, under the profile of each character that has a custom title.';
 $txt['permissionname_rps_char_title_own'] = 'Own character';
 $txt['permissionname_rps_char_title_any'] = 'Any character';
-$txt['permissionname_rps_create_char'] = 'Create new character';
-$txt['permissionhelp_rps_create_char'] = 'The ability to create a new character.  Does not affect current characters of the member.';
+$txt['permissionname_rps_char_create'] = 'Create new character';
+$txt['permissionhelp_rps_char_create'] = 'The ability to create a new character.  Does not affect current characters of the member.';
 $txt['permissionname_rps_add_tags'] = 'Add tags to topics';
 $txt['permissionhelp_rps_add_tags'] = 'This permission allows a member to add tags to a topic, either their own topics or all topics.';
 $txt['permissionname_rps_add_tags_own'] = 'Own topics';

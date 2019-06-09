@@ -77,7 +77,7 @@ class Character_Controller extends Action_Controller
 	 */
 	public function pre_dispatch()
 	{
-		global $context, $memberContext, $user_profile, $cur_profile;
+		global $context, $memberContext, $user_profile, $cur_profile, $user_info;
 
 		require_once(SUBSDIR . '/Character.subs.php');
 		require_once(SUBSDIR . '/Menu.subs.php');
@@ -93,6 +93,9 @@ class Character_Controller extends Action_Controller
 		$cur_profile = $user_profile[$this->_memID]['characters'][$this->_charID];
 		$context['id_member'] = $this->_memID;
 		$context['id_character'] = $this->_charID;
+		
+		// Is this the profile of the user himself or herself?
+		$context['user']['is_owner'] = (int) $this->_memID === (int) $user_info['id'];
 
 		loadLanguage('Profile');
 		loadLanguage('RolePlayingSystem');
@@ -116,18 +119,15 @@ class Character_Controller extends Action_Controller
 		//loadTemplate('Profile');
 
 		// Trigger profile pre-load event
-		$this->_events->trigger('pre_load', array('post_errors' => $post_errors));
+		//$this->_events->trigger('pre_load', array('post_errors' => $post_errors));
 
 		// A little bit about this member
-		$context['id_member'] = $this->_memID;
-		$cur_profile = $user_profile[$this->_memID];
+		//$context['id_member'] = $this->_memID;
+		//$cur_profile = $user_profile[$this->_memID];
 
 		// Let's have some information about this member ready, too.
-		loadMemberContext($this->_memID);
-		$context['member'] = $memberContext[$this->_memID];
-
-		// Is this the profile of the user himself or herself?
-		$context['user']['is_owner'] = (int) $this->_memID === (int) $user_info['id'];
+		//loadMemberContext($this->_memID);
+		//$context['member'] = $memberContext[$this->_memID];
 
 		// Create the menu of profile options
 		$this->_define_profile_menu();
@@ -269,8 +269,8 @@ class Character_Controller extends Action_Controller
 						'token' => 'profile-ac%u',
 						'password' => true,
 						'permission' => array(
-							'own' => array('rps_char_edit_any', 'rps_char_edit_own', 'rps_char_title_any', 'rps_char_title_own'),
-							'any' => array('rps_char_edit_any', 'rps_char_title_any'),
+							'own' => array('rps_char_edit_any', 'rps_char_edit_own'),
+							'any' => array('rps_char_edit_any'),
 						),
 					),
 					'biography_edit' => array(
@@ -328,6 +328,11 @@ class Character_Controller extends Action_Controller
 	{
 		global $context, $txt, $memberContext, $scripturl, $post_errors;
 
+		if (!$context['user']['is_owner'])
+			isAllowedTo('rps_char_edit_any');
+		elseif (!allowedTo('rps_char_edit_any'))
+			isAllowedTo('rps_char_edit_own');
+			
 		if (empty($context['character']))
 			throw new Elk_Exception('not_a_user', false);
 		
@@ -386,6 +391,8 @@ class Character_Controller extends Action_Controller
 
 		loadLanguage('Login');
 		loadTemplate('RpsCharacter');
+
+		isAllowedTo('rps_char_create');
 
 		$cur_profile = array();
 		

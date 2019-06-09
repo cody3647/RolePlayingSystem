@@ -229,22 +229,23 @@ class CharacterBiography_Controller extends Action_Controller
 	{
 		global $context, $modSettings;
 		$db = database();
-
-		if (!isset($_POST['rps_bio']) || Util::htmltrim(Util::htmlspecialchars($_POST['rps_bio'], ENT_QUOTES)) === '')
+		
+		$bio = $this->_req->getPost('rps_bio', 'Util::htmlspecialchars[ENT_QUOTES, UTF-8, true]|Util::htmltrim', '');
+		
+		if (empty($bio))
 			$this->_bio_errors->addError('no_message');
-		elseif (Util::strlen($_POST['rps_bio']) > 55534)
+		elseif (Util::strlen($bio) > 55534)
 			$this->_bio_errors->addError(array('long_message', array('55534')));
 		else
 		{
 			// Prepare the message a bit for some additional testing.
-			$_POST['rps_bio'] = Util::htmlspecialchars($_POST['rps_bio'], ENT_QUOTES, 'UTF-8', true);
-
-			$this->preparse->preparsecode($_POST['rps_bio']);
+			
+			$this->preparse->preparsecode($bio);
 
 			$bbc_parser = \BBC\ParserWrapper::instance();
 
 			// Let's see if there's still some content left without the tags.
-			if (Util::htmltrim(strip_tags($bbc_parser->parseMessage($_POST['rps_bio'], false), '<img>')) === '' && (strpos($_POST['message'], '[html]') === false))
+			if (Util::htmltrim(strip_tags($bbc_parser->parseMessage($bio, false), '<img>')) === '' && (strpos($bio, '[html]') === false))
 				$this->_post_errors->addError('no_message');
 		}
 		
@@ -254,12 +255,12 @@ class CharacterBiography_Controller extends Action_Controller
 		
 		if(!empty($prev_bio))
 		{
-			if($prev_bio['hash'] == hash('md5', $_POST['rps_bio']) )
+			if($prev_bio['hash'] == hash('md5', $bio) )
 				return;
 
 			if($prev_bio['modified_count'] < $modSettings['rps_bio_edit_count'] || empty($prev_bio['approved']))
 			{
-				$diff_length = abs($prev_bio['bio_length'] - Util::strlen($_POST['rps_bio']));
+				$diff_length = abs($prev_bio['bio_length'] - Util::strlen($bio));
 				
 				if( $diff_length <= $modSettings['rps_bio_edit_chars'] || empty($prev_bio['approved']))
 				{
@@ -269,26 +270,26 @@ class CharacterBiography_Controller extends Action_Controller
 						WHERE id_bio = {int:id_bio}',
 						array(
 							'id_bio' => $prev_bio['id_bio'],
-							'bio' => $_POST['rps_bio'],
+							'bio' => $bio,
 						)
 					);
 				}
 				
 				else
 				{
-					$id_bio = $this->insert_bio($_POST['rps_bio']);
+					$id_bio = $this->insert_bio($bio);
 				}
 			}
 			
 			else
 			{
-				$id_bio = $this->insert_bio($_POST['rps_bio']);
+				$id_bio = $this->insert_bio($bio);
 			}
 		}
 		
 		else
 		{
-			$id_bio = $this->insert_bio($_POST['rps_bio']);
+			$id_bio = $this->insert_bio($bio);
 		}
 		if($this->becomes_approved && !empty($id_bio))
 		{

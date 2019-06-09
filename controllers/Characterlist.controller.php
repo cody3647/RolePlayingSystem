@@ -67,7 +67,7 @@ class Characterlist_Controller extends Action_Controller
 		global $scripturl, $txt, $modSettings, $context;
 
 		// Make sure they can view the memberlist.
-		isAllowedTo('view_mlist');
+		isAllowedTo('rps_charlist_view');
 
 		loadTemplate('RpsCharacterlist');
 		$context['sub_template'] = 'characterlist';
@@ -295,13 +295,13 @@ class Characterlist_Controller extends Action_Controller
 		$context['can_moderate_forum'] = allowedTo('moderate_forum');
 
 		// They're searching..
-		if (isset($this->_req->query->search, $this->_req->query->fields)
-			|| isset($this->_req->post->search, $this->_req->post->fields))
+		if ($this->_req->__isset('search') && $this->_req->__isset('fields'))
 		{
 			// Some handy short cuts
 			$start = $this->_req->getQuery('start', '', null);
 			$desc = $this->_req->getQuery('desc', '', null);
 			$sort = $this->_req->getQuery('sort', '', null);
+			
 			$search = Util::htmlspecialchars(trim(isset($this->_req->query->search) ? $this->_req->query->search : $this->_req->post->search), ENT_QUOTES);
 			$input_fields = isset($this->_req->query->fields) ? explode(',', $this->_req->query->fields) : $this->_req->post->fields;
 

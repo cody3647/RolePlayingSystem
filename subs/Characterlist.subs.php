@@ -196,6 +196,9 @@ function loadCharacterContext ($character_ids)
 {
 	global $txt, $scripturl;
 
+	if(empty($character_ids))
+		return false;
+
 	$db = database();
 
 	$request = $db->query('', '

@@ -85,7 +85,7 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 		global $context;
 		
 		$permissionGroups['membergroup'][] = 'rps';
-		
+		$leftPermissionGroups[] = 'rps';
 		/*   The format of this list is as follows:
 			'membergroup' => array(
 				'permissions_inside' => array(has_multiple_options, view_group),
@@ -102,8 +102,11 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 			);
 		else
 			$rpsPermissions = array(
-				'rps_create_char' => array(false, 'rps'),
+				'admin_rps' => array(false, 'rps'),
+			//	'moderate_rps' => array(false, 'rps'),
+				'rps_char_create' => array(false, 'rps'),
 				'rps_char_view' => array(false, 'rps'),
+				'rps_charlist_view' => array(false, 'rps'),
 				'rps_char_edit' => array(true, 'rps'),
 				'rps_char_title' => array(true, 'rps'),
 				'rps_char_set_avatar' => array(false, 'rps'),

@@ -361,7 +361,9 @@ function characterLoadSignatureData()
 		$context['character']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br />', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
 	else
 	{
-		$signature = !empty($_POST['signature']) ? $_POST['signature'] : '';
+		$req = HttpReq::instance();
+		$signature = $req->getPost('signature', '', '');
+		
 		require_once(SUBSDIR . '/Profile.subs.php');
 		$validation = profileValidateSignature($signature);
 		if (empty($context['post_errors']))
@@ -379,18 +381,13 @@ function characterLoadSignatureData()
 		$signature = censor($signature);
 		$bbc_parser = \BBC\ParserWrapper::instance();
 		$context['character']['signature_preview'] = $bbc_parser->parseSignature($signature, true);
-		$context['character']['signature'] = $_POST['signature'];
+		$context['character']['signature'] = $signature;
 
 	}
 
 	return true;
 }
 
-/**
- * Load avatar context data.
- *
- * @return boolean
- */
 /**
  * Load avatar context data.
  *

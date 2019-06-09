@@ -60,7 +60,8 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 	{
 		global $context, $txt, $settings, $scripturl;
 		
-		isAllowedTo('admin_forum');
+		isAllowedTo(array('admin_rps'));
+
 		loadLanguage('RolePlayingSystemAdmin');
 		
 		//loadCSSFile(array('RolePlayingSystem/jquery-ui.css', 'RolePlayingSystem/jquery-ui.theme.css', 'RolePlayingSystem/jquery-ui.structure.css'));
@@ -80,47 +81,47 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			'tags' => array(
 				'controller' => $this, 
 				'function' => 'action_manage_tags', 
-				'permission' => 'admin_forum'
+				'permission' => 'admin_rps'
 			),
 			'events' => array(
 				'controller' => $this, 
 				'function' => 'action_events', 
-				'permission' => 'admin_forum'
+				'permission' => 'admin_rps'
 			),
 			'phases' => array(
 				'controller' => $this, 
 				'function' => 'action_phases', 
-				'permission' => 'admin_forum'
+				'permission' => 'admin_rps'
 			),
 			'download' => array(
 				'controller' => $this, 
 				'function' => 'action_download_events', 
-				'permission' => 'admin_forum'
+				'permission' => 'admin_rps'
 			),
 			'settings' => array(
 				'controller' => $this, 
 				'function' => 'action_rpsSettings_display', 
-				'permission' => 'admin_forum'
+				'permission' => 'admin_rps'
 			),
 			'editevent' => array(
 				'controller' => $this, 
 				'function' => 'action_editevent', 
-				'permission' => 'admin_forum'
+				'permission' => 'admin_rps'
 			),
 			'editphase' => array(
 				'controller' => $this, 
 				'function' => 'action_editphase', 
-				'permission' => 'admin_forum'
+				'permission' => 'admin_rps'
 			),
 			'characters'  => array(
 				'controller' => $this, 
 				'function' => 'action_manage_characters', 
-				'permission' => 'admin_forum'
+				'permission' => 'admin_rps'
 			),
 			'bios' => array(
 				'controller' => $this,
 				'function' => 'action_manage_bios',
-				'permission' => 'admin_forum',
+				'permission' => 'admin_rps',
 			),
 		);
 

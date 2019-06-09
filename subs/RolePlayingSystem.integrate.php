@@ -50,6 +50,8 @@ class Role_Playing_System_Integrate
 			array('integrate_tagindex_listing', 'RolePlayingSystem_MessageIndex_Module::integrate_messageindex_listing'),
 			array('integrate_action_tagindex_after', 'RolePlayingSystem_MessageIndex_Module::integrate_action_messageindex_after'),
 			
+			//array('integrate_moderation_areas', 'RolePlayingSystem_Admin_Module::integrate_moderation_areas'),
+			
 		);
 	}
 	
@@ -116,7 +118,7 @@ class Role_Playing_System_Integrate
 					'create' => array(
 						'title' => $txt['rps_create'],
 						'href' => $scripturl . '?action=character;sa=create',
-						'show' => true,
+						'show' => allowedTo('rps_char_create'),
 					),
 					'tags' => array(
 						'title' => $txt['rps_tags'],
@@ -126,7 +128,7 @@ class Role_Playing_System_Integrate
 					'characters' => array(
 						'title' => $txt['rps_characters'],
 						'href' => $scripturl . '?action=characterlist',
-						'show' => true,
+						'show' => allowedTo('rps_charlist_view'),
 					),
 					'Gamecalendar' => array(
 						'title' => $txt['rps_gamecalendar'],

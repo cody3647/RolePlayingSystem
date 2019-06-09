@@ -114,11 +114,11 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 	{
 		
 		if ($this->_req->__isset('character'))
-			$context['character'] = $_REQUEST['character'];
+			$context['character'] = $this->_req->getPost('character', 'intval', 0);
 		if ($this->_req->__isset('date'))
-			$context['date'] = $_REQUEST['date'];
+			$context['date'] = $this->_req->getPost('date', 'strval', '');
 		if ($this->_req->__isset('tags'))
-			$context['tags'] = $_REQUEST['tags'];
+			$context['tags'] = $this->_req->getPost('tags', 'strval', '');
 	}	
 
 	/**
@@ -250,8 +250,9 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		
 		if ( $req->__isset('date') )
 		{
+			var_dump($req->getPost('date', '', 0));
 			$topic_columns['date_tag'] = 'date';
-			$topic_parameters['date_tag'] = $this->_req->getQuery('date', '', 0);
+			$topic_parameters['date_tag'] = $req->getPost('date', '', 0);
 		}
 	}
 	
@@ -271,9 +272,9 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 	public static function integrate_before_modify_post(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts)
 	{
 		$messageInts[] = 'id_character';
-		if (isset($_REQUEST['character']))
+		if ($this->_req->__isset('character'))
 		{
-			$messages_columns['id_character'] = (int) $_REQUEST['character'];
+			$messages_columns['id_character'] = $this->_req->getPost('character', 'intval');
 		}
 			
 	}
