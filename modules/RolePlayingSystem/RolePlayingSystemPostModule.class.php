@@ -250,7 +250,6 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		
 		if ( $req->__isset('date') )
 		{
-			var_dump($req->getPost('date', '', 0));
 			$topic_columns['date_tag'] = 'date';
 			$topic_parameters['date_tag'] = $req->getPost('date', '', 0);
 		}
