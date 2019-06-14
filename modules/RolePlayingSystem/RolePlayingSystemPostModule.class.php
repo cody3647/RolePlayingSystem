@@ -214,7 +214,7 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 	/**
      * Adds columns and parameters to the message query
 	 *
-	 * Called in subs/Post.subs.php createPost()
+	 * integrate_before_modify_post Called in subs/Post.subs.php createPost()
      *
      * @param array $msgOptions
      * @param array $topicOptions
@@ -225,11 +225,39 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 	
 	public static function integrate_before_create_post( &$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters)
 	{
-		$req = HttpReq::instance();
-		$charID = $req->getPost('character', 'intval', 0);
+		$_req = HttpReq::instance();
+		$charID = $_req->getPost('character', 'intval', 0);
 		$message_columns['id_character'] = 'int';
-		$message_parameters['id_character'] = &$charID;
-		$posterOptions['id_character'] = &$charID;
+		$message_parameters['id_character'] = $charID;
+		$posterOptions['id_character'] = $charID;
+	}
+	
+		/**
+     * Adds columns and parameters to the modify message query
+	 *
+	 * Called in subs/Post.subs.php modifyPost()
+     *
+	 * @param array $messasge_columns
+     * @param array $update_parameters
+     * @param array $msgOptions
+     * @param array $topicOptions
+     * @param array $posterOptions
+	 * @param array $messageInts
+     */
+	
+	public static function integrate_before_modify_post(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts)
+	{
+		$_req = HttpReq::instance();
+		$messageInts[] = 'id_character';
+		
+		if ($_req->__isset('character') && $req->post->character !== $_req->post->original_character)
+		{
+			$charID = $_req->getPost('character', 'intval');
+			$messages_columns['id_character'] = $charID;
+			$posterOptions['id_character'] = $charID;
+			$posterOptions['original_character'] = $_req->getPost('original_character', 'intval');
+			$posterOptions['character_changed'] = true;
+		}
 	}
 	
 	/**
@@ -246,36 +274,13 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 	
 	public static function integrate_before_create_topic(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters)
 	{
-		$req = HttpReq::instance();
+		$_req = HttpReq::instance();
 		
-		if ( $req->__isset('date') )
+		if ( $_req->__isset('date') )
 		{
 			$topic_columns['date_tag'] = 'date';
 			$topic_parameters['date_tag'] = $req->getPost('date', '', 0);
 		}
-	}
-	
-	/**
-     * Adds columns and parameters to the modify message query
-	 *
-	 * Called in subs/Post.subs.php modifyPost()
-     *
-	 * @param array $messasge_columns
-     * @param array $update_parameters
-     * @param array $msgOptions
-     * @param array $topicOptions
-     * @param array $posterOptions
-	 * @param array $messageInts
-     */
-	
-	public static function integrate_before_modify_post(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts)
-	{
-		$messageInts[] = 'id_character';
-		if ($this->_req->__isset('character'))
-		{
-			$messages_columns['id_character'] = $this->_req->getPost('character', 'intval');
-		}
-			
 	}
 	
 	/**
@@ -290,27 +295,30 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 	
 	public function after_save_post(&$topic, &$posterOptions, &$msgOptions)
 	{
+		global $board_info;
+
 		$timestamp = time();
 		
 		$input_tags = $this->_req->getPost('tags', 'trim|Util::htmlspecialchars[ENT_QUOTES]');
-		
+			
 		require_once(SUBSDIR . '/Tags.subs.php');
 		save_tags($input_tags, $topic, $posterOptions['id'], $timestamp);
 		
-		if (!empty($posterOptions['update_post_count']) && !empty($posterOptions['id_character']))
+		require_once(SUBSDIR . '/Character.subs.php');
+		if(!empty($posterOptions['update_post_count']) && !empty($posterOptions['id_character']))
 		{
-			$db = database();
-			$db->query('', '
-				UPDATE {db_prefix}rps_characters
-				SET posts = posts + 1,
-					last_active = {int:timestamp}
-				WHERE id_character = {int:id_character}',
-				array(
-					'id_character' => $posterOptions['id_character'],
-					'timestamp' => $timestamp,
-				)
-			);
+			updateCharacterData($posterOptions['id_character'], array('posts' => '+'));
 		}
+		
+		if(isset($_REQUEST['msg']) && $board_info['posts_count'] && !empty($posterOptions['original_character']) && $posterOptions['character_changed'])
+		{
+			
+			updateCharacterData($posterOptions['id_character'], array('posts' => '+'));
+			updateCharacterData($posterOptions['original_character'], array('posts' => '-'));
+
+		}
+		
+		
 	}
 
 }

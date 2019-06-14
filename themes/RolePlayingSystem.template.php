@@ -54,6 +54,7 @@ function template_rps_post_above()
 	
 			echo '
 								</select>
+								', (isset($context['character']) ? '<input id="original_character" type="hidden" name="original_character" value="' . $context['character'] . '">' : '' ), '
 							</dd>';
 		}
 		if ($context['is_new_topic'])
