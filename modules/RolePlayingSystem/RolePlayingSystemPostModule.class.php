@@ -312,7 +312,6 @@ class RolePlayingSystem_Post_Module extends ElkArte\sources\modules\Abstract_Mod
 		
 		if(isset($_REQUEST['msg']) && $board_info['posts_count'] && !empty($posterOptions['original_character']) && $posterOptions['character_changed'])
 		{
-			
 			updateCharacterData($posterOptions['id_character'], array('posts' => '+'));
 			updateCharacterData($posterOptions['original_character'], array('posts' => '-'));
 

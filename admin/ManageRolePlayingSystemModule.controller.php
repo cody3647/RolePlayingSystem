@@ -70,6 +70,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		loadLanguage('Help');
 		loadLanguage('ManageSettings');
 		loadLanguage('ManageCalendar');
+		loadLanguage('Maintenance');
 		
 		$this->rps_date = RpsCurrentDate::instance();
 		
@@ -123,6 +124,11 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				'function' => 'action_manage_bios',
 				'permission' => 'admin_rps',
 			),
+			'recountcharsposts' => array(
+				'controller' => $this,
+				'function' => 'action_recount_chars_posts',
+				'permission' => 'admin_rps',
+			),
 		);
 
 		// Action control
@@ -159,9 +165,13 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		// Set up the default subaction, call integrate_sa_manage_calendar
 		$subAction = $action->initialize($subActions, 'settings');
 		$context['sub_action'] = $subAction;
-
+		
+		$context['settings_message'] = (isset($this->_req->query->msg) && isset($txt[$this->_req->query->msg])) ? $txt[$this->_req->query->msg] : '';
+		
 		// Off we go
 		$action->dispatch($subAction);
+		
+		createToken('admin-maint');
 	}
 
 	/**
@@ -177,7 +187,8 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		global $context, $txt, $scripturl, $modSettings;
 
 		isAllowedTo('admin_forum');
-
+		loadTemplate('ManageRolePlayingSystem');
+		Template_Layers::instance()->add('recount_character_posts');
 		// Initialize the form
 		$settingsForm = new Settings_Form(Settings_Form::DB_ADAPTER);
 
@@ -210,6 +221,7 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 
 		// Prepare the settings...
 		$settingsForm->prepare();
+		
 	}
 
     /**
@@ -1129,7 +1141,215 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 		);
 		createList($listOptions);
 	}
+
+		/**
+	 * Recalculate all members post counts
+	 *
+	 * What it does:
+	 *
+	 * - It requires the admin_forum permission.
+	 * - Recounts all posts for members found in the message table
+	 * - Updates the members post count record in the members table
+	 * - Honors the boards post count flag
+	 * - Does not count posts in the recycle bin
+	 * - Zeros post counts for all members with no posts in the message table
+	 * - Runs as a delayed loop to avoid server overload
+	 * - Uses the not_done template in Admin.template
+	 * - Redirects back to action=admin;area=maintain;sa=members when complete.
+	 * - Accessed via ?action=admin;area=maintain;sa=members;activity=recountposts
+	 */
+	public function action_recount_chars_posts()
+	{
+		global $txt, $context;
+		
+		// Check the session
+		checkSession();
+
+		// Set up to the context for the pause screen
+		$context['page_title'] = $txt['not_done_title'];
+		$context['continue_countdown'] = 3;
+		$context['continue_get_data'] = '';
+		$context['sub_template'] = 'not_done';
+
+		// Init, do 200 members in a bunch
+		$increment = 200;
+		$start = $this->_req->getQuery('start', 'intval', 0);
+
+		// Ask for some extra time, on big boards this may take a bit
+		detectServer()->setTimeLimit(600);
+		Debug::instance()->off();
+
+		// Only run this query if we don't have the total number of members that have posted
+		if (!isset($this->_req->session->total_characters) || $start === 0)
+		{
+			validateToken('admin-maint');
+			$total_characters = $this->countCharacterContributors();
+			$_SESSION['total_characters'] = $total_characters;
+		}
+		else
+		{
+			validateToken('admin-rps-recountposts');
+			$total_characters = $this->_req->session->total_characters;
+		}
+
+		// Lets get the next group of members and determine their post count
+		// (from the boards that have post count enabled of course).
+		$total_rows = $this->updateCharactersPostCount($start, $increment);
+
+		// Continue?
+		if ($total_rows == $increment)
+		{
+			createToken('admin-rps-recountposts');
+
+			$start += $increment;
+			$context['continue_get_data'] = '?action=admin;area=rps;sa=recountcharposts;start=' . $start;
+			$context['continue_percent'] = round(100 * $start / $total_characters);
+			$context['not_done_title'] = $txt['not_done_title'] . ' (' . $context['continue_percent'] . '%)';
+			$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-recountposts_token_var'] . '" value="' . $context['admin-recountposts_token'] . '" />
+				<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />';
+
+			Debug::instance()->on();
+			return;
+		}
+
+		// No countable posts? set posts counter to 0
+		$this->updateZeroPostCharacters();
+
+		Debug::instance()->on();
+		// All done, clean up and go back to maintenance
+		unset($_SESSION['total_characters']);
+		redirectexit('action=admin;area=rps;done=recountcharposts;msg=rps_recount_success');
+	}
 	
+	/**
+	 * Counts members with posts > 0, we name them contributors
+	 *
+	 * @package Maintenance
+	 * @return int
+	 */
+	public function countCharacterContributors()
+	{
+		$db = database();
+
+		$request = $db->query('', '
+			SELECT COUNT(DISTINCT m.id_character)
+			FROM ({db_prefix}messages AS m, {db_prefix}boards AS b)
+			WHERE m.id_character != 0
+				AND b.count_posts = 0
+				AND m.id_board = b.id_board',
+			array(
+			)
+		);
+
+		// save it so we don't do this again for this task
+		list ($total_characters) = $db->fetch_row($request);
+		$db->free_result($request);
+
+		return $total_characters;
+	}
 	
+	/**
+	 * Recount the members posts.
+	 *
+	 * @package Maintenance
+	 * @param int $start The item to start with (for pagination purposes)
+	 * @param int $increment
+	 * @return int
+	 */
+	private function updateCharactersPostCount($start, $increment)
+	{
+		global $modSettings;
+
+		$db = database();
+
+		$request = $db->query('', '
+			SELECT /*!40001 SQL_NO_CACHE */ m.id_character, COUNT(m.id_character) AS posts
+			FROM {db_prefix}messages AS m
+				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
+			WHERE m.id_character != {int:zero}
+				AND b.count_posts = {int:zero}
+				AND b.in_character != {int:zero}' . (!empty($modSettings['recycle_enable']) ? '
+				AND b.id_board != {int:recycle}' : '') . '
+			GROUP BY m.id_character
+			LIMIT {int:start}, {int:number}',
+			array(
+				'start' => $start,
+				'number' => $increment,
+				'recycle' => $modSettings['recycle_board'],
+				'zero' => 0,
+			)
+		);
+		$total_rows = $db->num_rows($request);
+
+		// Update the post count for this group
+		require_once(SUBSDIR . '/Character.subs.php');
+		while ($row = $db->fetch_assoc($request))
+			updateCharacterData($row['id_character'], array('posts' => $row['posts']));
+		$db->free_result($request);
+
+		return $total_rows;
+	}
 	
+	/**
+	 * Used to find members who have a post count >0 that should not.
+	 *
+	 * - Made more difficult since we don't yet support sub-selects on joins so we
+	 * place all members who have posts in the message table in a temp table
+	 *
+	 * @package Maintenance
+	 */
+	private function updateZeroPostCharacters()
+	{
+		global $modSettings;
+
+		$db = database();
+
+		$db->skip_next_error();
+		$createTemporary = $db->query('', '
+			CREATE TEMPORARY TABLE {db_prefix}tmp_maint_recountposts (
+				id_character mediumint(8) unsigned NOT NULL default {string:string_zero},
+				PRIMARY KEY (id_character)
+			)
+			SELECT m.id_character
+			FROM {db_prefix}messages AS m
+				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
+			WHERE m.id_character != {int:zero}
+				AND b.count_posts = {int:zero}
+				AND b.in_character != {int:zero}' . (!empty($modSettings['recycle_enable']) ? '
+				AND b.id_board != {int:recycle}' : '') . '
+			GROUP BY m.id_character',
+			array(
+				'zero' => 0,
+				'string_zero' => '0',
+				'recycle' => $modSettings['recycle_board'],
+			)
+		) !== false;
+
+		if ($createTemporary)
+		{
+			// Outer join the members table on the temporary table finding the members that
+			// have a post count but no posts in the message table
+			$characters = $db->fetchQueryCallback('
+				SELECT c.id_character, c.posts
+				FROM {db_prefix}rps_characters AS c
+					LEFT OUTER JOIN {db_prefix}tmp_maint_recountposts AS res ON (res.id_character = c.id_character)
+				WHERE res.id_character IS NULL
+					AND c.posts != {int:zero}',
+				array(
+					'zero' => 0,
+				),
+				function ($row)
+				{
+					// Set the post count to zero for any delinquents we may have found
+					return $row['id_character'];
+				}
+			);
+
+			if (!empty($characters))
+			{
+				require_once(SUBSDIR . '/Character.subs.php');
+				updateCharacterData($characters, array('posts' => 0));
+			}
+		}
+	}
 }

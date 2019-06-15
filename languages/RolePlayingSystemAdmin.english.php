@@ -157,3 +157,8 @@ $txt['rps_bios_list_member'] = 'Member';
 $txt['rps_bios_list_date'] = 'Date Added/Last Modified';
 $txt['rps_bios_list_approve'] = 'Approve';
 $txt['rps_approve_bios'] = 'Approve Biographies';
+
+//Recount Characters
+$txt['rps_maintain_recount_chars'] = 'Recount Characters';
+$txt['rps_maintain_recount_chars_info'] = 'Run this maintenance task to update all characters total post count. It will recount all (countable) posts made by each character and then update their profile post count totals';
+$txt['rps_recount_success'] = 'Characters\' posts have been successfully recounted.';

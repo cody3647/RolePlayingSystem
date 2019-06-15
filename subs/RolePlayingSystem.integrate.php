@@ -70,6 +70,7 @@ class Role_Playing_System_Integrate
 			array('integrate_modify_board', 'RolePlayingSystem_Admin_Module::integrate_modify_board'),
 			//array('integrate_load_illegal_guest_permissions', 'RolePlayingSystem_Admin_Module::integrate_load_illegal_guest_permissions'),
 			array('integrate_load_permissions', 'RolePlayingSystem_Admin_Module::integrate_load_permissions'),
+			array('integrate_routine_maintenance', 'RolePlayingSystem_Admin_module::integrate_routine_maintenance'),
 		);
 	}
 	

@@ -204,5 +204,20 @@ class RolePlayingSystem_Admin_Module extends ElkArte\sources\modules\Abstract_Mo
 			$boardUpdates[] = 'in_character = {int:in_character}';
 			$boardUpdateParameters['in_character'] = $boardOptions['in_character'] ? 1 : 0;
 		}
+	}	
+	
+	public static function integrate_routine_maintenance(&$routine_actions)
+	{
+		global $txt, $scripturl;
+		$routine_actions['recountchars'] = array(
+				'url' => $scripturl . '?action=admin;area=rps;sa=recountcharsposts',
+				'title' => $txt['rps_maintain_recount_chars'],
+				'description' => $txt['rps_maintain_recount_chars_info'],
+				'submit' => $txt['maintain_run_now'],
+				'hidden' => array(
+					'session_var' => 'session_id',
+					'admin-maint_token_var' => 'admin-maint_token',
+				)
+			);
 	}
 }

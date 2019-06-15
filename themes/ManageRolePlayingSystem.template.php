@@ -327,3 +327,21 @@ function template_download_events()
 		</form>
 	</div>';
 }
+
+function template_recount_character_posts_below()
+{
+	global $txt, $scripturl, $context;
+
+		echo '
+		<h2 class="category_header">', $txt['rps_maintain_recount_chars'], '</h2>
+		<div class="content">
+			<form action="', $scripturl , '?action=admin;area=rps;sa=recountcharsposts', '" method="post" accept-charset="UTF-8">
+				<p>', $txt['rps_maintain_recount_chars_info'], '</p>
+				<div class="submitbutton">
+					<input type="submit" value="', $txt['maintain_run_now'], '" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+				</div>
+			</form>
+		</div>';	
+}
