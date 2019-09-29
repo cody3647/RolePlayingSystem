@@ -39,8 +39,10 @@ $new_tables = array(
 			array('name' => 'retired',		'type' => 'tinyint',	'size' => 3,	'default' => 0	),
 			array('name' => 'title',		'type' => 'varchar',	'size' => 255,	'default' => ''),
 			array('name' => 'birthdate',	'type' => 'date',		'default' => '0000-00-01'),
-			array('name' => 'id_bio',		'type' => 'mediumint',	'size' => 8,	'unsigned' => true, 'default' => 0),
 			array('name' => 'personal_text','type' => 'varchar',	'size' => 255,	'default' => ''),
+			array('name' => 'gender',		'type' => 'varchar',	'size' => 255,	'default' => ''),
+			array('name' => 'location',		'type' => 'varchar',	'size' => 255,	'default' => ''),
+			array('name' => 'id_bio',		'type' => 'mediumint',	'size' => 8,	'unsigned' => true, 'default' => 0),
 			),
         'indexes' => array(
 			array('name' => 'primary', 		'type' => 'primary',	'columns' => array('id_character')	),
@@ -188,6 +190,7 @@ $defaults = array(
 	'rps_showholidays' => 2,
 	'rps_showbdays' => 2,
 	'rps_showtopics' => 1,
+	'rps_cf_overrides' => serialize(array('cust_gender','cust_locate','cust_blurb')),
 
 );
 

@@ -17,6 +17,20 @@
  * license:		BSD, See included LICENSE.TXT for terms and conditions.
  *
  */
+ 
+ function template_callback_rps_cf_overrides()
+ {
+	global $context,$modSettings;
+	
+	$modSettings['rps_cf_overrides'] = unserialize($modSettings['rps_cf_overrides']);
+	
+	foreach($context['config_vars']['rps_cf_overrides']['data'] as $field)
+	{
+		echo '
+					<dt><label for="', $field[0], '">', $field[1], '</label></dt>
+					<dd><input type="checkbox" name="rps_cf_overrides[]" id="', $field[0], '"', (in_array($field[0], $modSettings['rps_cf_overrides']) ? ' checked="checked"' : ''), ' value="', $field[0], '" /></dd>';
+	}	 
+ }
 
 /**
  * Editing or adding holidays.

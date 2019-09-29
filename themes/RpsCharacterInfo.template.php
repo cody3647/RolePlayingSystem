@@ -236,7 +236,15 @@ echo
 	echo '
 						<dt>', $txt['age'], ':</dt>
 						<dd>', $context['character']['age'] . ($context['character']['today_is_birthday'] ? ' &nbsp; <img src="' . $settings['images_url'] . '/cake.png" alt="" />' : ''), '</dd>';
-
+	echo '
+						<dt>', $txt['rps_gender'], ':</dt>
+						<dd>', $context['character']['gender'], '</dd>';
+	echo '
+						<dt>', $txt['rps_location'], ':</dt>
+						<dd>', $context['character']['location'], '</dd>';
+	echo '
+						<dt>', $txt['rps_personal_text'], ':</dt>
+						<dd>', $context['character']['personal_text'], '</dd>';
 	// Title?
 	if (!empty($modSettings['titlesEnable']) && !empty($context['character']['title']))
 		echo '

@@ -91,6 +91,11 @@ $txt['rps_bio_edit_chars'] = 'Maximum Character Count of a Minor Edit';
 $txt['rps_bio_edit_chars_desc'] = 'This is the number of characters that can be changed while still counting as a minor edit.';
 $txt['rps_bio_edit_chars_after'] = '(0 for no maximum.  All changes are considered a small edit.)';
 
+$txt['rps_ignore_custom_fields'] = 'Custom Field Handling';
+$txt['rps_ignore_custom_fields_desc'] = 'Selecting a custom field will either override it or will set the field not to 
+display when character information is being shown instead of member information.  Gender, Location, and Personal Text 
+are built in character fields that need to be selected to show the character version.  Other character fields might have been added
+by the admin.';
 
 $txt['rps_calendar_settings'] = 'Game Calendar Settings';
 $txt['setting_rps_showholidays'] = 'Show Holidays';

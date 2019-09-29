@@ -295,13 +295,14 @@ class Role_Playing_System_Integrate
 				'signature' => $row['signature'],
 				'birthdate' => $row['birthdate'],
 				'title' => $row['title'],
-				'gender' => $row['title'],
-				'personal_text' => $row['title'],
 				'posts' => $row['posts'],
 				'date_created' => $row['date_created'],
 				'last_active' => $row['last_active'],
 				'approved' => $row['approved'],
 				'retired' => $row['retired'],
+				'gender' => $row['gender'],
+				'personal_text' => $row['personal_text'],
+				'location' => $row['location'],
 			);
 		$db->free_result($request);
 		
@@ -342,7 +343,6 @@ class Role_Playing_System_Integrate
 					'signature' => $profile['signature'],
 					'title' => $profile['title'],
 					'birth_date' => $profile['birthdate'],
-					'gender' => $profile['gender'],
 
 					'posts' => comma_format($profile['posts']),
 					'real_posts' => $profile['posts'],
@@ -350,6 +350,11 @@ class Role_Playing_System_Integrate
 					'last_active_timestamp' => empty($profile['last_active']) ? 0 : forum_time(false, $profile['last_active']),
 					'approved' => $profile['approved'],
 					'retired' => $profile['retired'],
+					
+					//cust field replacements
+					'gender' => $profile['gender'],
+					'location' => $profile['location'],
+					'personal_text' => $profile['personal_text'],
 				);
 			}
 		}

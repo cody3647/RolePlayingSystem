@@ -306,6 +306,56 @@ function loadCharacterFields($force_reload = false)
 				return true;
 			},
 		),
+		'personal_text' => array(
+			'type' => 'text',
+			'label' => $txt['rps_personal_text'],
+			'log_change' => true,
+			'input_attr' => array('maxlength="120"'),
+			'size' => 50,
+			'permission' => 'rps_char_title',
+			'input_validate' => function (&$value) {
+				if (Util::strlen($value) > 120)
+					return 'user_blurb_too_long';
+
+				return true;
+			},
+		),
+		'gender' => array(
+			'type' => 'select',
+			'options' => array(
+				'undisclosed' => 'undisclosed',
+				'male' => 'male',
+				'female' =>'female',
+				'genderless' => 'genderless',
+				'nonbinary' => 'nonbinary',
+				'transgendered' => 'transgendered',
+			),
+			'label' => $txt['rps_gender'],
+			'log_change' => true,
+			'input_attr' => array('maxlength="50"'),
+			'size' => 50,
+			'permission' => 'rps_char_title',
+			'input_validate' => function (&$value) {
+				if (Util::strlen($value) > 50)
+					return 'user_title_too_long';
+
+				return true;
+			},
+		),
+		'location' => array(
+			'type' => 'text',
+			'label' => $txt['rps_location'],
+			'log_change' => true,
+			'input_attr' => array('maxlength="200"'),
+			'size' => 50,
+			'permission' => 'rps_char_title',
+			'input_validate' => function (&$value) {
+				if (Util::strlen($value) > 200)
+					return 'user_title_too_long';
+
+				return true;
+			},
+		),
 	);
 
 	call_integration_hook('integrate_load_character_fields', array(&$character_fields));

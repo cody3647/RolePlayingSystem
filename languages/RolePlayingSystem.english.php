@@ -69,9 +69,11 @@ $txt['rps_create_placeholder_name'] = 'Name';
 $txt['rps_create_label_birthdate'] = 'Birthdate:';
 $txt['rps_create_desc_birthdate'] = 'Please enter as YYYY-MM-DD';
 $txt['rps_create_label_title'] = 'Title:';
-$txt['rps_'] = '';
-$txt['rps_'] = '';
-$txt['rps_'] = '';
+
+
+$txt['rps_gender'] = 'Gender';
+$txt['rps_personal_text'] = 'Personal Text';
+$txt['rps_location'] = 'Location';
 
 $txt['rps_create_character_success'] = 'Character Created';
 $txt['rps_create_character_success_desc'] = 'Congratulations, your character has been successfully created.';

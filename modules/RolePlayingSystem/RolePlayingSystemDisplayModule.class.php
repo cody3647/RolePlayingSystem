@@ -44,6 +44,8 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 				array('prepare_context', array('RolePlayingSystem_Display_Module', 'prepare_context'), array()),
 				array('topicinfo', array('RolePlayingSystem_Display_Module', 'topicinfo'), array('topicinfo','context','user_info')),
 			);
+			
+			$modSettings['rps_cf_overrides'] = unserialize($modSettings['rps_cf_overrides']);
 		}
 
 		return $return;
@@ -70,26 +72,51 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 	 * @param array $message
 	 */
 
-	public static function integrate_prepare_display_context( &$output, &$message) {
-		global $memberContext;
+	public static function integrate_prepare_display_context( &$output, &$message)
+	{
+		global $memberContext, $modSettings;
 
-		$overrides = array('name','title','avatar','signature', 'custom_fields','href', 'posts');
+		$overrides = array('name','title','avatar','signature','href', 'posts');
+		$cf_overrides = array('cust_gender' => 'gender', 'cust_locate' => 'cust_locate', 'cust_blurb' => 'personal_text');
 		
-		if (empty($output['member']['member'])) {
+		if (empty($output['member']['member']))
+		{
 			foreach($overrides as $key)
 				$output['member']['member'][$key] = $memberContext[$message['id_member']][$key];
 		}
 		
-		else {
+		else
+		{
 			foreach($overrides as $key)
 				$memberContext[$message['id_member']][$key] = $output['member']['member'][$key];
 		}
 		
-		if (!empty($message['id_character'])) {
+		//standard field replacements
+		if (!empty($message['id_character']))
+		{
 			foreach($overrides as $key)
 				$output['member'][$key] = empty($memberContext[$message['id_member']]['characters'][$message['id_character']][$key]) ? '' : $memberContext[$message['id_member']]['characters'][$message['id_character']][$key];
-		}
-	}
+			
+			//custom field replacement
+			foreach($output['member']['custom_fields'] as $key => &$field)
+			{
+				if(in_array($field['colname'], $modSettings['rps_cf_overrides']))
+				{
+					if(!empty($memberContext[$message['id_member']]['characters'][$message['id_character']][$cf_overrides[$field['colname']]]))
+					{
+						$field['value'] =  $memberContext[$message['id_member']]['characters'][$message['id_character']][$cf_overrides[$field['colname']]];
+						
+						if($field['colname'] == 'cust_gender')
+						{
+							$field['value'] =  '<i class="icon i-'. $field['value'] .'" title="'. $field['value'] .'"><s>'. $field['value'] .'</s></i>';
+						}
+					}
+					else
+					{
+						unset($output['member']['custom_fields'][$key]);
+					}
+				}
+			}
 	
 	/**
 	 * Adds edit tags button to thread, Called in controllers/Display.controller.php action_display()

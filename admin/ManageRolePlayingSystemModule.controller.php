@@ -210,8 +210,13 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 			if($modSettings['rps_current_start'] != $config_values['rps_current_start'] || $modSettings['rps_current_end'] != $config_values['rps_current_end'])
 				$config_values['rps_gamecalendar_updated'] = time();
 
+			$overrides['rps_cf_overrides'] = serialize($config_values['rps_cf_overrides']);
+			
+			updateSettings($overrides);
+			unset($config_values['rps_cf_overrides']);
 			
 			$settingsForm->setConfigValues($config_values);
+			
 			$settingsForm->save();
 			redirectexit('action=admin;area=rps');
 		}
@@ -235,12 +240,19 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 
 		// Load the boards list.
 		require_once(SUBSDIR . '/Boards.subs.php');
+		require_once(SUBSDIR . '/ManageFeatures.subs.php');
 		$boards_list = getBoardList(array('override_permissions' => true, 'not_redirection' => true), true);
 		$boards = array('');
 		foreach ($boards_list as $board)
 			$boards[$board['id_board']] = $board['cat_name'] . ' - ' . $board['board_name'];
 		foreach(DateTimeZone::listIdentifiers() as $zone)
 			$timezones[$zone] = $zone;
+			
+		$custom_fields = list_getProfileFields(0,100,'vieworder',false);
+		foreach($custom_fields as $field)
+		{
+			$field_selects[$field['col_name']] = $field['field_name'];
+		}
 
 		$config_vars = array(
 			array('title', 'rps_general_settings'),
@@ -266,6 +278,11 @@ class ManageRolePlayingSystemModule_Controller extends Action_Controller
 				array('select', 'rps_showholidays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
 				array('select', 'rps_showbdays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
 				array('select', 'rps_showtopics', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
+			array('title', 'rps_ignore_custom_fields'),
+			array('desc', 'rps_ignore_custom_fields_desc'),
+				array('callback', 'rps_cf_overrides', $field_selects),
+			
+			
 		);
 
 		// Add new settings with a nice hook, makes them available for admin settings search as well

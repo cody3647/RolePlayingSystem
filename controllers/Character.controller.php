@@ -371,8 +371,8 @@ class Character_Controller extends Action_Controller
 			array(
 				'name',
 				'avatar_choice', 'hr',
-				'birth_year', 'gender', 'personal_text', 'hr',
-				'title', 'signature'
+				'birth_year', 'gender', 'location', 'hr',
+				'title', 'personal_text', 'signature'
 			)
 		);
 	}
