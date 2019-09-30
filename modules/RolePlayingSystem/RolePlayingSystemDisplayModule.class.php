@@ -97,6 +97,9 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 			foreach($overrides as $key)
 				$output['member'][$key] = empty($memberContext[$message['id_member']]['characters'][$message['id_character']][$key]) ? '' : $memberContext[$message['id_member']]['characters'][$message['id_character']][$key];
 			
+			if(empty($output['member']['signature'])
+				$output['member']['signature'] = $$output['member']['member']['signature'];
+			
 			//custom field replacement
 			foreach($output['member']['custom_fields'] as $key => &$field)
 			{
@@ -117,6 +120,8 @@ class RolePlayingSystem_Display_Module extends ElkArte\sources\modules\Abstract_
 					}
 				}
 			}
+		}
+	}
 	
 	/**
 	 * Adds edit tags button to thread, Called in controllers/Display.controller.php action_display()
